@@ -22,7 +22,8 @@ const (
 	quotaDimWeekly = "weekly"
 	quotaDimTotal  = "total"
 
-	defaultSiteName = "Sub2API"
+	// defaultSiteName 站点名未配置时使用的默认品牌名（52code），服务层所有邮件/通知/TOTP 共用。
+	defaultSiteName = "52code"
 )
 
 // quotaDimLabels maps dimension names to display labels.
