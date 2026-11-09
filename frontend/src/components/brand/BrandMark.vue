@@ -2,7 +2,7 @@
   <span class="inline-flex min-w-0 max-w-full items-center" :class="gapClass">
     <span
       class="relative inline-flex shrink-0 items-center justify-center overflow-hidden"
-      :class="[markSizeClass, hasCustomLogo ? 'rounded-lg' : 'rounded-[28%]']"
+      :class="[markSizeClass, hasCustomLogo ? 'rounded-lg' : 'rounded-[23%]']"
     >
       <img
         v-if="hasCustomLogo"
@@ -12,24 +12,26 @@
       />
       <svg
         v-else
-        viewBox="0 0 64 64"
+        viewBox="0 0 48 48"
         class="h-full w-full"
         aria-hidden="true"
         focusable="false"
       >
-        <rect width="64" height="64" rx="15" class="fill-gray-950 dark:fill-white" />
-        <g
-          transform="translate(0 1.5)"
-          fill="none"
-          stroke-width="5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="stroke-white dark:stroke-gray-950"
-        >
-          <path d="M23 18H12.6L11.6 29.4C13.1 28.6 15 28.2 17 28.2C21.1 28.2 24.1 31.2 24.1 35.4C24.1 39.8 21 42.9 16.8 42.9C14 42.9 12 41.8 10.8 39.8" />
-          <path d="M28.6 23C29.4 19.8 31.9 18 35.1 18C38.9 18 41.6 20.6 41.6 24.2C41.6 26.8 40.4 28.6 38.3 30.8L28.6 42.9H42.1" />
+        <!-- 与 public/logo.svg 同一字形：几何实心「52」，2 的底笔即 ember 下划线光标（52_） -->
+        <rect width="48" height="48" rx="11" class="fill-gray-950 dark:fill-white" />
+        <g transform="translate(6.5 6.5) scale(.73)">
+          <g
+            fill="none"
+            stroke-width="5.4"
+            stroke-linejoin="miter"
+            stroke-miterlimit="8"
+            class="stroke-gray-50 dark:stroke-gray-950"
+          >
+            <path d="M21.5 8.2H5.2V24.1H14.8L18.8 28.1V35.8L14.8 39.8H2.5" />
+            <path d="M26.5 8.2H38.8L42.8 12.2V19.5L29.2 33.6V37.1" />
+          </g>
+          <rect x="26.5" y="37.1" width="19" height="5.4" class="fill-ember-500" :class="{ 'brand-caret': animated }" />
         </g>
-        <rect x="46.5" y="31.4" width="7.5" height="15" rx="1.4" class="fill-ember-500" :class="{ 'brand-caret': animated }" />
       </svg>
     </span>
     <span
