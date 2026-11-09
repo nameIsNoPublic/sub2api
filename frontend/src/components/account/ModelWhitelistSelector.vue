@@ -35,9 +35,9 @@
       <!-- Dropdown List -->
       <div
         v-if="showDropdown"
-        class="absolute left-0 right-0 top-full z-50 mt-1 rounded-lg border border-gray-200 bg-white shadow-lg dark:border-dark-600 dark:bg-dark-700"
+        class="absolute left-0 right-0 top-full z-50 mt-1 rounded-xl border border-gray-200/80 bg-white shadow-pop dark:border-dark-700 dark:bg-dark-900"
       >
-        <div class="sticky top-0 border-b border-gray-200 bg-white p-2 dark:border-dark-600 dark:bg-dark-700">
+        <div class="sticky top-0 rounded-t-xl border-b border-gray-100 bg-white p-2 dark:border-dark-800 dark:bg-dark-900">
           <input
             v-model="searchQuery"
             type="text"
@@ -46,12 +46,12 @@
             @click.stop
           />
         </div>
-        <div class="max-h-52 overflow-auto">
+        <div class="max-h-52 overflow-auto rounded-b-xl">
           <div
             v-for="model in filteredModels"
             :key="model.value"
             data-testid="model-option"
-            class="group flex items-center hover:bg-gray-100 dark:hover:bg-dark-600"
+            class="group flex items-center hover:bg-gray-100 dark:hover:bg-dark-800"
           >
             <button
               type="button"

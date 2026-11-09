@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-between gap-2">
-    <span class="text-gray-500 dark:text-gray-400">{{ label }}</span>
-    <span class="font-mono">{{ display }}</span>
+    <span class="text-gray-500 dark:text-dark-400">{{ label }}</span>
+    <span class="num text-gray-900 dark:text-gray-100">{{ display }}</span>
   </div>
 </template>
 

@@ -9,16 +9,16 @@
   >
     <form id="bulk-edit-keys-form" class="space-y-5" @submit.prevent="submit">
       <div class="space-y-1 text-sm">
-        <p class="font-medium text-gray-900 dark:text-white">
+        <p class="font-medium text-gray-950 dark:text-white">
           {{ t('keys.bulkEdit.selectedCount', { count: pendingKeys.length }) }}
         </p>
-        <p class="text-gray-500 dark:text-gray-400">{{ t('keys.bulkEdit.hint') }}</p>
+        <p class="text-gray-500 dark:text-dark-400">{{ t('keys.bulkEdit.hint') }}</p>
       </div>
 
-      <fieldset :disabled="submitting" class="space-y-5">
-        <div class="space-y-2">
-          <label class="flex items-center gap-2 text-sm font-medium">
-            <input v-model="enabled.group_id" type="checkbox" class="checkbox" data-test="enable-group" />
+      <fieldset :disabled="submitting" class="space-y-2.5">
+        <div class="space-y-2 rounded-lg border border-gray-200/80 px-3.5 py-3 dark:border-dark-800">
+          <label class="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-800 dark:text-dark-100">
+            <input v-model="enabled.group_id" type="checkbox" class="checkbox h-4 w-4 cursor-pointer rounded border-gray-300 accent-primary-600 dark:border-dark-600 dark:accent-primary-500" data-test="enable-group" />
             {{ t('keys.groupLabel') }}
           </label>
           <Select
@@ -33,9 +33,9 @@
           />
         </div>
 
-        <div class="space-y-2">
-          <label class="flex items-center gap-2 text-sm font-medium">
-            <input v-model="enabled.status" type="checkbox" class="checkbox" data-test="enable-status" />
+        <div class="space-y-2 rounded-lg border border-gray-200/80 px-3.5 py-3 dark:border-dark-800">
+          <label class="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-800 dark:text-dark-100">
+            <input v-model="enabled.status" type="checkbox" class="checkbox h-4 w-4 cursor-pointer rounded border-gray-300 accent-primary-600 dark:border-dark-600 dark:accent-primary-500" data-test="enable-status" />
             {{ t('keys.statusLabel') }}
           </label>
           <Select
@@ -48,12 +48,12 @@
           />
         </div>
 
-        <div v-for="field in limitFields" :key="field.key" class="space-y-2">
-          <label class="flex items-center gap-2 text-sm font-medium">
+        <div v-for="field in limitFields" :key="field.key" class="space-y-2 rounded-lg border border-gray-200/80 px-3.5 py-3 dark:border-dark-800">
+          <label class="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-800 dark:text-dark-100">
             <input
               v-model="enabled[field.key]"
               type="checkbox"
-              class="checkbox"
+              class="checkbox h-4 w-4 cursor-pointer rounded border-gray-300 accent-primary-600 dark:border-dark-600 dark:accent-primary-500"
               :data-test="`enable-${field.key}`"
             />
             {{ t(field.label) }}
@@ -73,14 +73,14 @@
           </div>
         </div>
 
-        <div class="space-y-2">
-          <label class="flex items-center gap-2 text-sm font-medium">
-            <input v-model="enabled.expires_at" type="checkbox" class="checkbox" data-test="enable-expiration" />
+        <div class="space-y-2 rounded-lg border border-gray-200/80 px-3.5 py-3 dark:border-dark-800">
+          <label class="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-800 dark:text-dark-100">
+            <input v-model="enabled.expires_at" type="checkbox" class="checkbox h-4 w-4 cursor-pointer rounded border-gray-300 accent-primary-600 dark:border-dark-600 dark:accent-primary-500" data-test="enable-expiration" />
             {{ t('keys.expiration') }}
           </label>
           <div v-if="enabled.expires_at" class="space-y-2">
             <label class="flex items-center gap-2 text-sm">
-              <input v-model="neverExpires" type="checkbox" class="checkbox" data-test="never-expires" />
+              <input v-model="neverExpires" type="checkbox" class="checkbox h-4 w-4 cursor-pointer rounded border-gray-300 accent-primary-600 dark:border-dark-600 dark:accent-primary-500" data-test="never-expires" />
               {{ t('keys.noExpiration') }}
             </label>
             <input
@@ -95,12 +95,12 @@
           </div>
         </div>
 
-        <div v-for="field in ipFields" :key="field.key" class="space-y-2">
-          <label class="flex items-center gap-2 text-sm font-medium">
+        <div v-for="field in ipFields" :key="field.key" class="space-y-2 rounded-lg border border-gray-200/80 px-3.5 py-3 dark:border-dark-800">
+          <label class="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-800 dark:text-dark-100">
             <input
               v-model="enabled[field.key]"
               type="checkbox"
-              class="checkbox"
+              class="checkbox h-4 w-4 cursor-pointer rounded border-gray-300 accent-primary-600 dark:border-dark-600 dark:accent-primary-500"
               :data-test="`enable-${field.key}`"
             />
             {{ t(field.label) }}
@@ -121,7 +121,7 @@
       <p v-if="validationError" role="alert" class="text-sm text-red-600 dark:text-red-400">
         {{ validationError }}
       </p>
-      <div v-if="failures.length" role="alert" class="space-y-2 text-sm text-red-600 dark:text-red-400">
+      <div v-if="failures.length" role="alert" class="space-y-2 rounded-lg border border-red-200/80 bg-red-50/60 px-3.5 py-3 text-sm text-red-700 dark:border-red-500/25 dark:bg-red-500/[0.07] dark:text-red-300">
         <p>{{ t('keys.bulkEdit.failureHint') }}</p>
         <ul class="max-h-40 space-y-1 overflow-y-auto">
           <li v-for="failure in failures" :key="failure.id" class="break-words">

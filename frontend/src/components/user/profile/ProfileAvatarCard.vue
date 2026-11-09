@@ -2,12 +2,12 @@
   <div :class="props.embedded ? 'space-y-4' : 'card'">
     <div
       v-if="!props.embedded"
-      class="border-b border-gray-100 px-6 py-4 dark:border-dark-700"
+      class="card-header"
     >
-      <h2 class="text-lg font-medium text-gray-900 dark:text-white">
+      <h2 class="section-title">
         {{ t('profile.avatar.title') }}
       </h2>
-      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+      <p class="mt-1 text-sm text-gray-500 dark:text-dark-400">
         {{ t('profile.avatar.description') }}
       </p>
     </div>
@@ -15,8 +15,8 @@
     <div :class="props.embedded ? 'space-y-3' : 'flex flex-col gap-5 px-6 py-6 sm:flex-row sm:items-start'">
       <div
         :class="props.embedded
-          ? 'flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 text-xl font-bold text-white shadow-lg shadow-primary-500/20'
-          : 'flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 text-3xl font-bold text-white shadow-lg shadow-primary-500/20'"
+          ? 'flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gray-950 font-mono text-xl font-semibold text-white ring-1 ring-black/5 dark:bg-white dark:text-gray-950'
+          : 'flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gray-950 font-mono text-2xl font-semibold text-white ring-1 ring-black/5 dark:bg-white dark:text-gray-950'"
       >
         <img
           v-if="avatarPreviewUrl"
@@ -30,18 +30,18 @@
 
       <div :class="props.embedded ? 'space-y-3' : 'min-w-0 flex-1 space-y-4'">
         <div class="space-y-1">
-          <p v-if="props.embedded" class="text-sm font-semibold text-gray-900 dark:text-white">
+          <p v-if="props.embedded" class="text-sm font-semibold text-gray-950 dark:text-white">
             {{ t('profile.avatar.title') }}
           </p>
-          <p v-else class="text-sm font-medium text-gray-900 dark:text-white">
+          <p v-else class="text-sm font-medium text-gray-950 dark:text-white">
             {{ displayName }}
           </p>
-          <p class="text-sm text-gray-500 dark:text-gray-400">
+          <p class="text-xs leading-5 text-gray-500 dark:text-dark-400">
             {{ t('profile.avatar.uploadHint') }}
           </p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3">
+        <div class="flex flex-wrap items-center gap-2">
           <label class="btn btn-secondary btn-sm cursor-pointer">
             <input
               data-testid="profile-avatar-file-input"

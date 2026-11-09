@@ -1,0 +1,41 @@
+/*
+ * 分布图（模型 / 分组 / 端点）共享布局。
+ * 用容器查询而非视口断点：同一组件既会出现在整宽卡片里，也会出现在管理端半宽卡片里。
+ * 卡片内宽不足 640px 时环形图在上、明细表整宽在下；足够宽时左右排布。
+ */
+.chart-dist-body {
+  container-type: inline-size;
+}
+
+.chart-dist-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.chart-dist-table {
+  width: 100%;
+  min-width: 0;
+  max-height: 15rem;
+  overflow: auto;
+}
+
+/* 数值列之间留出间距，避免名称与数字粘连 */
+.chart-dist-table th + th,
+.chart-dist-table td + td {
+  padding-left: 0.75rem;
+}
+
+@container (min-width: 640px) {
+  .chart-dist-layout {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  .chart-dist-table {
+    flex: 1 1 0%;
+    max-height: 12rem;
+  }
+}

@@ -5,6 +5,8 @@
       :data-testid="`${testIdPrefix}-create-account-email`"
       type="email"
       class="input w-full"
+      autocomplete="email"
+      :aria-label="t('auth.emailLabel')"
       :placeholder="t('auth.emailPlaceholder')"
       :disabled="isSubmitting || isSendingCode"
     />
@@ -13,6 +15,8 @@
       :data-testid="`${testIdPrefix}-create-account-password`"
       type="password"
       class="input w-full"
+      autocomplete="new-password"
+      :aria-label="t('auth.passwordLabel')"
       :placeholder="t('auth.passwordPlaceholder')"
       :disabled="isSubmitting"
     />
@@ -41,7 +45,9 @@
         type="text"
         inputmode="numeric"
         maxlength="6"
-        class="input min-w-0 flex-1"
+        class="input min-w-0 flex-1 font-mono tracking-[0.2em]"
+        autocomplete="one-time-code"
+        :aria-label="t('auth.verificationCode')"
         placeholder="123456"
         :disabled="isSubmitting"
       />
@@ -61,7 +67,7 @@
         }}
       </button>
     </div>
-    <p v-if="emailVerifyEnabled && sendCodeSuccess" class="text-sm text-green-600 dark:text-green-400">
+    <p v-if="emailVerifyEnabled && sendCodeSuccess" role="status" class="text-sm text-emerald-600 dark:text-emerald-400">
       {{ t('auth.codeSentSuccess') }}
     </p>
     <p v-else-if="emailVerifyEnabled" class="text-xs text-gray-500 dark:text-dark-400">
@@ -73,6 +79,7 @@
       :data-testid="`${testIdPrefix}-create-account-invitation-code`"
       type="text"
       class="input w-full"
+      :aria-label="t('auth.invitationCodeLabel')"
       :placeholder="t('auth.invitationCodePlaceholder')"
       :disabled="isSubmitting"
     />

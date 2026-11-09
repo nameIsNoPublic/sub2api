@@ -179,6 +179,8 @@ describe('KeyUsageView daily detail', () => {
         stubs: {
           RouterLink: { template: '<a><slot /></a>' },
           LocaleSwitcher: true,
+          // 装饰性背景(canvas + matchMedia 监听),与用量查询行为无关
+          SignalField: true,
           Icon: true,
         },
       },
@@ -223,6 +225,8 @@ describe('KeyUsageView daily detail', () => {
         stubs: {
           RouterLink: { template: '<a><slot /></a>' },
           LocaleSwitcher: true,
+          // 装饰性背景(canvas + matchMedia 监听),与用量查询行为无关
+          SignalField: true,
           Icon: true,
         },
       },
@@ -277,6 +281,8 @@ describe('KeyUsageView subscription feature flag', () => {
         stubs: {
           RouterLink: { template: '<a><slot /></a>' },
           LocaleSwitcher: true,
+          // 装饰性背景(canvas + matchMedia 监听),与用量查询行为无关
+          SignalField: true,
           Icon: true,
         },
       },

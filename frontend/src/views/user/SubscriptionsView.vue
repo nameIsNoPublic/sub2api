@@ -3,53 +3,59 @@
     <div class="space-y-6">
       <!-- Loading State -->
       <div v-if="loading" class="flex justify-center py-12">
-        <div
-          class="h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent"
-        ></div>
+        <span class="spinner h-7 w-7 text-primary-600 dark:text-primary-400"></span>
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="subscriptions.length === 0" class="card p-12 text-center">
-        <div
-          class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-dark-700"
-        >
-          <Icon name="creditCard" size="xl" class="text-gray-400" />
+      <div v-else-if="subscriptions.length === 0" class="card empty-state py-16">
+        <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-xl border border-gray-200 bg-gray-50 dark:border-dark-700 dark:bg-dark-800">
+          <Icon name="creditCard" size="lg" class="text-gray-400 dark:text-dark-400" />
         </div>
-        <h3 class="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
+        <h3 class="empty-state-title">
           {{ t('userSubscriptions.noActiveSubscriptions') }}
         </h3>
-        <p class="text-gray-500 dark:text-dark-400">
+        <p class="empty-state-description">
           {{ t('userSubscriptions.noActiveSubscriptionsDesc') }}
         </p>
+        <button
+          v-if="purchaseAvailable"
+          type="button"
+          class="btn btn-primary mt-6"
+          @click="router.push({ path: '/purchase', query: { tab: 'subscription' } })"
+        >
+          {{ t('ui52.userB.subscriptions.browsePlans') }}
+          <Icon name="arrowRight" size="sm" />
+        </button>
       </div>
 
       <!-- Subscriptions Grid -->
-      <div v-else class="grid gap-6 lg:grid-cols-2">
+      <div v-else class="grid gap-5 lg:grid-cols-2">
         <div
           v-for="subscription in subscriptions"
           :key="subscription.id"
-          class="overflow-hidden rounded-2xl border bg-white dark:bg-dark-800"
-          :class="platformBorderClass(subscription.group?.platform || '')"
+          class="card flex flex-col overflow-hidden"
         >
           <!-- Header -->
-          <div
-            class="flex items-center justify-between border-b border-gray-100 p-4 dark:border-dark-700"
-          >
-            <div class="flex items-center gap-3">
-              <div :class="['h-1.5 w-1.5 shrink-0 rounded-full', platformAccentDotClass(subscription.group?.platform || '')]" />
-              <div>
-                <div class="flex items-center gap-2">
-                  <h3 class="font-semibold text-gray-900 dark:text-white">
+          <div class="flex items-start justify-between gap-4 border-b border-gray-100 px-5 py-4 dark:border-dark-800">
+            <div class="flex min-w-0 items-start gap-3">
+              <span
+                class="mt-2 h-2 w-2 shrink-0 rounded-full"
+                :style="{ backgroundColor: platformAccentColor(subscription.group?.platform || '') }"
+                aria-hidden="true"
+              />
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <h3 class="truncate font-semibold tracking-tight text-gray-950 dark:text-white">
                     {{ subscription.group?.name || `Group #${subscription.group_id}` }}
                   </h3>
-                  <span :class="['rounded-md border px-2 py-0.5 text-[11px] font-medium', platformBadgeClass(subscription.group?.platform || '')]">
+                  <span :class="['rounded-md border px-1.5 py-0.5 text-[11px] font-medium', platformBadgeClass(subscription.group?.platform || '')]">
                     {{ platformLabel(subscription.group?.platform || '') }}
                   </span>
                 </div>
-                <p v-if="subscription.group?.description" class="mt-0.5 text-xs text-gray-500 dark:text-dark-400">
+                <p v-if="subscription.group?.description" class="mt-1 text-xs leading-relaxed text-gray-500 dark:text-dark-400">
                   {{ subscription.group.description }}
                 </p>
-                <div class="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-gray-400 dark:text-gray-500">
+                <div class="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[11px] text-gray-500 dark:text-dark-400">
                   <span>{{ t('payment.planCard.rate') }}: ×{{ subscription.group?.rate_multiplier ?? 1 }}</span>
                   <span v-if="subscriptionHasPeakRate(subscription)" class="text-amber-700 dark:text-amber-300">
                     {{ t('payment.planCard.peakRate') }}: {{ subscriptionPeakRateLabel(subscription) }}
@@ -57,22 +63,23 @@
                 </div>
               </div>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex shrink-0 items-center gap-2">
               <span
                 :class="[
-                  'rounded-full px-2 py-0.5 text-xs font-medium',
+                  'badge',
                   subscription.status === 'active'
-                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+                    ? 'badge-success'
                     : subscription.status === 'expired'
-                      ? 'bg-gray-100 text-gray-600 dark:bg-dark-700 dark:text-gray-400'
-                      : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+                      ? 'badge-gray'
+                      : 'badge-danger'
                 ]"
               >
                 {{ t(`userSubscriptions.status.${subscription.status}`) }}
               </span>
               <button
-                v-if="subscription.status === 'active'"
-                :class="['rounded-lg px-3 py-1.5 text-xs font-semibold text-white transition-colors', platformButtonClass(subscription.group?.platform || '')]"
+                v-if="subscription.status === 'active' && purchaseAvailable"
+                type="button"
+                class="btn btn-primary btn-sm"
                 @click="router.push({ path: '/purchase', query: { tab: 'subscription', group: String(subscription.group_id) } })"
               >
                 {{ t('payment.renewNow') }}
@@ -81,40 +88,46 @@
           </div>
 
           <!-- Usage Progress -->
-          <div class="space-y-4 p-4">
+          <div class="flex-1 space-y-5 px-5 py-4">
             <!-- Expiration Info -->
-            <div v-if="subscription.expires_at" class="flex items-center justify-between text-sm">
-              <span class="text-gray-500 dark:text-dark-400">{{
-                t('userSubscriptions.expires')
-              }}</span>
-              <span :class="getExpirationClass(subscription.expires_at)">
-                {{ formatExpirationDate(subscription.expires_at) }}
-              </span>
-            </div>
-            <div v-else class="flex items-center justify-between text-sm">
-              <span class="text-gray-500 dark:text-dark-400">{{
-                t('userSubscriptions.expires')
-              }}</span>
-              <span class="text-gray-700 dark:text-gray-300">{{
-                t('userSubscriptions.noExpiration')
-              }}</span>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between gap-3 text-sm">
+                <span class="kicker">{{ t('ui52.userB.subscriptions.validity') }}</span>
+                <span
+                  v-if="subscription.expires_at"
+                  class="text-right font-mono text-xs"
+                  :class="getExpirationClass(subscription.expires_at)"
+                >
+                  {{ formatExpirationDate(subscription.expires_at) }}
+                </span>
+                <span v-else class="text-right font-mono text-xs text-gray-700 dark:text-gray-300">{{
+                  t('userSubscriptions.noExpiration')
+                }}</span>
+              </div>
+              <div v-if="subscription.expires_at && validityRemainingPercent(subscription) !== null" class="progress h-1.5">
+                <div
+                  class="h-full rounded-full transition-all duration-300"
+                  :class="getExpirationBarClass(subscription.expires_at)"
+                  :style="{ width: `${validityRemainingPercent(subscription)}%` }"
+                ></div>
+              </div>
             </div>
 
             <!-- Daily Usage -->
             <div v-if="subscription.group?.daily_limit_usd" class="space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <div class="flex items-center justify-between gap-3">
+                <span class="text-sm font-medium text-gray-800 dark:text-gray-200">
                   {{ t('userSubscriptions.daily') }}
                 </span>
-                <span class="text-sm text-gray-500 dark:text-dark-400">
-                  ${{ (subscription.daily_usage_usd || 0).toFixed(2) }} / ${{
+                <span class="num text-xs text-gray-500 dark:text-dark-400">
+                  <span class="text-gray-950 dark:text-white">${{ (subscription.daily_usage_usd || 0).toFixed(2) }}</span> / ${{
                     subscription.group.daily_limit_usd.toFixed(2)
                   }}
                 </span>
               </div>
-              <div class="relative h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-dark-600">
+              <div class="progress h-1.5">
                 <div
-                  class="absolute inset-y-0 left-0 rounded-full transition-all duration-300"
+                  class="h-full rounded-full transition-all duration-300"
                   :class="
                     getProgressBarClass(
                       subscription.daily_usage_usd,
@@ -131,7 +144,7 @@
               </div>
               <p
                 v-if="subscription.daily_window_start"
-                class="text-xs text-gray-500 dark:text-dark-400"
+                class="font-mono text-[11px] text-gray-500 dark:text-dark-400"
               >
                 {{ formatDailyUsageWindow(subscription) }}
               </p>
@@ -139,19 +152,19 @@
 
             <!-- Weekly Usage -->
             <div v-if="subscription.group?.weekly_limit_usd" class="space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <div class="flex items-center justify-between gap-3">
+                <span class="text-sm font-medium text-gray-800 dark:text-gray-200">
                   {{ t('userSubscriptions.weekly') }}
                 </span>
-                <span class="text-sm text-gray-500 dark:text-dark-400">
-                  ${{ (subscription.weekly_usage_usd || 0).toFixed(2) }} / ${{
+                <span class="num text-xs text-gray-500 dark:text-dark-400">
+                  <span class="text-gray-950 dark:text-white">${{ (subscription.weekly_usage_usd || 0).toFixed(2) }}</span> / ${{
                     subscription.group.weekly_limit_usd.toFixed(2)
                   }}
                 </span>
               </div>
-              <div class="relative h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-dark-600">
+              <div class="progress h-1.5">
                 <div
-                  class="absolute inset-y-0 left-0 rounded-full transition-all duration-300"
+                  class="h-full rounded-full transition-all duration-300"
                   :class="
                     getProgressBarClass(
                       subscription.weekly_usage_usd,
@@ -168,7 +181,7 @@
               </div>
               <p
                 v-if="subscription.weekly_window_start"
-                class="text-xs text-gray-500 dark:text-dark-400"
+                class="font-mono text-[11px] text-gray-500 dark:text-dark-400"
               >
                 {{
                   t('userSubscriptions.resetIn', {
@@ -180,19 +193,19 @@
 
             <!-- Monthly Usage -->
             <div v-if="subscription.group?.monthly_limit_usd" class="space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+              <div class="flex items-center justify-between gap-3">
+                <span class="text-sm font-medium text-gray-800 dark:text-gray-200">
                   {{ t('userSubscriptions.monthly') }}
                 </span>
-                <span class="text-sm text-gray-500 dark:text-dark-400">
-                  ${{ (subscription.monthly_usage_usd || 0).toFixed(2) }} / ${{
+                <span class="num text-xs text-gray-500 dark:text-dark-400">
+                  <span class="text-gray-950 dark:text-white">${{ (subscription.monthly_usage_usd || 0).toFixed(2) }}</span> / ${{
                     subscription.group.monthly_limit_usd.toFixed(2)
                   }}
                 </span>
               </div>
-              <div class="relative h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-dark-600">
+              <div class="progress h-1.5">
                 <div
-                  class="absolute inset-y-0 left-0 rounded-full transition-all duration-300"
+                  class="h-full rounded-full transition-all duration-300"
                   :class="
                     getProgressBarClass(
                       subscription.monthly_usage_usd,
@@ -209,7 +222,7 @@
               </div>
               <p
                 v-if="subscription.monthly_window_start"
-                class="text-xs text-gray-500 dark:text-dark-400"
+                class="font-mono text-[11px] text-gray-500 dark:text-dark-400"
               >
                 {{
                   t('userSubscriptions.resetIn', {
@@ -226,18 +239,16 @@
                 !subscription.group?.weekly_limit_usd &&
                 !subscription.group?.monthly_limit_usd
               "
-              class="flex items-center justify-center rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 py-6 dark:from-emerald-900/20 dark:to-teal-900/20"
+              class="flex items-center gap-4 rounded-lg border border-dashed border-gray-200 bg-gray-50/60 px-4 py-4 dark:border-dark-700 dark:bg-dark-950/40"
             >
-              <div class="flex items-center gap-3">
-                <span class="text-4xl text-emerald-600 dark:text-emerald-400">∞</span>
-                <div>
-                  <p class="text-sm font-medium text-emerald-700 dark:text-emerald-300">
-                    {{ t('userSubscriptions.unlimited') }}
-                  </p>
-                  <p class="text-xs text-emerald-600/70 dark:text-emerald-400/70">
-                    {{ t('userSubscriptions.unlimitedDesc') }}
-                  </p>
-                </div>
+              <span class="num flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-2xl text-primary-600 ring-1 ring-inset ring-primary-100 dark:bg-primary-500/10 dark:text-primary-300 dark:ring-primary-400/20">∞</span>
+              <div>
+                <p class="text-sm font-semibold text-gray-950 dark:text-white">
+                  {{ t('userSubscriptions.unlimited') }}
+                </p>
+                <p class="mt-0.5 text-xs text-gray-500 dark:text-dark-400">
+                  {{ t('userSubscriptions.unlimitedDesc') }}
+                </p>
               </div>
             </div>
           </div>
@@ -248,7 +259,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/app'
@@ -258,7 +269,7 @@ import AppLayout from '@/components/layout/AppLayout.vue'
 import Icon from '@/components/icons/Icon.vue'
 import { formatDateTimeToMinute } from '@/utils/format'
 import { hasPeakRate, formatPeakRateWindow, serverTimezoneLabel } from '@/utils/peak-rate'
-import { platformBorderClass, platformBadgeClass, platformButtonClass, platformLabel } from '@/utils/platformColors'
+import { platformAccentColor, platformBadgeClass, platformLabel } from '@/utils/platformColors'
 import {
   getExpirationDateRelation,
   getRemainingDurationParts,
@@ -266,19 +277,12 @@ import {
   type RemainingDurationParts
 } from '@/utils/subscriptionQuota'
 
-function platformAccentDotClass(p: string): string {
-  switch (p) {
-    case 'anthropic': return 'bg-orange-500'
-    case 'openai': return 'bg-emerald-500'
-    case 'antigravity': return 'bg-purple-500'
-    case 'gemini': return 'bg-blue-500'
-    default: return 'bg-gray-400'
-  }
-}
-
 const { t } = useI18n()
 const router = useRouter()
 const appStore = useAppStore()
+
+// /purchase 受 requiresPayment 守卫：支付关闭时隐藏跳转入口，避免按钮被重定向成死链
+const purchaseAvailable = computed(() => appStore.cachedPublicSettings?.payment_enabled !== false)
 
 const subscriptions = ref<UserSubscription[]>([])
 const loading = ref(true)
@@ -313,8 +317,29 @@ function getProgressBarClass(used: number | undefined, limit: number | null | un
   if (!limit || limit === 0) return 'bg-gray-400'
   const percentage = ((used || 0) / limit) * 100
   if (percentage >= 90) return 'bg-red-500'
-  if (percentage >= 70) return 'bg-orange-500'
-  return 'bg-green-500'
+  if (percentage >= 70) return 'bg-amber-500'
+  return 'bg-primary-600 dark:bg-primary-500'
+}
+
+/**
+ * 有效期剩余比例（0~100），按 starts_at → expires_at 计算；
+ * 缺少起始时间或区间非法时返回 null，不渲染有效期进度条。
+ */
+function validityRemainingPercent(subscription: UserSubscription): number | null {
+  if (!subscription.expires_at || !subscription.starts_at) return null
+  const start = new Date(subscription.starts_at).getTime()
+  const end = new Date(subscription.expires_at).getTime()
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) return null
+  const remaining = (end - Date.now()) / (end - start)
+  return Math.round(Math.min(Math.max(remaining, 0), 1) * 100)
+}
+
+/** 有效期进度条颜色：与到期文字颜色阈值保持一致。 */
+function getExpirationBarClass(expiresAt: string): string {
+  const days = Math.ceil((new Date(expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+  if (days <= 3) return 'bg-red-500'
+  if (days <= 7) return 'bg-amber-500'
+  return 'bg-emerald-500'
 }
 
 function formatExpirationDate(expiresAt: string): string {
@@ -350,7 +375,7 @@ function getExpirationClass(expiresAt: string): string {
 
   if (diff <= 0) return 'text-red-600 dark:text-red-400 font-medium'
   if (days <= 3) return 'text-red-600 dark:text-red-400'
-  if (days <= 7) return 'text-orange-600 dark:text-orange-400'
+  if (days <= 7) return 'text-amber-600 dark:text-amber-400'
   return 'text-gray-700 dark:text-gray-300'
 }
 

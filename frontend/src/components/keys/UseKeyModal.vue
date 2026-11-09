@@ -5,17 +5,17 @@
     width="wide"
     @close="emit('close')"
   >
-    <div class="space-y-4">
+    <div class="space-y-5">
       <!-- No Group Assigned Warning -->
-      <div v-if="!platform" class="flex items-start gap-3 p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
-        <svg class="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+      <div v-if="!platform" class="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/25 dark:bg-amber-500/10">
+        <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
         </svg>
         <div>
-          <p class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+          <p class="text-sm font-medium text-amber-900 dark:text-amber-200">
             {{ t('keys.useKeyModal.noGroupTitle') }}
           </p>
-          <p class="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+          <p class="mt-1 text-sm text-amber-800 dark:text-amber-300/90">
             {{ t('keys.useKeyModal.noGroupDescription') }}
           </p>
         </div>
@@ -24,27 +24,37 @@
       <!-- Platform-specific content -->
       <template v-else>
         <!-- Description -->
-        <p class="text-sm text-gray-600 dark:text-gray-400">
-          {{ platformDescription }}
-        </p>
+        <div class="space-y-1.5">
+          <p class="kicker"><span class="signal-dot"></span>{{ t('ui52.userA.useKey.kicker') }}</p>
+          <p class="text-sm leading-6 text-gray-600 dark:text-dark-300">
+            {{ platformDescription }}
+          </p>
+        </div>
 
-        <!-- Client Tabs -->
-        <div v-if="clientTabs.length" class="overflow-x-auto border-b border-gray-200 dark:border-dark-700">
-          <nav class="-mb-px flex min-w-max gap-4 sm:gap-6" aria-label="Client">
+        <!-- Client Tabs：分段控件 -->
+        <div
+          v-if="clientTabs.length"
+          class="scrollbar-hide overflow-x-auto rounded-lg bg-gray-100 p-1 ring-1 ring-inset ring-gray-200/70 dark:bg-dark-950 dark:ring-dark-800"
+        >
+          <nav class="flex min-w-max gap-1" aria-label="Client">
             <button
               v-for="tab in clientTabs"
               :key="tab.id"
               type="button"
               @click="activeClientTab = tab.id"
               :class="[
-                'whitespace-nowrap py-2.5 px-1 border-b-2 font-medium text-sm transition-colors',
+                'whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-150',
                 activeClientTab === tab.id
-                  ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                  ? 'bg-white text-gray-950 shadow-[0_1px_2px_rgba(23,24,28,0.08)] ring-1 ring-gray-200/80 dark:bg-dark-800 dark:text-white dark:ring-dark-700'
+                  : 'text-gray-500 hover:text-gray-900 dark:text-dark-400 dark:hover:text-white'
               ]"
             >
               <span class="flex items-center gap-2">
-                <component :is="tab.icon" class="w-4 h-4" />
+                <component
+                  :is="tab.icon"
+                  class="h-4 w-4"
+                  :class="activeClientTab === tab.id ? 'text-primary-600 dark:text-primary-400' : ''"
+                />
                 {{ tab.label }}
               </span>
             </button>
@@ -54,18 +64,18 @@
         <!-- Codex Authentication Mode -->
         <div
           v-if="showCodexAuthMode"
-          class="rounded-lg border border-gray-200 p-3 dark:border-dark-700"
+          class="rounded-xl border border-gray-200/80 bg-white p-4 dark:border-dark-800 dark:bg-dark-900/60"
         >
-          <div class="mb-2">
-            <p class="text-sm font-medium text-gray-900 dark:text-white">
+          <div class="mb-3">
+            <p class="text-sm font-medium text-gray-950 dark:text-white">
               {{ t('keys.useKeyModal.openai.authModeTitle') }}
             </p>
-            <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+            <p class="mt-0.5 text-xs text-gray-500 dark:text-dark-400">
               {{ t('keys.useKeyModal.openai.authModeDescription') }}
             </p>
           </div>
           <div
-            class="grid grid-cols-2 gap-1 rounded-lg bg-gray-100 p-1 dark:bg-dark-700"
+            class="grid grid-cols-2 gap-1 rounded-lg bg-gray-100 p-1 ring-1 ring-inset ring-gray-200/70 dark:bg-dark-950 dark:ring-dark-800"
             role="radiogroup"
             :aria-label="t('keys.useKeyModal.openai.authModeTitle')"
           >
@@ -75,10 +85,10 @@
               data-testid="codex-auth-mode-legacy"
               :aria-checked="codexAuthMode === 'legacy'"
               :class="[
-                'rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                'rounded-md px-3 py-2 text-sm font-medium transition-all duration-150',
                 codexAuthMode === 'legacy'
-                  ? 'bg-white text-primary-700 shadow-sm dark:bg-dark-800 dark:text-primary-300'
-                  : 'text-gray-600 hover:text-gray-900 dark:text-dark-300 dark:hover:text-white'
+                  ? 'bg-white text-gray-950 shadow-[0_1px_2px_rgba(23,24,28,0.08)] ring-1 ring-gray-200/80 dark:bg-dark-800 dark:text-white dark:ring-dark-700'
+                  : 'text-gray-500 hover:text-gray-900 dark:text-dark-400 dark:hover:text-white'
               ]"
               @click="codexAuthMode = 'legacy'"
             >
@@ -90,10 +100,10 @@
               data-testid="codex-auth-mode-api-key"
               :aria-checked="codexAuthMode === 'api-key'"
               :class="[
-                'rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                'rounded-md px-3 py-2 text-sm font-medium transition-all duration-150',
                 codexAuthMode === 'api-key'
-                  ? 'bg-white text-primary-700 shadow-sm dark:bg-dark-800 dark:text-primary-300'
-                  : 'text-gray-600 hover:text-gray-900 dark:text-dark-300 dark:hover:text-white'
+                  ? 'bg-white text-gray-950 shadow-[0_1px_2px_rgba(23,24,28,0.08)] ring-1 ring-gray-200/80 dark:bg-dark-800 dark:text-white dark:ring-dark-700'
+                  : 'text-gray-500 hover:text-gray-900 dark:text-dark-400 dark:hover:text-white'
               ]"
               @click="codexAuthMode = 'api-key'"
             >
@@ -103,7 +113,7 @@
           <div
             v-if="codexAuthMode === 'api-key'"
             data-testid="codex-api-key-restart-notice"
-            class="mt-3 flex items-start gap-2 border-l-2 border-amber-400 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800 dark:border-amber-500 dark:bg-amber-950/30 dark:text-amber-200"
+            class="mt-3 flex items-start gap-2 rounded-r-md border-l-2 border-amber-400 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800 dark:border-amber-500 dark:bg-amber-500/10 dark:text-amber-200"
           >
             <Icon name="exclamationCircle" size="sm" class="mt-0.5 flex-shrink-0" />
             <p>{{ t('keys.useKeyModal.openai.authModeApiKeyRestartNotice') }}</p>
@@ -111,29 +121,29 @@
         </div>
 
         <!-- OS/Shell Tabs -->
-        <div v-if="showShellTabs" class="overflow-x-auto border-b border-gray-200 dark:border-dark-700">
-          <nav class="-mb-px flex min-w-max gap-4" aria-label="Tabs">
+        <div v-if="showShellTabs" class="scrollbar-hide overflow-x-auto border-b border-gray-200/80 dark:border-dark-800">
+          <nav class="-mb-px flex min-w-max gap-5" aria-label="Tabs">
             <button
               v-for="tab in currentTabs"
               :key="tab.id"
               type="button"
               @click="activeTab = tab.id"
               :class="[
-                'whitespace-nowrap py-2.5 px-1 border-b-2 font-medium text-sm transition-colors',
+                'whitespace-nowrap border-b-2 px-0.5 py-2 text-[13px] font-medium transition-colors',
                 activeTab === tab.id
-                  ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                  ? 'border-gray-950 text-gray-950 dark:border-white dark:text-white'
+                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-800 dark:text-dark-400 dark:hover:border-dark-600 dark:hover:text-dark-200'
               ]"
             >
               <span class="flex items-center gap-2">
-                <component :is="tab.icon" class="w-4 h-4" />
+                <component :is="tab.icon" class="h-4 w-4" />
                 {{ tab.label }}
               </span>
             </button>
           </nav>
         </div>
 
-        <!-- Code Blocks (Stacked for multi-file platforms) -->
+        <!-- Code Blocks：终端窗口（多文件平台纵向堆叠） -->
         <div class="space-y-4">
           <div
             v-for="(file, index) in currentFiles"
@@ -141,33 +151,40 @@
             class="relative"
           >
             <!-- File Hint (if exists) -->
-            <p v-if="file.hint" class="text-xs text-amber-600 dark:text-amber-400 mb-1.5 flex items-center gap-1">
+            <p v-if="file.hint" class="mb-2 flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400">
               <Icon name="exclamationCircle" size="sm" class="flex-shrink-0" />
               {{ file.hint }}
             </p>
-            <div class="bg-gray-900 dark:bg-dark-900 rounded-xl overflow-hidden">
+            <div class="overflow-hidden rounded-xl bg-[#0c0d10] shadow-[0_18px_40px_-24px_rgba(12,13,16,0.6)] ring-1 ring-black/5 dark:ring-white/[0.07]">
               <!-- Code Header -->
-              <div class="flex items-center justify-between px-4 py-2 bg-gray-800 dark:bg-dark-800 border-b border-gray-700 dark:border-dark-700">
-                <span class="min-w-0 truncate text-xs text-gray-400 font-mono">{{ file.path }}</span>
+              <div class="flex items-center justify-between gap-3 border-b border-white/[0.06] bg-white/[0.03] px-3.5 py-2">
+                <div class="flex min-w-0 items-center gap-3">
+                  <span class="flex flex-shrink-0 items-center gap-1.5" aria-hidden="true">
+                    <span class="h-2.5 w-2.5 rounded-full bg-white/15"></span>
+                    <span class="h-2.5 w-2.5 rounded-full bg-white/15"></span>
+                    <span class="h-2.5 w-2.5 rounded-full bg-ember-500/80"></span>
+                  </span>
+                  <span class="min-w-0 truncate font-mono text-xs text-gray-400">{{ file.path }}</span>
+                </div>
                 <button
                   type="button"
                   @click="copyContent(file.content, index)"
-                  class="flex flex-shrink-0 items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg transition-colors"
+                  class="flex flex-shrink-0 items-center gap-1.5 rounded-md border px-2.5 py-1 font-mono text-[11px] font-medium transition-colors"
                   :class="copiedIndex === index
-                    ? 'bg-green-500/20 text-green-400'
-                    : 'bg-gray-700 hover:bg-gray-600 text-gray-300 hover:text-white'"
+                    ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300'
+                    : 'border-white/10 bg-white/[0.04] text-gray-300 hover:border-white/20 hover:bg-white/10 hover:text-white'"
                 >
-                  <svg v-if="copiedIndex === index" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <svg v-if="copiedIndex === index" class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
-                  <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                  <svg v-else class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
                   </svg>
                   {{ copiedIndex === index ? t('keys.useKeyModal.copied') : t('keys.useKeyModal.copy') }}
                 </button>
               </div>
               <!-- Code Content -->
-              <pre class="p-4 text-sm font-mono text-gray-100 overflow-x-auto"><code v-if="file.highlighted" v-html="file.highlighted"></code><code v-else v-text="file.content"></code></pre>
+              <pre class="overflow-x-auto p-4 font-mono text-[13px] leading-relaxed text-gray-100"><code v-if="file.highlighted" v-html="file.highlighted"></code><code v-else v-text="file.content"></code></pre>
             </div>
           </div>
         </div>
@@ -175,17 +192,17 @@
         <section
           v-if="showCodexModelCatalog"
           data-testid="codex-model-catalog"
-          class="overflow-hidden rounded-lg border border-gray-200 bg-gray-50 dark:border-dark-700 dark:bg-dark-800/50"
+          class="overflow-hidden rounded-xl border border-gray-200/80 bg-white dark:border-dark-800 dark:bg-dark-900/60"
         >
-          <div class="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex flex-col gap-3 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
             <div class="min-w-0">
-              <h3 class="text-sm font-medium text-gray-900 dark:text-white">
+              <h3 class="text-sm font-medium text-gray-950 dark:text-white">
                 {{ t('keys.useKeyModal.codexModelCatalog.title') }}
               </h3>
-              <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              <p class="mt-1 text-xs text-gray-500 dark:text-dark-400">
                 {{ t('keys.useKeyModal.codexModelCatalog.description') }}
               </p>
-              <p class="mt-1 truncate font-mono text-xs text-gray-700 dark:text-gray-300">
+              <p class="mt-1.5 truncate font-mono text-xs text-gray-700 dark:text-dark-200">
                 {{ codexModelCatalogMode === 'remote' ? codexModelCatalogUrl : codexModelCatalogPath }}
               </p>
               <select
@@ -231,22 +248,22 @@
           </div>
           <p
             v-if="codexModelManifestState === 'ready'"
-            class="border-t border-gray-200 px-4 py-2 text-xs text-emerald-700 dark:border-dark-700 dark:text-emerald-300"
+            class="border-t border-gray-100 bg-emerald-50/50 px-4 py-2 text-xs text-emerald-700 dark:border-dark-800 dark:bg-emerald-500/5 dark:text-emerald-300"
           >
             {{ t('keys.useKeyModal.codexModelCatalog.modelsCount', { count: codexModelManifestModelCount }) }}
           </p>
           <p
             v-else-if="codexModelManifestState === 'error'"
-            class="border-t border-red-200 px-4 py-2 text-xs text-red-700 dark:border-red-900 dark:text-red-300"
+            class="border-t border-red-100 bg-red-50/60 px-4 py-2 text-xs text-red-700 dark:border-red-500/20 dark:bg-red-500/5 dark:text-red-300"
           >
             {{ t('keys.useKeyModal.codexModelCatalog.errorDescription') }}
           </p>
         </section>
 
         <!-- Usage Note -->
-        <div v-if="showPlatformNote" class="flex items-start gap-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800">
-          <Icon name="infoCircle" size="md" class="text-blue-500 flex-shrink-0 mt-0.5" />
-          <p class="text-sm text-blue-700 dark:text-blue-300">
+        <div v-if="showPlatformNote" class="flex items-start gap-3 rounded-xl border border-gray-200/80 bg-gray-50 p-3.5 dark:border-dark-800 dark:bg-dark-900/60">
+          <Icon name="infoCircle" size="md" class="mt-0.5 flex-shrink-0 text-primary-500 dark:text-primary-400" />
+          <p class="text-sm leading-6 text-gray-700 dark:text-dark-200">
             {{ platformNote }}
           </p>
         </div>
@@ -728,11 +745,11 @@ const escapeHtml = (value: string) => value
 const wrapToken = (className: string, value: string) =>
   `<span class="${className}">${escapeHtml(value)}</span>`
 
-const keyword = (value: string) => wrapToken('text-emerald-300', value)
+const keyword = (value: string) => wrapToken('text-primary-300', value)
 const variable = (value: string) => wrapToken('text-sky-200', value)
-const operator = (value: string) => wrapToken('text-slate-400', value)
-const string = (value: string) => wrapToken('text-amber-200', value)
-const comment = (value: string) => wrapToken('text-slate-500', value)
+const operator = (value: string) => wrapToken('text-gray-500', value)
+const string = (value: string) => wrapToken('text-ember-300', value)
+const comment = (value: string) => wrapToken('text-gray-500 italic', value)
 
 // Syntax highlighting helpers
 // Generate file configs based on platform and active tab

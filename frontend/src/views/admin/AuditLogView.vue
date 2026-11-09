@@ -210,7 +210,7 @@
         <!-- Actor / auth / source -->
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div class="rounded-xl bg-gray-50 p-4 dark:bg-dark-900">
-            <div class="text-xs font-bold uppercase tracking-wider text-gray-400">
+            <div class="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-gray-400 dark:text-dark-500">
               {{ t('admin.audit.columns.actor') }}
             </div>
             <div class="mt-1 break-all text-sm font-medium text-gray-900 dark:text-white">
@@ -220,7 +220,7 @@
           </div>
 
           <div class="rounded-xl bg-gray-50 p-4 dark:bg-dark-900">
-            <div class="text-xs font-bold uppercase tracking-wider text-gray-400">
+            <div class="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-gray-400 dark:text-dark-500">
               {{ t('admin.audit.filters.authMethod') }}
             </div>
             <div class="mt-1 text-sm font-medium text-gray-900 dark:text-white">
@@ -232,7 +232,7 @@
           </div>
 
           <div class="rounded-xl bg-gray-50 p-4 dark:bg-dark-900">
-            <div class="text-xs font-bold uppercase tracking-wider text-gray-400">
+            <div class="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-gray-400 dark:text-dark-500">
               {{ t('admin.audit.columns.clientIp') }}
             </div>
             <div class="mt-1 break-all font-mono text-sm font-medium text-gray-900 dark:text-white">
@@ -243,7 +243,7 @@
 
         <!-- User-Agent -->
         <section>
-          <h4 class="mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-400">
+          <h4 class="mb-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-gray-400 dark:text-dark-500">
             {{ t('admin.audit.detail.userAgent') }}
           </h4>
           <div class="break-all rounded-xl bg-gray-50 p-3 font-mono text-xs leading-relaxed text-gray-600 dark:bg-dark-900 dark:text-gray-400">
@@ -253,7 +253,7 @@
 
         <!-- Request body (redacted) -->
         <section v-if="detail.request_body">
-          <h4 class="mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-400">
+          <h4 class="mb-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-gray-400 dark:text-dark-500">
             {{ t('admin.audit.detail.requestBody') }}
           </h4>
           <pre class="max-h-72 overflow-auto rounded-xl bg-gray-50 p-4 font-mono text-xs leading-relaxed text-gray-600 dark:bg-dark-900 dark:text-gray-400">{{ prettyBody(detail.request_body) }}</pre>
@@ -261,7 +261,7 @@
 
         <!-- Extra -->
         <section v-if="detail.extra && Object.keys(detail.extra).length">
-          <h4 class="mb-1.5 text-xs font-bold uppercase tracking-wider text-gray-400">
+          <h4 class="mb-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-gray-400 dark:text-dark-500">
             {{ t('admin.audit.detail.extra') }}
           </h4>
           <pre class="max-h-48 overflow-auto rounded-xl bg-gray-50 p-4 font-mono text-xs leading-relaxed text-gray-600 dark:bg-dark-900 dark:text-gray-400">{{ JSON.stringify(detail.extra, null, 2) }}</pre>

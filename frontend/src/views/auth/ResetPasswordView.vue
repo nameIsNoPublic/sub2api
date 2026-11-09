@@ -2,10 +2,10 @@
   <AuthLayout>
     <div class="space-y-6">
       <!-- Title -->
-      <div class="text-center">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+      <div>
+        <h1 class="text-[28px] font-semibold leading-tight tracking-tight text-gray-950 dark:text-white">
           {{ t('auth.resetPasswordTitle') }}
-        </h2>
+        </h1>
         <p class="mt-2 text-sm text-gray-500 dark:text-dark-400">
           {{ t('auth.resetPasswordHint') }}
         </p>
@@ -13,13 +13,13 @@
 
       <!-- Invalid Link State -->
       <div v-if="isInvalidLink" class="space-y-6">
-        <div class="rounded-xl border border-amber-200 bg-amber-50 p-6 dark:border-amber-800/50 dark:bg-amber-900/20">
+        <div role="alert" class="rounded-xl border border-amber-200/80 bg-amber-50/70 p-6 dark:border-amber-500/20 dark:bg-amber-500/10">
           <div class="flex flex-col items-center gap-4 text-center">
-            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-800/50">
+            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 ring-1 ring-inset ring-amber-200 dark:bg-amber-500/15 dark:ring-amber-400/20">
               <Icon name="exclamationCircle" size="lg" class="text-amber-600 dark:text-amber-400" />
             </div>
             <div>
-              <h3 class="text-lg font-semibold text-amber-800 dark:text-amber-200">
+              <h3 class="text-base font-semibold text-amber-800 dark:text-amber-200">
                 {{ t('auth.invalidResetLink') }}
               </h3>
               <p class="mt-2 text-sm text-amber-700 dark:text-amber-300">
@@ -32,7 +32,7 @@
         <div class="text-center">
           <router-link
             to="/forgot-password"
-            class="inline-flex items-center gap-2 font-medium text-primary-600 transition-colors hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
+            class="inline-flex items-center gap-2 link"
           >
             {{ t('auth.requestNewResetLink') }}
           </router-link>
@@ -41,16 +41,16 @@
 
       <!-- Success State -->
       <div v-else-if="isSuccess" class="space-y-6">
-        <div class="rounded-xl border border-green-200 bg-green-50 p-6 dark:border-green-800/50 dark:bg-green-900/20">
+        <div role="status" class="rounded-xl border border-emerald-200/80 bg-emerald-50/70 p-6 dark:border-emerald-500/20 dark:bg-emerald-500/10">
           <div class="flex flex-col items-center gap-4 text-center">
-            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-800/50">
-              <Icon name="checkCircle" size="lg" class="text-green-600 dark:text-green-400" />
+            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 ring-1 ring-inset ring-emerald-200 dark:bg-emerald-500/15 dark:ring-emerald-400/20">
+              <Icon name="checkCircle" size="lg" class="text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-              <h3 class="text-lg font-semibold text-green-800 dark:text-green-200">
+              <h3 class="text-base font-semibold text-emerald-800 dark:text-emerald-200">
                 {{ t('auth.passwordResetSuccess') }}
               </h3>
-              <p class="mt-2 text-sm text-green-700 dark:text-green-300">
+              <p class="mt-2 text-sm text-emerald-700 dark:text-emerald-300">
                 {{ t('auth.passwordResetSuccessHint') }}
               </p>
             </div>
@@ -60,9 +60,9 @@
         <div class="text-center">
           <router-link
             to="/login"
-            class="btn btn-primary inline-flex items-center gap-2"
+            class="btn btn-primary w-full"
           >
-            <Icon name="login" size="md" />
+            <Icon name="login" size="sm" />
             {{ t('auth.signIn') }}
           </router-link>
         </div>
@@ -85,7 +85,7 @@
               type="email"
               readonly
               disabled
-              class="input pl-11 bg-gray-50 dark:bg-dark-700"
+              class="input bg-gray-100/70 pl-11 text-gray-600 dark:bg-dark-950 dark:text-dark-300"
             />
           </div>
         </div>
@@ -107,13 +107,17 @@
               autocomplete="new-password"
               :disabled="isLoading"
               class="input pl-11 pr-11"
+              :aria-invalid="errors.password ? 'true' : undefined"
               :class="{ 'input-error': errors.password }"
               :placeholder="t('auth.newPasswordPlaceholder')"
             />
             <button
               type="button"
               @click="showPassword = !showPassword"
-              class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-dark-300"
+              :aria-label="t('ui52.auth.showPassword')"
+              aria-controls="password"
+              :aria-pressed="showPassword"
+              class="absolute inset-y-0 right-0 flex items-center rounded-r-lg pr-3.5 text-gray-400 transition-colors hover:text-gray-700 dark:text-dark-500 dark:hover:text-dark-200"
             >
               <Icon v-if="showPassword" name="eyeOff" size="md" />
               <Icon v-else name="eye" size="md" />
@@ -138,13 +142,17 @@
               autocomplete="new-password"
               :disabled="isLoading"
               class="input pl-11 pr-11"
+              :aria-invalid="errors.confirmPassword ? 'true' : undefined"
               :class="{ 'input-error': errors.confirmPassword }"
               :placeholder="t('auth.confirmPasswordPlaceholder')"
             />
             <button
               type="button"
               @click="showConfirmPassword = !showConfirmPassword"
-              class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-dark-300"
+              :aria-label="t('ui52.auth.showConfirmPassword')"
+              aria-controls="confirmPassword"
+              :aria-pressed="showConfirmPassword"
+              class="absolute inset-y-0 right-0 flex items-center rounded-r-lg pr-3.5 text-gray-400 transition-colors hover:text-gray-700 dark:text-dark-500 dark:hover:text-dark-200"
             >
               <Icon v-if="showConfirmPassword" name="eyeOff" size="md" />
               <Icon v-else name="eye" size="md" />
@@ -160,7 +168,7 @@
         >
           <svg
             v-if="isLoading"
-            class="-ml-1 mr-2 h-4 w-4 animate-spin text-white"
+            class="h-4 w-4 animate-spin"
             fill="none"
             viewBox="0 0 24 24"
           >
@@ -178,7 +186,7 @@
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             ></path>
           </svg>
-          <Icon v-else name="checkCircle" size="md" class="mr-2" />
+          <Icon v-else name="checkCircle" size="sm" />
           {{ isLoading ? t('auth.resettingPassword') : t('auth.resetPassword') }}
         </button>
       </form>
@@ -190,7 +198,7 @@
         {{ t('auth.rememberedPassword') }}
         <router-link
           to="/login"
-          class="font-medium text-primary-600 transition-colors hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
+          class="link"
         >
           {{ t('auth.signIn') }}
         </router-link>

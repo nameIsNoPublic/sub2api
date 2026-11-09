@@ -117,4 +117,32 @@ describe('TokenUsageTrend', () => {
     // Hit rate = 500 / (200 + 500 + 300) * 100 = 50%
     expect(hitRateDataset.data[0]).toBe(50)
   })
+
+  it('shows data points when there is only one time bucket so the chart is not blank', () => {
+    const point = {
+      date: '2026-05-08',
+      requests: 1,
+      input_tokens: 100,
+      output_tokens: 20,
+      cache_creation_tokens: 0,
+      cache_read_tokens: 50,
+      cost: 0.01,
+      actual_cost: 0.005,
+    }
+    const mountWith = (trendData: typeof point[]) =>
+      mount(TokenUsageTrend, {
+        props: { trendData },
+        global: { stubs: { LoadingSpinner: true } },
+      })
+
+    const single = JSON.parse(mountWith([point]).find('.chart-data').text())
+    expect(single.datasets.every((ds: any) => ds.pointRadius === 3)).toBe(true)
+
+    const multiple = JSON.parse(
+      mountWith([point, { ...point, date: '2026-05-09' }]).find('.chart-data').text()
+    )
+    expect(multiple.datasets.every((ds: any) => ds.pointRadius === 0)).toBe(true)
+    // 悬停半径不受数据点数量影响
+    expect(multiple.datasets.every((ds: any) => ds.pointHoverRadius === 3.5)).toBe(true)
+  })
 })

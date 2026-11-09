@@ -1,29 +1,29 @@
 <template>
   <div class="mt-5 grid grid-cols-2 gap-2">
     <div
-      class="rounded-xl p-3 bg-gray-50/80 dark:bg-dark-900/40 border border-gray-100 dark:border-dark-700/50"
+      class="rounded-lg border border-gray-200/70 bg-gray-50/70 p-3 dark:border-dark-800 dark:bg-dark-950/40"
     >
       <div
-        class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-400"
+        class="flex items-center gap-1.5 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-gray-400 dark:text-dark-500"
       >
         <Icon :name="primaryIcon" size="xs" />
         <span>{{ primaryLabel }}</span>
       </div>
-      <div class="mt-1.5 text-lg font-bold font-mono tabular-nums text-gray-900 dark:text-gray-100">
-        {{ primaryValue }}<span class="text-xs font-normal text-gray-400 ml-0.5">{{ primaryUnit }}</span>
+      <div class="num mt-1.5 text-lg font-semibold text-gray-950 dark:text-white">
+        {{ primaryValue }}<span class="ml-0.5 text-xs font-normal text-gray-400 dark:text-dark-500">{{ primaryUnit }}</span>
       </div>
     </div>
     <div
-      class="rounded-xl p-3 bg-gray-50/80 dark:bg-dark-900/40 border border-gray-100 dark:border-dark-700/50"
+      class="rounded-lg border border-gray-200/70 bg-gray-50/70 p-3 dark:border-dark-800 dark:bg-dark-950/40"
     >
       <div
-        class="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-400"
+        class="flex items-center gap-1.5 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-gray-400 dark:text-dark-500"
       >
         <Icon :name="secondaryIcon" size="xs" />
         <span>{{ secondaryLabel }}</span>
       </div>
-      <div class="mt-1.5 text-lg font-bold font-mono tabular-nums text-gray-900 dark:text-gray-100">
-        {{ secondaryValue }}<span class="text-xs font-normal text-gray-400 ml-0.5">{{ secondaryUnit }}</span>
+      <div class="num mt-1.5 text-lg font-semibold text-gray-950 dark:text-white">
+        {{ secondaryValue }}<span class="ml-0.5 text-xs font-normal text-gray-400 dark:text-dark-500">{{ secondaryUnit }}</span>
       </div>
     </div>
   </div>

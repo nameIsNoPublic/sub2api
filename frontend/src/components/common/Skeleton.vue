@@ -1,8 +1,8 @@
 <template>
   <div
     :class="[
-      'animate-pulse bg-gray-200 dark:bg-dark-700',
-      variant === 'circle' ? 'rounded-full' : 'rounded-lg',
+      'animate-pulse bg-gray-200/80 dark:bg-dark-800',
+      variant === 'circle' ? 'rounded-full' : 'rounded-md',
       customClass
     ]"
     :style="style"

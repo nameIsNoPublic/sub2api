@@ -2,10 +2,10 @@
   <AuthLayout>
     <div class="space-y-6">
       <!-- Title -->
-      <div class="text-center">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+      <div>
+        <h1 class="text-[28px] font-semibold leading-tight tracking-tight text-gray-950 dark:text-white">
           {{ t('auth.welcomeBack') }}
-        </h2>
+        </h1>
         <p class="mt-2 text-sm text-gray-500 dark:text-dark-400">
           {{ t('auth.signInToAccount') }}
         </p>
@@ -30,6 +30,7 @@
               autocomplete="email"
               :disabled="authActionDisabled"
               class="input pl-11"
+              :aria-invalid="errors.email ? 'true' : undefined"
               :class="{ 'input-error': errors.email }"
               :placeholder="t('auth.emailPlaceholder')"
             />
@@ -37,8 +38,8 @@
         </div>
 
         <!-- Password Input -->
-        <div>
-          <label for="password" class="input-label">
+        <div class="relative">
+          <label for="password" class="input-label pr-28">
             {{ t('auth.passwordLabel') }}
           </label>
           <div class="relative">
@@ -53,6 +54,7 @@
               autocomplete="current-password"
               :disabled="authActionDisabled"
               class="input pl-11 pr-11"
+              :aria-invalid="errors.password ? 'true' : undefined"
               :class="{ 'input-error': errors.password }"
               :placeholder="t('auth.passwordPlaceholder')"
             />
@@ -60,22 +62,23 @@
               type="button"
               @click="showPassword = !showPassword"
               :disabled="authActionDisabled"
-              class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-dark-300"
+              :aria-label="t('ui52.auth.showPassword')"
+              aria-controls="password"
+              :aria-pressed="showPassword"
+              class="absolute inset-y-0 right-0 flex items-center rounded-r-lg pr-3.5 text-gray-400 transition-colors hover:text-gray-700 dark:text-dark-500 dark:hover:text-dark-200"
             >
               <Icon v-if="showPassword" name="eyeOff" size="md" />
               <Icon v-else name="eye" size="md" />
             </button>
           </div>
-          <div class="mt-1 flex items-center justify-between">
-            <span></span>
-            <router-link
-              v-if="passwordResetEnabled && !backendModeEnabled"
-              to="/forgot-password"
-              class="text-sm font-medium text-primary-600 transition-colors hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
-            >
-              {{ t('auth.forgotPassword') }}
-            </router-link>
-          </div>
+          <!-- DOM 位于输入框之后以保证 Tab 顺序（密码 → 忘记密码），视觉上定位到 label 行右侧 -->
+          <router-link
+            v-if="passwordResetEnabled && !backendModeEnabled"
+            to="/forgot-password"
+            class="link absolute right-0 top-0 text-xs leading-5"
+          >
+            {{ t('auth.forgotPassword') }}
+          </router-link>
         </div>
 
         <!-- Turnstile Widget -->
@@ -105,7 +108,7 @@
         >
           <svg
             v-if="isLoading"
-            class="-ml-1 mr-2 h-4 w-4 animate-spin text-white"
+            class="h-4 w-4 animate-spin"
             fill="none"
             viewBox="0 0 24 24"
           >
@@ -123,7 +126,7 @@
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             ></path>
           </svg>
-          <Icon v-else name="login" size="md" class="mr-2" />
+          <Icon v-else name="login" size="sm" />
           {{ isLoading ? t('auth.signingIn') : t('auth.signIn') }}
         </button>
 
@@ -141,11 +144,11 @@
 
         <div v-if="showPasskeyLogin || showOAuthLogin" class="space-y-3 pt-1">
           <div class="flex items-center gap-3">
-            <div class="h-px flex-1 bg-gray-200 dark:bg-dark-700"></div>
-            <span class="text-xs text-gray-500 dark:text-dark-400">
+            <div class="h-px flex-1 bg-gray-200/80 dark:bg-dark-800"></div>
+            <span class="font-mono text-[11px] uppercase tracking-[0.12em] text-gray-400 dark:text-dark-500">
               {{ t('auth.oauthOrContinue') }}
             </span>
-            <div class="h-px flex-1 bg-gray-200 dark:bg-dark-700"></div>
+            <div class="h-px flex-1 bg-gray-200/80 dark:bg-dark-800"></div>
           </div>
 
           <button
@@ -155,7 +158,7 @@
             :disabled="authActionDisabled"
             @click="handlePasskeyLogin"
           >
-            <Icon name="key" size="md" class="mr-2" />
+            <Icon name="key" size="sm" />
             {{ passkeyLoading ? t('auth.passkeySigningIn') : t('auth.passkeySignIn') }}
           </button>
 
@@ -202,7 +205,7 @@
         {{ t('auth.dontHaveAccount') }}
         <router-link
           to="/register"
-          class="font-medium text-primary-600 transition-colors hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
+          class="link"
         >
           {{ t('auth.signUp') }}
         </router-link>

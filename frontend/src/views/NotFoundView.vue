@@ -1,89 +1,94 @@
 <template>
-  <div
-    class="relative flex min-h-screen items-center justify-center overflow-hidden bg-gray-50 px-4 dark:bg-dark-950"
-  >
-    <!-- Background Decoration -->
-    <div class="pointer-events-none absolute inset-0 overflow-hidden">
-      <div
-        class="absolute -right-40 -top-40 h-80 w-80 rounded-full bg-primary-400/10 blur-3xl"
-      ></div>
-      <div
-        class="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-primary-500/10 blur-3xl"
-      ></div>
-    </div>
+  <div class="relative flex min-h-screen flex-col overflow-hidden bg-gray-50 dark:bg-dark-950">
+    <!-- 信号等高线背景 -->
+    <SignalField variant="ambient" :seed="404" class="absolute inset-0" />
 
-    <div class="relative z-10 w-full max-w-md text-center">
-      <!-- 404 Display -->
-      <div class="mb-8">
-        <div class="relative inline-block">
-          <span class="text-[12rem] font-bold leading-none text-gray-100 dark:text-dark-800"
-            >404</span
-          >
-          <div class="absolute inset-0 flex items-center justify-center">
-            <div
-              class="flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 shadow-lg shadow-primary-500/30"
-            >
-              <svg
-                class="h-12 w-12 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="1.5"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-                />
-              </svg>
-            </div>
-          </div>
+    <!-- 顶部品牌 -->
+    <header class="relative z-10 mx-auto flex h-16 w-full max-w-6xl items-center px-4 sm:px-6">
+      <router-link to="/" class="flex min-w-0 items-center rounded-md" :aria-label="t('ui52.publicPages.nav.home')">
+        <BrandMark size="sm" show-domain />
+      </router-link>
+    </header>
+
+    <main class="relative z-10 flex flex-1 items-center justify-center px-4 pb-20 pt-6">
+      <div class="w-full max-w-xl text-center">
+        <p class="kicker justify-center">
+          <span class="signal-dot"></span>
+          {{ t('ui52.publicPages.notFound.kicker') }}
+        </p>
+
+        <!-- 大号等宽 404 + ember 终端光标 -->
+        <div
+          class="mt-5 flex items-end justify-center font-mono text-[6.5rem] font-semibold leading-none tracking-tighter text-gray-950 dark:text-white sm:text-[9rem]"
+          aria-hidden="true"
+        >
+          <span>404</span>
+          <span
+            class="mb-[0.12em] ml-[0.08em] inline-block h-[0.72em] w-[0.4em] rounded-[0.06em] bg-ember-500 animate-caret-blink motion-reduce:animate-none"
+          ></span>
         </div>
-      </div>
 
-      <!-- Text Content -->
-      <div class="mb-8">
-        <h1 class="mb-3 text-2xl font-bold text-gray-900 dark:text-white">
+        <h1 class="mt-6 text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">
           {{ t('errors.pageNotFound') }}
         </h1>
-        <p class="text-gray-500 dark:text-dark-400">
-          The page you are looking for doesn't exist or has been moved.
+        <p class="mx-auto mt-2 max-w-sm text-sm text-gray-500 dark:text-dark-400">
+          {{ t('ui52.publicPages.notFound.description') }}
         </p>
-      </div>
 
-      <!-- Action Buttons -->
-      <div class="flex flex-col justify-center gap-3 sm:flex-row">
-        <button @click="goBack" class="btn btn-secondary">
-          <Icon name="arrowLeft" size="md" class="mr-2" />
-          Go Back
-        </button>
-        <router-link to="/dashboard" class="btn btn-primary">
-          <Icon name="home" size="md" class="mr-2" />
-          Go to Dashboard
-        </router-link>
-      </div>
-
-      <!-- Help Link -->
-      <p class="mt-8 text-sm text-gray-400 dark:text-dark-500">
-        Need help?
-        <a
-          href="#"
-          class="text-primary-600 transition-colors hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
+        <!-- 终端回显:真实请求路径,俏皮但不造假 -->
+        <div
+          class="mx-auto mt-8 max-w-lg overflow-hidden rounded-xl bg-[#0c0d10] text-left shadow-pop ring-1 ring-white/5"
         >
-          Contact support
-        </a>
-      </p>
-    </div>
+          <div class="flex items-center gap-1.5 border-b border-white/5 px-4 py-2.5">
+            <span class="h-2.5 w-2.5 rounded-full bg-white/15"></span>
+            <span class="h-2.5 w-2.5 rounded-full bg-white/15"></span>
+            <span class="h-2.5 w-2.5 rounded-full bg-white/15"></span>
+            <span class="ml-2 font-mono text-[11px] text-white/35">~ / {{ siteName }}</span>
+          </div>
+          <pre
+            class="whitespace-pre-wrap break-all px-4 py-4 font-mono text-[12.5px] leading-relaxed text-gray-300"
+          ><span class="select-none text-white/35">$ </span><span class="text-white">curl -I </span><span class="text-gray-400">{{ requestHost }}</span><span class="text-ember-400">{{ requestPath }}</span>
+<span class="text-red-400">HTTP/2 404 Not Found</span>
+<span class="text-white/45">x-hint: </span><span class="text-gray-300">{{ t('ui52.publicPages.notFound.hint') }}</span></pre>
+        </div>
+
+        <!-- 操作 -->
+        <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <button type="button" class="btn btn-secondary" @click="goBack">
+            <Icon name="arrowLeft" size="sm" />
+            {{ t('ui52.publicPages.notFound.goBack') }}
+          </button>
+          <router-link to="/" class="btn btn-secondary">
+            <Icon name="home" size="sm" />
+            {{ t('ui52.publicPages.nav.home') }}
+          </router-link>
+          <router-link to="/dashboard" class="btn btn-ink">
+            {{ t('ui52.publicPages.notFound.goDashboard') }}
+            <Icon name="arrowRight" size="sm" />
+          </router-link>
+        </div>
+      </div>
+    </main>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Icon from '@/components/icons/Icon.vue'
+import BrandMark from '@/components/brand/BrandMark.vue'
+import SignalField from '@/components/brand/SignalField.vue'
+import { useBrand } from '@/composables/useBrand'
 
 const { t } = useI18n()
+const route = useRoute()
 const router = useRouter()
+const { siteName } = useBrand()
+
+// 终端回显使用当前真实访问地址,不虚构域名;只取 path,避免把回调/重置链接里的 code、token 等查询参数明文展示
+const requestHost = computed(() => (typeof window !== 'undefined' ? window.location.host : ''))
+const requestPath = computed(() => route.path || '/')
 
 function goBack(): void {
   router.back()

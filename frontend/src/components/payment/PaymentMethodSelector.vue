@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+    <label class="mb-3 block text-sm font-semibold text-gray-950 dark:text-white">
       {{ t('payment.paymentMethod') }}
     </label>
     <div
@@ -13,25 +13,37 @@
         type="button"
         :title="methodLabel(method)"
         :disabled="!method.available"
+        :aria-pressed="selected === method.type"
         :class="[
-          'relative flex h-[60px] min-w-0 flex-col items-center justify-center rounded-lg border px-3 transition-all',
+          'relative flex h-16 min-w-0 flex-col items-center justify-center rounded-xl border px-3 transition-[border-color,background-color,box-shadow] duration-150',
+          'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
           !method.available
-            ? 'cursor-not-allowed border-gray-200 bg-gray-50 opacity-50 dark:border-dark-700 dark:bg-dark-800/50'
+            ? 'cursor-not-allowed border-dashed border-gray-200 bg-gray-50 opacity-50 dark:border-dark-700 dark:bg-dark-900/50'
             : selected === method.type
               ? methodSelectedClass(method.type)
-              : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400 dark:border-dark-600 dark:bg-dark-800 dark:text-gray-200 dark:hover:border-dark-500',
+              : 'border-gray-200 bg-white text-gray-800 hover:border-gray-300 hover:bg-gray-50 dark:border-dark-700 dark:bg-dark-900 dark:text-gray-100 dark:hover:border-dark-600 dark:hover:bg-dark-800',
         ]"
         @click="method.available && emit('select', method.type)"
       >
-        <span class="flex w-full min-w-0 items-center justify-center gap-2">
+        <!-- 选中勾：颜色跟随支付渠道品牌色 -->
+        <span
+          v-if="method.available && selected === method.type"
+          :class="['pointer-events-none absolute right-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-full text-white', methodCheckClass(method.type)]"
+          aria-hidden="true"
+        >
+          <svg class="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+          </svg>
+        </span>
+        <span class="flex w-full min-w-0 items-center justify-center gap-2.5">
           <img :src="methodIcon(method.type)" :alt="methodLabel(method)" class="h-7 w-7 shrink-0 object-contain" />
-          <span class="flex min-w-0 flex-col items-start leading-none">
-            <span data-testid="payment-method-label" class="block w-full truncate text-base font-semibold">
+          <span class="flex min-w-0 flex-col items-start gap-1 leading-none">
+            <span data-testid="payment-method-label" class="block w-full truncate text-sm font-semibold">
               {{ methodLabel(method) }}
             </span>
             <span
               v-if="method.fee_rate > 0"
-              class="text-[10px] tracking-wide text-gray-500 dark:text-dark-400"
+              class="font-mono text-[10px] text-gray-500 dark:text-dark-400"
             >
               {{ t('payment.fee') }} {{ method.fee_rate }}%
             </span>
@@ -99,10 +111,18 @@ function methodLabel(method: PaymentMethodOption): string {
 }
 
 function methodSelectedClass(type: string): string {
-  if (isBuiltInAlipayMethod(type)) return 'border-[#02A9F1] bg-blue-50 text-gray-900 shadow-sm dark:bg-blue-950 dark:text-gray-100'
-  if (isBuiltInWxpayMethod(type)) return 'border-[#09BB07] bg-green-50 text-gray-900 shadow-sm dark:bg-green-950 dark:text-gray-100'
-  if (type === 'stripe') return 'border-[#676BE5] bg-indigo-50 text-gray-900 shadow-sm dark:bg-indigo-950 dark:text-gray-100'
-  if (type === 'airwallex') return 'border-[#FF6B3D] bg-orange-50 text-gray-900 shadow-sm dark:border-[#FF8E3C] dark:bg-orange-950 dark:text-gray-100'
-  return 'border-primary-500 bg-primary-50 text-gray-900 shadow-sm dark:bg-primary-950 dark:text-gray-100'
+  if (isBuiltInAlipayMethod(type)) return 'border-[#02A9F1] bg-sky-50/70 text-gray-950 ring-1 ring-[#02A9F1] dark:bg-sky-500/10 dark:text-white'
+  if (isBuiltInWxpayMethod(type)) return 'border-[#09BB07] bg-green-50/70 text-gray-950 ring-1 ring-[#09BB07] dark:bg-green-500/10 dark:text-white'
+  if (type === 'stripe') return 'border-[#676BE5] bg-indigo-50/70 text-gray-950 ring-1 ring-[#676BE5] dark:bg-indigo-500/10 dark:text-white'
+  if (type === 'airwallex') return 'border-[#FF6B3D] bg-orange-50/70 text-gray-950 ring-1 ring-[#FF6B3D] dark:border-[#FF8E3C] dark:bg-orange-500/10 dark:text-white dark:ring-[#FF8E3C]'
+  return 'border-primary-500 bg-primary-50/70 text-gray-950 ring-1 ring-primary-500 dark:border-primary-400 dark:bg-primary-500/10 dark:text-white dark:ring-primary-400'
+}
+
+function methodCheckClass(type: string): string {
+  if (isBuiltInAlipayMethod(type)) return 'bg-[#02A9F1]'
+  if (isBuiltInWxpayMethod(type)) return 'bg-[#09BB07]'
+  if (type === 'stripe') return 'bg-[#676BE5]'
+  if (type === 'airwallex') return 'bg-[#FF6B3D]'
+  return 'bg-primary-600 dark:bg-primary-500'
 }
 </script>

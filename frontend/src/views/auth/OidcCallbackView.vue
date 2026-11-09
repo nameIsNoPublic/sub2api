@@ -1,11 +1,12 @@
 <template>
   <AuthLayout>
     <div class="space-y-6">
-      <div class="text-center">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+      <div>
+        <h1 class="text-[28px] font-semibold leading-tight tracking-tight text-gray-950 dark:text-white">
           {{ t('auth.oidc.callbackTitle', { providerName }) }}
-        </h2>
-        <p class="mt-2 text-sm text-gray-500 dark:text-dark-400">
+        </h1>
+        <p class="mt-2 flex items-center gap-2 text-sm text-gray-500 dark:text-dark-400" role="status" aria-live="polite">
+          <span v-if="isProcessing" class="spinner h-3.5 w-3.5 shrink-0 border-[1.5px] text-primary-500" aria-hidden="true"></span>
           {{
             isProcessing
               ? t('auth.oidc.callbackProcessing', { providerName })
@@ -28,7 +29,7 @@
         >
           <div
             v-if="adoptionRequired && (suggestedDisplayName || suggestedAvatarUrl)"
-            class="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-dark-600 dark:bg-dark-800/60"
+            class="rounded-xl border border-gray-200/80 bg-white p-4 shadow-card dark:border-dark-800 dark:bg-dark-900"
           >
             <div class="space-y-3">
               <div class="space-y-1">
@@ -42,9 +43,9 @@
 
               <label
                 v-if="suggestedDisplayName"
-                class="flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-3 text-sm dark:border-dark-600 dark:bg-dark-900/50"
+                class="flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-50/70 p-3 text-sm transition-colors hover:border-gray-300 dark:border-dark-700 dark:bg-dark-950/40 dark:hover:border-dark-600"
               >
-                <input v-model="adoptDisplayName" type="checkbox" class="mt-1 h-4 w-4" />
+                <input v-model="adoptDisplayName" type="checkbox" class="mt-1 h-4 w-4 rounded accent-primary-600" />
                 <span class="space-y-1">
                   <span class="block font-medium text-gray-900 dark:text-white">
                     {{ t('auth.oauthFlow.useDisplayName') }}
@@ -57,13 +58,13 @@
 
               <label
                 v-if="suggestedAvatarUrl"
-                class="flex items-start gap-3 rounded-lg border border-gray-200 bg-white p-3 text-sm dark:border-dark-600 dark:bg-dark-900/50"
+                class="flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-50/70 p-3 text-sm transition-colors hover:border-gray-300 dark:border-dark-700 dark:bg-dark-950/40 dark:hover:border-dark-600"
               >
-                <input v-model="adoptAvatar" type="checkbox" class="mt-1 h-4 w-4" />
+                <input v-model="adoptAvatar" type="checkbox" class="mt-1 h-4 w-4 rounded accent-primary-600" />
                 <img
                   :src="suggestedAvatarUrl"
                   :alt="t('auth.oauthFlow.avatarAlt', { providerName })"
-                  class="h-10 w-10 rounded-full border border-gray-200 object-cover dark:border-dark-600"
+                  class="h-10 w-10 rounded-full border border-gray-200 object-cover dark:border-dark-700"
                 />
                 <span class="space-y-1">
                   <span class="block font-medium text-gray-900 dark:text-white">
@@ -114,7 +115,7 @@
           </template>
 
           <template v-else-if="needsChooser">
-            <div class="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-dark-600 dark:bg-dark-800/60">
+            <div class="rounded-xl border border-gray-200/80 bg-white p-4 shadow-card dark:border-dark-800 dark:bg-dark-900">
               <div class="space-y-4">
                 <div class="space-y-1">
                   <p class="text-sm font-medium text-gray-900 dark:text-white">

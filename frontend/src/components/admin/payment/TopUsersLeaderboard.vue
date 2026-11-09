@@ -1,26 +1,28 @@
 <template>
-  <div class="card p-4">
-    <h3 class="mb-4 text-sm font-semibold text-gray-900 dark:text-white">
-      {{ t('payment.admin.topUsers') }}
-    </h3>
+  <div class="card overflow-hidden">
+    <div :class="CHART_CARD_HEADER">
+      <h3 :class="CHART_CARD_TITLE">
+        {{ t('payment.admin.topUsers') }}
+      </h3>
+    </div>
     <div
       v-if="!hasUsers(props.users)"
-      class="flex h-32 items-center justify-center text-sm text-gray-500 dark:text-gray-400"
+      class="flex h-32 items-center justify-center text-sm text-gray-500 dark:text-dark-400"
     >
       {{ t('payment.admin.noData') }}
     </div>
-    <div v-else class="space-y-2">
+    <div v-else class="space-y-3 p-3">
       <div v-for="[currency, currencyUsers] in sortedUsers(props.users)" :key="currency" class="space-y-2">
-        <p class="text-xs font-semibold text-gray-500 dark:text-gray-400">{{ currency }}</p>
+        <p class="kicker px-3">{{ currency }}</p>
         <div
           v-for="(user, idx) in currencyUsers"
           :key="user.user_id"
-          class="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-gray-50 dark:hover:bg-dark-700"
+          class="flex items-center justify-between rounded-lg px-3 py-2 transition-colors hover:bg-gray-50 dark:hover:bg-dark-800/60"
         >
           <div class="flex items-center gap-3">
             <span
               :class="[
-                'flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold',
+                'flex h-6 w-6 items-center justify-center rounded-md font-mono text-[11px] font-semibold',
                 rankClass(idx),
               ]"
             >
@@ -28,7 +30,7 @@
             </span>
             <span class="text-sm text-gray-700 dark:text-gray-300">{{ user.email }}</span>
           </div>
-          <span class="text-sm font-medium text-gray-900 dark:text-white">
+          <span class="num text-sm font-medium text-gray-900 dark:text-white">
             {{ formatMoney(currency, user.amount) }}
           </span>
         </div>
@@ -39,6 +41,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { CHART_CARD_HEADER, CHART_CARD_TITLE } from '@/components/charts/chartStyles'
 import type { TopUserPaymentStats } from '@/types/payment'
 
 const { t } = useI18n()
@@ -48,10 +51,11 @@ const props = defineProps<{
 }>()
 
 function rankClass(idx: number): string {
-  if (idx === 0) return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
-  if (idx === 1) return 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
-  if (idx === 2) return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-  return 'bg-gray-100 text-gray-500 dark:bg-dark-700 dark:text-gray-400'
+  // 由强到弱：ember 浅底加描边 → 中性浅灰底 → 仅描边 → 纯文字
+  if (idx === 0) return 'bg-ember-100 text-ember-700 ring-1 ring-inset ring-ember-300 dark:bg-ember-500/20 dark:text-ember-300 dark:ring-ember-400/50'
+  if (idx === 1) return 'bg-gray-100 text-gray-700 ring-1 ring-inset ring-gray-200 dark:bg-dark-800 dark:text-dark-200 dark:ring-dark-700'
+  if (idx === 2) return 'text-gray-600 ring-1 ring-inset ring-gray-200 dark:text-dark-300 dark:ring-dark-700'
+  return 'text-gray-500 dark:text-dark-400'
 }
 
 function hasUsers(usersByCurrency: Record<string, TopUserPaymentStats[]>): boolean {

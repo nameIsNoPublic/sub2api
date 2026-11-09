@@ -1,29 +1,26 @@
 <template>
-  <div class="relative">
+  <!-- placement=top 时根节点不定位，下拉以调用方的定位容器（侧栏版本行）为锚点，避免在移动端抽屉中越出屏幕 -->
+  <div :class="placement === 'top' ? 'static' : 'relative'">
     <!-- Admin: Full version badge with dropdown -->
     <template v-if="isAdmin">
       <button
+        type="button"
         @click="toggleDropdown"
-        class="flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs transition-colors"
+        class="flex items-center gap-1.5 rounded-md px-1.5 py-0.5 font-mono text-[11px] ring-1 ring-inset transition-colors"
         :class="[
           hasUpdate
-            ? 'bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:hover:bg-amber-900/50'
-            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-dark-800 dark:text-dark-400 dark:hover:bg-dark-700'
+            ? 'bg-ember-50 text-ember-700 ring-ember-200/80 hover:bg-ember-100 dark:bg-ember-500/10 dark:text-ember-300 dark:ring-ember-400/25 dark:hover:bg-ember-500/15'
+            : 'bg-white text-gray-500 ring-gray-200 hover:text-gray-900 hover:ring-gray-300 dark:bg-dark-900 dark:text-dark-400 dark:ring-dark-700 dark:hover:text-white dark:hover:ring-dark-600'
         ]"
         :title="hasUpdate ? t('version.updateAvailable') : t('version.upToDate')"
       >
-        <span v-if="currentVersion" class="font-medium">v{{ currentVersion }}</span>
+        <span v-if="currentVersion" class="font-medium tabular-nums">v{{ currentVersion }}</span>
         <span
           v-else
           class="h-3 w-12 animate-pulse rounded bg-gray-200 font-medium dark:bg-dark-600"
         ></span>
         <!-- Update indicator -->
-        <span v-if="hasUpdate" class="relative flex h-2 w-2">
-          <span
-            class="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"
-          ></span>
-          <span class="relative inline-flex h-2 w-2 rounded-full bg-amber-500"></span>
-        </span>
+        <span v-if="hasUpdate" class="signal-dot"></span>
       </button>
 
       <!-- Dropdown -->
@@ -31,19 +28,25 @@
         <div
           v-if="dropdownOpen"
           ref="dropdownRef"
-          class="absolute left-0 z-50 mt-2 overflow-hidden whitespace-normal rounded-xl border border-gray-200 bg-white shadow-lg transition-all duration-200 dark:border-dark-700 dark:bg-dark-800"
-          :class="rollbackPanelOpen && isReleaseBuild ? 'w-80' : 'w-64'"
+          class="absolute left-0 z-50 overflow-hidden whitespace-normal rounded-xl border border-gray-200/80 bg-white shadow-pop transition-all duration-200 dark:border-dark-700 dark:bg-dark-900"
+          :class="[
+            rollbackPanelOpen && isReleaseBuild ? 'w-80' : 'w-64',
+            placement === 'top'
+              ? 'version-dropdown-top bottom-full mb-2 max-h-[calc(100vh-7rem)] max-w-[calc(100vw-1.5rem)] overflow-y-auto'
+              : 'mt-2'
+          ]"
         >
           <!-- Header with refresh button -->
           <div
-            class="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-dark-700"
+            class="flex items-center justify-between border-b border-gray-100 px-4 py-2.5 dark:border-dark-800"
           >
-            <span class="text-sm font-medium text-gray-700 dark:text-dark-300">{{
+            <span class="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-gray-500 dark:text-dark-400">{{
               t('version.currentVersion')
             }}</span>
             <button
+              type="button"
               @click="refreshVersion(true)"
-              class="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-dark-700 dark:hover:text-dark-200"
+              class="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-dark-800 dark:hover:text-dark-200"
               :disabled="loading"
               :title="t('version.refresh')"
             >
@@ -83,10 +86,10 @@
                 <div class="inline-flex items-center gap-2">
                   <span
                     v-if="currentVersion"
-                    class="text-2xl font-bold text-gray-900 dark:text-white"
+                    class="font-mono text-2xl font-semibold tracking-tight text-gray-950 tabular-nums dark:text-white"
                     >v{{ currentVersion }}</span
                   >
-                  <span v-else class="text-2xl font-bold text-gray-400 dark:text-dark-500">--</span>
+                  <span v-else class="font-mono text-2xl font-semibold text-gray-400 dark:text-dark-500">--</span>
                   <!-- Show check mark when up to date -->
                   <span
                     v-if="!hasUpdate"
@@ -321,7 +324,7 @@
                 <button
                   @click="handleUpdate"
                   :disabled="updating"
-                  class="flex w-full items-center justify-center gap-2 rounded-lg bg-primary-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  class="btn btn-primary w-full"
                 >
                   <svg v-if="updating" class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle
@@ -631,7 +634,7 @@
     </template>
 
     <!-- Non-admin: Simple static version text -->
-    <span v-else-if="version" class="text-xs text-gray-500 dark:text-dark-400">
+    <span v-else-if="version" class="font-mono text-[11px] tabular-nums text-gray-500 dark:text-dark-400">
       v{{ version }}
     </span>
   </div>
@@ -657,9 +660,17 @@ const DOCKER_IMAGE = 'weishaw/sub2api'
 
 const { t } = useI18n()
 
-const props = defineProps<{
-  version?: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    version?: string
+    /**
+     * 下拉展开方向：bottom（默认，向下）/ top（侧边栏底部使用，向上）。
+     * top 时下拉相对调用方最近的定位祖先左对齐，调用方需提供 position: relative 的容器。
+     */
+    placement?: 'bottom' | 'top'
+  }>(),
+  { version: undefined, placement: 'bottom' }
+)
 
 const authStore = useAuthStore()
 const appStore = useAppStore()
@@ -932,6 +943,13 @@ onBeforeUnmount(() => {
 .dropdown-leave-to {
   opacity: 0;
   transform: scale(0.95) translateY(-4px);
+}
+
+/* 向上展开时从下方浮入 */
+.dropdown-enter-from.version-dropdown-top,
+.dropdown-leave-to.version-dropdown-top {
+  transform: scale(0.97) translateY(4px);
+  transform-origin: bottom left;
 }
 
 .rollback-enter-active,

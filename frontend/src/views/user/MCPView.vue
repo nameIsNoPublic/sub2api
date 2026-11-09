@@ -1,64 +1,74 @@
 <template>
   <AppLayout>
-    <div class="mx-auto max-w-5xl space-y-6">
+    <div class="mx-auto max-w-5xl space-y-5">
       <section class="card p-5 sm:p-6" aria-labelledby="mcp-connection-title" :aria-busy="connectionLoading">
-        <div class="flex items-start gap-3">
-          <div class="rounded-xl bg-primary-50 p-3 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400">
-            <Icon name="mcp" size="lg" />
+        <div class="flex items-start gap-4">
+          <div class="stat-icon stat-icon-primary">
+            <Icon name="mcp" size="md" />
           </div>
-          <div>
-            <h2 id="mcp-connection-title" class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('mcp.connectionTitle') }}</h2>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ t('mcp.connectionDescription') }}</p>
+          <div class="min-w-0">
+            <p class="kicker"><span class="signal-dot"></span>MCP</p>
+            <h2 id="mcp-connection-title" class="section-title mt-1.5 text-lg">{{ t('mcp.connectionTitle') }}</h2>
+            <p class="mt-1 text-sm text-gray-500 dark:text-dark-400">{{ t('mcp.connectionDescription') }}</p>
           </div>
         </div>
         <div class="mt-5">
           <label for="mcp-endpoint" class="input-label">{{ t('mcp.endpoint') }}</label>
           <div class="flex flex-col gap-2 sm:flex-row">
-            <input id="mcp-endpoint" :value="endpoint" :placeholder="connectionLoading ? t('mcp.connectionLoading') : ''" class="input min-w-0 flex-1 font-mono text-sm" readonly />
+            <input id="mcp-endpoint" :value="endpoint" :placeholder="connectionLoading ? t('mcp.connectionLoading') : ''" class="input min-w-0 flex-1 bg-gray-50 font-mono text-[13px] text-gray-950 dark:bg-dark-950 dark:text-white" readonly />
             <button data-testid="copy-endpoint" class="btn btn-secondary shrink-0" type="button" :disabled="!endpoint || connectionLoading" @click="copyToClipboard(endpoint)">{{ t('mcp.copyEndpoint') }}</button>
           </div>
           <div v-if="connectionError" class="mt-3 flex flex-wrap items-center gap-3">
             <p role="alert" class="text-sm text-red-600 dark:text-red-400">{{ connectionError }}</p>
             <button data-testid="retry-connection" class="btn btn-secondary btn-sm" type="button" :disabled="connectionLoading" @click="loadConnection">{{ t('common.refresh') }}</button>
           </div>
-          <ol class="mt-5 list-decimal space-y-2 pl-5 text-sm text-gray-600 dark:text-gray-300">
-            <li>{{ t('mcp.connectStep1') }}</li>
-            <li>{{ t('mcp.connectStep2') }}</li>
-            <li>{{ t('mcp.connectStep3') }}</li>
+          <ol class="mt-5 grid gap-px overflow-hidden rounded-xl border border-gray-200/80 bg-gray-200/80 text-sm sm:grid-cols-3 dark:border-dark-800 dark:bg-dark-800">
+            <li class="flex gap-3 bg-white px-4 py-3.5 text-gray-700 dark:bg-dark-900 dark:text-dark-200">
+              <span class="num mt-px text-xs text-ember-600 dark:text-ember-400">01</span>
+              <span>{{ t('mcp.connectStep1') }}</span>
+            </li>
+            <li class="flex gap-3 bg-white px-4 py-3.5 text-gray-700 dark:bg-dark-900 dark:text-dark-200">
+              <span class="num mt-px text-xs text-ember-600 dark:text-ember-400">02</span>
+              <span>{{ t('mcp.connectStep2') }}</span>
+            </li>
+            <li class="flex gap-3 bg-white px-4 py-3.5 text-gray-700 dark:bg-dark-900 dark:text-dark-200">
+              <span class="num mt-px text-xs text-ember-600 dark:text-ember-400">03</span>
+              <span>{{ t('mcp.connectStep3') }}</span>
+            </li>
           </ol>
         </div>
-        <p class="mt-5 border-t border-gray-100 pt-4 text-sm text-gray-500 dark:border-dark-700 dark:text-gray-400">{{ t('mcp.capabilities') }}</p>
+        <p class="mt-5 border-t border-gray-100 pt-4 text-sm text-gray-500 dark:border-dark-800 dark:text-dark-400">{{ t('mcp.capabilities') }}</p>
       </section>
 
       <section class="card" aria-labelledby="mcp-grants-title">
-        <div class="flex flex-wrap items-start justify-between gap-4 border-b border-gray-100 p-5 dark:border-dark-700 sm:p-6">
+        <div class="flex flex-wrap items-start justify-between gap-4 border-b border-gray-100 p-5 dark:border-dark-800 sm:p-6">
           <div class="max-w-xl">
-            <h2 id="mcp-grants-title" class="text-lg font-semibold text-gray-900 dark:text-white">{{ t('mcp.grantsTitle') }}</h2>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ t('mcp.grantsDescription') }}</p>
+            <h2 id="mcp-grants-title" class="section-title text-lg">{{ t('mcp.grantsTitle') }}</h2>
+            <p class="mt-1 text-sm text-gray-500 dark:text-dark-400">{{ t('mcp.grantsDescription') }}</p>
           </div>
           <button data-testid="refresh-grants" type="button" class="btn btn-secondary" :disabled="loading || revoking" @click="loadGrants">{{ t('common.refresh') }}</button>
         </div>
         <div class="p-5 sm:p-6" :aria-busy="loading">
           <p v-if="loadError" role="alert" class="text-sm text-red-600 dark:text-red-400">{{ loadError }}</p>
-          <p v-else-if="loading" role="status" class="py-8 text-center text-sm text-gray-500 dark:text-gray-400">{{ t('mcp.loading') }}</p>
-          <p v-else-if="grants.length === 0" class="rounded-xl border border-dashed border-gray-200 px-4 py-10 text-center text-sm text-gray-500 dark:border-dark-700 dark:text-gray-400">{{ t('mcp.empty') }}</p>
-          <ul v-else class="divide-y divide-gray-100 dark:divide-dark-700">
+          <p v-else-if="loading" role="status" class="py-8 text-center text-sm text-gray-500 dark:text-dark-400">{{ t('mcp.loading') }}</p>
+          <p v-else-if="grants.length === 0" class="rounded-xl border border-dashed border-gray-300 px-4 py-10 text-center text-sm text-gray-500 dark:border-dark-700 dark:text-dark-400">{{ t('mcp.empty') }}</p>
+          <ul v-else class="divide-y divide-gray-100 dark:divide-dark-800">
             <li v-for="grant in grants" :key="grant.id" class="flex items-start justify-between gap-4 py-5 first:pt-0 last:pb-0" :data-grant-id="grant.id">
               <div class="min-w-0 space-y-2">
                 <div class="flex flex-wrap items-center gap-2">
-                  <span class="break-all font-medium text-gray-900 dark:text-white">{{ grant.client_name }}</span>
-                  <span class="rounded-md bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:bg-dark-700 dark:text-gray-300">{{ grant.scope === 'admin' ? t('mcp.adminScope') : t('mcp.userScope') }}</span>
-                  <span class="rounded-md bg-primary-50 px-2 py-0.5 text-xs text-primary-700 dark:bg-primary-900/20 dark:text-primary-300">{{ grant.read_only ? t('mcp.readOnly') : t('mcp.readWrite') }}</span>
-                  <span class="text-xs" :class="isActive(grant) ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-500 dark:text-gray-400'">{{ grantStatus(grant) }}</span>
+                  <span class="break-all font-medium text-gray-950 dark:text-white">{{ grant.client_name }}</span>
+                  <span class="badge badge-gray">{{ grant.scope === 'admin' ? t('mcp.adminScope') : t('mcp.userScope') }}</span>
+                  <span class="badge badge-primary">{{ grant.read_only ? t('mcp.readOnly') : t('mcp.readWrite') }}</span>
+                  <span class="inline-flex items-center gap-1.5 text-xs" :class="isActive(grant) ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-500 dark:text-dark-400'"><span class="h-1.5 w-1.5 rounded-full" :class="isActive(grant) ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-dark-600'" aria-hidden="true"></span>{{ grantStatus(grant) }}</span>
                 </div>
-                <p class="truncate font-mono text-xs text-gray-500 dark:text-gray-400" :title="grant.client_id">{{ grant.client_id }}</p>
-                <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+                <p class="truncate font-mono text-xs text-gray-500 dark:text-dark-400" :title="grant.client_id">{{ grant.client_id }}</p>
+                <div class="flex flex-wrap gap-x-4 gap-y-1 font-mono text-[11px] text-gray-500 dark:text-dark-400">
                   <span>{{ t('mcp.createdAt', { date: formatDate(grant.created_at) }) }}</span>
                   <span>{{ t('mcp.expiresAt', { date: formatDate(grant.expires_at) }) }}</span>
                   <span>{{ grant.last_used_at ? t('mcp.lastUsedAt', { date: formatDate(grant.last_used_at) }) : t('mcp.neverUsed') }}</span>
                 </div>
               </div>
-              <button v-if="!grant.revoked_at" type="button" class="btn btn-ghost btn-sm shrink-0 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/20" :aria-label="`${t('mcp.revoke')} ${grant.client_name}`" @click="revokeTarget = grant">{{ t('mcp.revoke') }}</button>
+              <button v-if="!grant.revoked_at" type="button" class="btn btn-ghost btn-sm shrink-0 text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-500/10 dark:hover:text-red-300" :aria-label="`${t('mcp.revoke')} ${grant.client_name}`" @click="revokeTarget = grant">{{ t('mcp.revoke') }}</button>
             </li>
           </ul>
         </div>
@@ -66,7 +76,7 @@
     </div>
 
     <BaseDialog :show="!!revokeTarget" :title="t('mcp.revokeTitle')" width="narrow" :close-on-escape="!revoking" :show-close-button="!revoking" @close="closeRevoke">
-      <p class="text-sm text-gray-600 dark:text-gray-300">{{ t('mcp.revokeConfirm', { name: revokeTarget?.client_name || '' }) }}</p>
+      <p class="text-sm text-gray-600 dark:text-dark-300">{{ t('mcp.revokeConfirm', { name: revokeTarget?.client_name || '' }) }}</p>
       <p v-if="revokeError" role="alert" class="mt-3 text-sm text-red-600 dark:text-red-400">{{ revokeError }}</p>
       <template #footer>
         <div class="flex justify-end gap-3">

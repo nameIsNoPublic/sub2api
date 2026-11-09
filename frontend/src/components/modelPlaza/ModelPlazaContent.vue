@@ -1,34 +1,58 @@
 <template>
-  <div class="space-y-5">
+  <div class="space-y-6">
     <!-- 页头(独立形态下展示标题;后台形态 AppHeader 已有页面标题) -->
-    <div v-if="!embedded">
-      <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-3xl">{{ t('modelPlaza.title') }}</h1>
-      <p class="mt-1.5 text-sm text-gray-500 dark:text-dark-400">{{ t('modelPlaza.description') }}</p>
+    <div v-if="!embedded" class="flex flex-wrap items-end justify-between gap-4">
+      <div class="min-w-0">
+        <p class="kicker">
+          <span class="signal-dot"></span>
+          {{ t('ui52.publicPages.plaza.kicker') }}
+        </p>
+        <h1 class="mt-3 text-3xl font-semibold tracking-tightest text-gray-950 dark:text-white sm:text-4xl">
+          {{ t('modelPlaza.title') }}
+        </h1>
+        <p class="mt-2 max-w-xl text-sm text-gray-500 dark:text-dark-400">{{ t('modelPlaza.description') }}</p>
+      </div>
+      <p
+        v-if="!loading && !error && response"
+        class="flex items-center gap-4 font-mono text-xs text-gray-500 dark:text-dark-400"
+      >
+        <span class="flex items-baseline gap-1.5">
+          <span class="num text-base font-semibold text-gray-950 dark:text-white">{{ totalGroups }}</span>
+          {{ t('ui52.publicPages.plaza.groupCount') }}
+        </span>
+        <span class="h-3 w-px bg-gray-300 dark:bg-dark-700" aria-hidden="true"></span>
+        <span class="flex items-baseline gap-1.5">
+          <span class="num text-base font-semibold text-gray-950 dark:text-white">{{ totalModels }}</span>
+          {{ t('ui52.publicPages.plaza.modelCount') }}
+        </span>
+      </p>
     </div>
 
     <!-- 全局价格说明(管理员配置,Markdown) -->
     <div
       v-if="descriptionHtml"
-      class="plaza-description rounded-2xl border border-gray-100 bg-white px-5 py-4 text-sm shadow-card dark:border-dark-700/50 dark:bg-dark-800/50"
+      class="plaza-description rounded-xl border border-gray-200/80 bg-white px-5 py-4 text-sm dark:border-dark-800 dark:bg-dark-900/80"
       v-html="descriptionHtml"
     ></div>
 
     <!-- 未登录提示 -->
     <p
       v-if="!isAuthenticated"
-      class="flex items-center gap-1.5 text-xs text-gray-400 dark:text-dark-500"
+      class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-dark-400"
     >
-      <Icon name="infoCircle" size="xs" class="h-3.5 w-3.5" />
+      <Icon name="infoCircle" size="xs" class="h-3.5 w-3.5 text-primary-500 dark:text-primary-400" />
       {{ t('modelPlaza.anonymousHint') }}
     </p>
 
     <!-- 加载/错误/空 -->
-    <div v-if="loading" class="flex min-h-[240px] items-center justify-center">
-      <div class="h-8 w-8 animate-spin rounded-full border-2 border-primary-600/25 border-t-primary-600 dark:border-primary-400/25 dark:border-t-primary-400"></div>
+    <div v-if="loading" class="space-y-4" aria-busy="true">
+      <div class="skeleton h-28 w-full rounded-xl"></div>
+      <div class="skeleton h-64 w-full rounded-xl"></div>
+      <span class="sr-only">{{ t('modelPlaza.loading') }}</span>
     </div>
     <div
       v-else-if="error"
-      class="rounded-2xl border border-red-200 bg-red-50 px-5 py-8 text-center text-sm text-red-600 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300"
+      class="rounded-xl border border-red-200 bg-red-50 px-5 py-8 text-center text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300"
     >
       {{ t('modelPlaza.loadFailed') }}
     </div>
@@ -49,13 +73,14 @@
       />
 
       <!-- 分组分节的模型清单(默认按生效倍率升序) -->
-      <div v-if="filteredGroups.length > 0" class="space-y-5">
+      <div v-if="filteredGroups.length > 0" class="space-y-6">
         <PlazaGroupSection v-for="g in filteredGroups" :key="g.id" :group="g" />
       </div>
       <div
         v-else
-        class="rounded-2xl border border-dashed border-gray-300 px-5 py-12 text-center text-sm text-gray-500 dark:border-dark-600 dark:text-dark-400"
+        class="flex flex-col items-center gap-2 rounded-xl border border-dashed border-gray-300 bg-white/60 px-5 py-14 text-center text-sm text-gray-500 dark:border-dark-700 dark:bg-dark-900/40 dark:text-dark-400"
       >
+        <Icon name="search" size="md" class="text-gray-300 dark:text-dark-600" />
         {{ searchActive ? t('modelPlaza.noSearchResult') : t('modelPlaza.empty') }}
       </div>
     </template>
@@ -91,6 +116,12 @@ const selectedRate = ref<number | 'all'>('all')
 const searchQuery = ref('')
 
 const searchActive = computed(() => searchQuery.value.trim() !== '')
+
+/** 页头统计:分组数与去重后的模型数(纯展示,基于已返回数据)。 */
+const totalGroups = computed(() => props.response?.groups?.length ?? 0)
+const totalModels = computed(
+  () => new Set((props.response?.groups ?? []).flatMap((g) => g.models.map((m) => m.name))).size
+)
 
 const descriptionHtml = computed(() => {
   const md = props.response?.description?.trim()
@@ -186,10 +217,10 @@ const filteredGroups = computed(() => {
 }
 
 .plaza-description :deep(code) {
-  @apply rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs dark:bg-dark-800;
+  @apply rounded-md bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-800 ring-1 ring-inset ring-gray-200/80 dark:bg-dark-800 dark:text-gray-200 dark:ring-dark-700;
 }
 
 .plaza-description :deep(blockquote) {
-  @apply my-2 border-l-4 border-gray-300 pl-3 text-gray-600 dark:border-dark-600 dark:text-dark-300;
+  @apply my-2 border-l-2 border-primary-300 pl-3 text-gray-600 dark:border-primary-500/50 dark:text-dark-300;
 }
 </style>

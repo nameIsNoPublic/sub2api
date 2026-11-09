@@ -270,9 +270,20 @@ const iconInfo = computed(() => iconKey.value ? iconData[iconKey.value] : null)
   align-items: center;
   justify-content: center;
   border-radius: 4px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: white;
+  background: #efefec;
+  box-shadow: inset 0 0 0 1px #e4e4e0;
+  color: #3b3d44;
+  font-family: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-weight: 600;
   flex-shrink: 0;
+}
+
+/* 深色模式：近黑底 + 细描边。
+ * 注意不能写 :global(.dark) .xxx —— Vue 会编译成裸 .dark {...} 污染全局，
+ * scoped 下直接写后代选择器即可（作用域属性只加在最后一段）。 */
+.dark .model-icon-fallback {
+  background: #1c1d23;
+  box-shadow: inset 0 0 0 1px #2e3037;
+  color: #cfd0d7;
 }
 </style>

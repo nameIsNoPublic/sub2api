@@ -207,13 +207,13 @@ const statusLabel = (status: string) => {
 
 const statusClass = (status: string) => {
   const map: Record<string, string> = {
-    pending: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-200',
-    running: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-200',
-    succeeded: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200',
-    failed: 'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-200',
-    canceled: 'bg-gray-200 text-gray-600 dark:bg-dark-600 dark:text-gray-300'
+    pending: 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200/70 dark:bg-amber-500/10 dark:text-amber-300 dark:ring-amber-400/25',
+    running: 'bg-sky-50 text-sky-700 ring-1 ring-inset ring-sky-200/70 dark:bg-sky-500/10 dark:text-sky-300 dark:ring-sky-400/25',
+    succeeded: 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200/70 dark:bg-emerald-500/10 dark:text-emerald-300 dark:ring-emerald-400/25',
+    failed: 'bg-red-50 text-red-700 ring-1 ring-inset ring-red-200/70 dark:bg-red-500/10 dark:text-red-300 dark:ring-red-400/25',
+    canceled: 'bg-gray-100 text-gray-600 ring-1 ring-inset ring-gray-200/80 dark:bg-dark-800 dark:text-dark-300 dark:ring-dark-700'
   }
-  return map[status] || 'bg-gray-100 text-gray-600'
+  return map[status] || 'bg-gray-100 text-gray-600 ring-1 ring-inset ring-gray-200/80 dark:bg-dark-800 dark:text-dark-300 dark:ring-dark-700'
 }
 
 const formatDateTime = (value?: string | null) => {

@@ -1,15 +1,17 @@
 <template>
-  <div class="card p-4">
-    <h3 class="mb-4 text-sm font-semibold text-gray-900 dark:text-white">
-      {{ t('payment.admin.paymentDistribution') }}
-    </h3>
+  <div class="card overflow-hidden">
+    <div :class="CHART_CARD_HEADER">
+      <h3 :class="CHART_CARD_TITLE">
+        {{ t('payment.admin.paymentDistribution') }}
+      </h3>
+    </div>
     <div
       v-if="!methods?.length"
-      class="flex h-32 items-center justify-center text-sm text-gray-500 dark:text-gray-400"
+      class="flex h-32 items-center justify-center text-sm text-gray-500 dark:text-dark-400"
     >
       {{ t('payment.admin.noData') }}
     </div>
-    <div v-else class="space-y-3">
+    <div v-else class="space-y-4 p-4">
       <div v-for="method in methods" :key="method.type" class="space-y-1">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
@@ -19,17 +21,17 @@
             </span>
           </div>
           <div class="space-y-1 text-right">
-            <span v-for="[currency, amount] in sortedAmounts(method.amount)" :key="currency" class="block text-sm font-medium text-gray-900 dark:text-white">
+            <span v-for="[currency, amount] in sortedAmounts(method.amount)" :key="currency" class="num block text-sm font-medium text-gray-900 dark:text-white">
               {{ formatMoney(currency, amount) }}
             </span>
-            <span class="ml-2 text-xs text-gray-500 dark:text-gray-400">
+            <span class="num ml-2 text-xs text-gray-500 dark:text-dark-400">
               ({{ method.count }})
             </span>
           </div>
         </div>
         <div v-for="[currency, amount] in sortedAmounts(method.amount)" :key="currency" class="flex items-center gap-2">
-          <span class="w-10 text-xs text-gray-500 dark:text-gray-400">{{ currency }}</span>
-          <div class="h-2 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-dark-700">
+          <span class="w-10 font-mono text-[11px] text-gray-500 dark:text-dark-400">{{ currency }}</span>
+          <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-dark-800">
             <div
               :class="['h-full rounded-full transition-all', barColorMap[method.type] || 'bg-gray-400']"
               :style="{ width: barWidth(currency, amount) + '%' }"
@@ -44,6 +46,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { CHART_CARD_HEADER, CHART_CARD_TITLE } from '@/components/charts/chartStyles'
 import type { CurrencyAmounts, PaymentMethodStats } from '@/types/payment'
 
 const { t } = useI18n()

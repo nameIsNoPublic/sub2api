@@ -3,8 +3,8 @@
     <!-- Preview Box -->
     <div class="flex-shrink-0">
       <div
-        class="flex items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 dark:border-dark-600 dark:bg-dark-800"
-        :class="[previewSizeClass, { 'border-solid': !!modelValue }]"
+        class="flex items-center justify-center overflow-hidden rounded-xl border border-dashed border-gray-300 bg-gray-50 dark:border-dark-700 dark:bg-dark-950"
+        :class="[previewSizeClass, { 'border-solid bg-white dark:bg-dark-900': !!modelValue }]"
       >
         <!-- SVG mode: render inline -->
         <span
@@ -49,21 +49,21 @@
             class="hidden"
             @change="handleUpload"
           />
-          <Icon name="upload" size="sm" class="mr-1.5" :stroke-width="2" />
+          <Icon name="upload" size="sm" :stroke-width="2" />
           {{ resolvedUploadLabel }}
         </label>
         <button
           v-if="modelValue"
           type="button"
-          class="btn btn-secondary btn-sm text-red-600 hover:text-red-700 dark:text-red-400"
+          class="btn btn-secondary btn-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
           @click="removeImage"
         >
-          <Icon name="trash" size="sm" class="mr-1.5" :stroke-width="2" />
+          <Icon name="trash" size="sm" :stroke-width="2" />
           {{ resolvedRemoveLabel }}
         </button>
       </div>
-      <p v-if="hint" class="text-xs text-gray-500 dark:text-gray-400">{{ hint }}</p>
-      <p v-if="error" class="text-xs text-red-500">{{ error }}</p>
+      <p v-if="hint" class="text-xs text-gray-500 dark:text-dark-400">{{ hint }}</p>
+      <p v-if="error" class="text-xs text-red-600 dark:text-red-400">{{ error }}</p>
     </div>
   </div>
 </template>

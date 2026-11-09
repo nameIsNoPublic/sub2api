@@ -3,7 +3,7 @@
     <div v-for="attr in attributes" :key="attr.id">
       <label class="input-label">
         {{ attr.name }}
-        <span v-if="attr.required" class="text-red-500">*</span>
+        <span v-if="attr.required" class="text-red-600 dark:text-red-400">*</span>
       </label>
 
       <!-- Text Input -->
@@ -71,9 +71,9 @@
             :value="opt.value"
             :checked="isOptionSelected(attr.id, opt.value)"
             @change="toggleMultiSelectOption(attr.id, opt.value)"
-            class="h-4 w-4 rounded border-gray-300 text-primary-600"
+            class="h-4 w-4 rounded border-gray-300 accent-primary-600 dark:border-dark-600 dark:accent-primary-500"
           />
-          <span class="text-sm text-gray-700 dark:text-gray-300">{{ opt.label }}</span>
+          <span class="text-sm text-gray-700 dark:text-dark-200">{{ opt.label }}</span>
         </label>
       </div>
 

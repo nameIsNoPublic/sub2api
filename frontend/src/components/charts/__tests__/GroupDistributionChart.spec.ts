@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 
 import GroupDistributionChart from '../GroupDistributionChart.vue'
+import { CHART_SEMANTIC, CHART_SERIES } from '@/utils/chartTheme'
 
 const messages: Record<string, string> = {
   'admin.dashboard.groupDistribution': 'Group Distribution',
@@ -15,6 +16,7 @@ const messages: Record<string, string> = {
   'admin.dashboard.metricTokens': 'By Tokens',
   'admin.dashboard.metricActualCost': 'By Actual Cost',
   'admin.dashboard.noDataAvailable': 'No data available',
+  'admin.dashboard.spendingRankingOther': 'Others',
 }
 
 vi.mock('vue-i18n', async () => {
@@ -130,4 +132,31 @@ describe('GroupDistributionChart', () => {
     expect(wrapper.findAll('thead th')).toHaveLength(5)
     expect(wrapper.findAll('tbody tr')[0].findAll('td')).toHaveLength(5)
   })
+
+  it('merges groups beyond the palette into Others while listing every group', () => {
+    const count = CHART_SERIES.length + 1
+    const manyGroups = Array.from({ length: count }, (_, i) => ({
+      group_id: i + 1,
+      group_name: `group-${i}`,
+      requests: 1,
+      total_tokens: (count - i) * 10,
+      cost: 0,
+      actual_cost: 0,
+    }))
+    const wrapper = mount(GroupDistributionChart, {
+      props: { groupStats: manyGroups, showAccountCost: false },
+      global: { stubs: { LoadingSpinner: true } },
+    })
+
+    const keep = CHART_SERIES.length - 1
+    const chartData = JSON.parse(wrapper.find('.chart-data').text())
+    expect(chartData.labels).toHaveLength(CHART_SERIES.length)
+    expect(chartData.labels[keep]).toBe('Others')
+    expect(chartData.datasets[0].data[keep]).toBe(
+      manyGroups.slice(keep).reduce((sum, g) => sum + g.total_tokens, 0)
+    )
+    expect(chartData.datasets[0].backgroundColor[keep]).toBe(CHART_SEMANTIC.light.neutral)
+    expect(wrapper.findAll('tbody tr')).toHaveLength(count)
+  })
 })
+

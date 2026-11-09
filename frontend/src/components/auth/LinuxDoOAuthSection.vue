@@ -2,7 +2,7 @@
   <div class="space-y-4">
     <button type="button" :disabled="disabled" class="btn btn-secondary w-full" @click="startLogin">
       <svg
-        class="icon mr-2"
+        class="icon shrink-0"
         viewBox="0 0 16 16"
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
@@ -30,11 +30,11 @@
     </button>
 
     <div v-if="showDivider" class="flex items-center gap-3">
-      <div class="h-px flex-1 bg-gray-200 dark:bg-dark-700"></div>
-      <span class="text-xs text-gray-500 dark:text-dark-400">
+      <div class="h-px flex-1 bg-gray-200/80 dark:bg-dark-800"></div>
+      <span class="font-mono text-[11px] uppercase tracking-[0.12em] text-gray-400 dark:text-dark-500">
         {{ t('auth.oauthOrContinue') }}
       </span>
-      <div class="h-px flex-1 bg-gray-200 dark:bg-dark-700"></div>
+      <div class="h-px flex-1 bg-gray-200/80 dark:bg-dark-800"></div>
     </div>
   </div>
 </template>

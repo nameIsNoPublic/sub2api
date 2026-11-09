@@ -24,7 +24,7 @@
         </svg>
       </div>
 
-      <div v-else-if="!isActive" class="rounded-lg border border-gray-200 p-4 text-sm text-gray-500 dark:border-dark-600 dark:text-gray-400">
+      <div v-else-if="!isActive" class="rounded-xl border border-gray-200/80 p-4 text-sm text-gray-500 dark:border-dark-700 dark:text-gray-400">
         {{ t('admin.accounts.tempUnschedulable.notActive') }}
       </div>
 
@@ -33,7 +33,7 @@
           {{ t('admin.accounts.recoverStateHint') }}
         </div>
 
-        <div class="rounded-lg border border-gray-200 p-4 dark:border-dark-600">
+        <div class="rounded-xl border border-gray-200/80 p-4 dark:border-dark-700">
           <p class="text-xs text-gray-500 dark:text-gray-400">
             {{ t('admin.accounts.tempUnschedulable.accountName') }}
           </p>
@@ -43,7 +43,7 @@
         </div>
 
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div class="rounded-lg border border-gray-200 p-3 dark:border-dark-600">
+          <div class="rounded-lg border border-gray-200/80 p-3 dark:border-dark-700">
             <p class="text-xs text-gray-500 dark:text-gray-400">
               {{ t('admin.accounts.tempUnschedulable.triggeredAt') }}
             </p>
@@ -51,7 +51,7 @@
               {{ triggeredAtText }}
             </p>
           </div>
-          <div class="rounded-lg border border-gray-200 p-3 dark:border-dark-600">
+          <div class="rounded-lg border border-gray-200/80 p-3 dark:border-dark-700">
             <p class="text-xs text-gray-500 dark:text-gray-400">
               {{ t('admin.accounts.tempUnschedulable.until') }}
             </p>
@@ -59,7 +59,7 @@
               {{ untilText }}
             </p>
           </div>
-          <div class="rounded-lg border border-gray-200 p-3 dark:border-dark-600">
+          <div class="rounded-lg border border-gray-200/80 p-3 dark:border-dark-700">
             <p class="text-xs text-gray-500 dark:text-gray-400">
               {{ t('admin.accounts.tempUnschedulable.remaining') }}
             </p>
@@ -67,7 +67,7 @@
               {{ remainingText }}
             </p>
           </div>
-          <div class="rounded-lg border border-gray-200 p-3 dark:border-dark-600">
+          <div class="rounded-lg border border-gray-200/80 p-3 dark:border-dark-700">
             <p class="text-xs text-gray-500 dark:text-gray-400">
               {{ t('admin.accounts.tempUnschedulable.errorCode') }}
             </p>
@@ -75,7 +75,7 @@
               {{ state?.status_code || '-' }}
             </p>
           </div>
-          <div class="rounded-lg border border-gray-200 p-3 dark:border-dark-600">
+          <div class="rounded-lg border border-gray-200/80 p-3 dark:border-dark-700">
             <p class="text-xs text-gray-500 dark:text-gray-400">
               {{ t('admin.accounts.tempUnschedulable.matchedKeyword') }}
             </p>
@@ -83,7 +83,7 @@
               {{ state?.matched_keyword || '-' }}
             </p>
           </div>
-          <div class="rounded-lg border border-gray-200 p-3 dark:border-dark-600">
+          <div class="rounded-lg border border-gray-200/80 p-3 dark:border-dark-700">
             <p class="text-xs text-gray-500 dark:text-gray-400">
               {{ t('admin.accounts.tempUnschedulable.ruleOrder') }}
             </p>
@@ -93,18 +93,18 @@
           </div>
         </div>
 
-        <div class="rounded-lg border border-gray-200 p-3 dark:border-dark-600">
+        <div class="rounded-lg border border-gray-200/80 p-3 dark:border-dark-700">
           <p class="text-xs text-gray-500 dark:text-gray-400">
             {{ t('admin.accounts.tempUnschedulable.errorMessage') }}
           </p>
-          <div class="mt-2 rounded bg-gray-50 p-2 text-xs text-gray-700 dark:bg-dark-700 dark:text-gray-300">
+          <div class="mt-2 rounded-md bg-gray-50 p-2 font-mono text-xs text-gray-700 dark:bg-dark-950/60 dark:text-gray-300">
             {{ state?.error_message || '-' }}
           </div>
         </div>
 
         <div
           v-if="hasThresholdEvidence"
-          class="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-300"
+          class="rounded-lg border border-sky-200/80 bg-sky-50/80 p-3 text-sm text-sky-900 dark:border-sky-400/20 dark:bg-sky-500/10 dark:text-sky-200"
           data-testid="temp-unsched-trigger-evidence"
         >
           {{ triggerEvidenceText }}

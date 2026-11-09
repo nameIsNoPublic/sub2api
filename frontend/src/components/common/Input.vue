@@ -2,13 +2,13 @@
   <div class="w-full">
     <label v-if="label" :for="id" class="input-label mb-1.5 block">
       {{ label }}
-      <span v-if="required" class="text-red-500">*</span>
+      <span v-if="required" class="ml-0.5 text-red-500">*</span>
     </label>
     <div class="relative">
       <!-- Prefix Icon Slot -->
       <div
         v-if="$slots.prefix"
-        class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400 dark:text-dark-400"
+        class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 dark:text-dark-400"
       >
         <slot name="prefix"></slot>
       </div>
@@ -24,11 +24,11 @@
         :autocomplete="autocomplete"
         :readonly="readonly"
         :class="[
-          'input w-full transition-all duration-200',
-          $slots.prefix ? 'pl-11' : '',
+          'input w-full',
+          $slots.prefix ? 'pl-10' : '',
           $slots.suffix ? 'pr-11' : '',
-          error ? 'input-error ring-2 ring-red-500/20' : '',
-          disabled ? 'cursor-not-allowed bg-gray-100 opacity-60 dark:bg-dark-900' : ''
+          error ? 'input-error ring-4 ring-red-500/10' : '',
+          disabled ? 'cursor-not-allowed bg-gray-100 opacity-70 dark:bg-dark-950' : ''
         ]"
         @input="onInput"
         @change="$emit('change', ($event.target as HTMLInputElement).value)"

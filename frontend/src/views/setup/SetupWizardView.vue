@@ -1,68 +1,75 @@
 <template>
-  <div
-    class="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4 dark:from-dark-900 dark:to-dark-800"
-  >
+  <div class="relative min-h-screen overflow-hidden bg-gray-50 dark:bg-dark-950">
+    <SignalField variant="ambient" :seed="7" class="absolute inset-0" />
+
+    <div class="relative z-10 flex min-h-screen items-center justify-center p-4 py-10">
     <div class="w-full max-w-2xl">
       <!-- Logo & Title -->
       <div class="mb-8 text-center">
-        <div
-          class="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 shadow-lg"
-        >
-          <Icon name="cog" size="xl" class="text-white" />
+        <div class="mb-5 inline-flex">
+          <BrandMark size="lg" :show-name="false" />
         </div>
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ t('setup.title') }}</h1>
+        <p class="kicker justify-center">
+          <span class="signal-dot"></span>
+          {{ t('ui52.publicPages.setup.kicker') }}
+        </p>
+        <h1 class="mt-3 text-3xl font-semibold tracking-tightest text-gray-950 dark:text-white sm:text-4xl">{{ t('setup.title') }}</h1>
         <p class="mt-2 text-gray-500 dark:text-dark-400">{{ t('setup.description') }}</p>
       </div>
 
-      <!-- Progress Steps -->
-      <div class="mb-8">
-        <div class="flex items-center justify-center">
-          <template v-for="(step, index) in steps" :key="step.id">
-            <div class="flex items-center">
-              <div
-                :class="[
-                  'flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition-all',
-                  currentStep > index
-                    ? 'bg-primary-500 text-white'
-                    : currentStep === index
-                      ? 'bg-primary-500 text-white ring-4 ring-primary-100 dark:ring-primary-900'
-                      : 'bg-gray-200 text-gray-500 dark:bg-dark-700 dark:text-dark-400'
-                ]"
-              >
-                <Icon
-                  v-if="currentStep > index"
-                  name="check"
-                  size="md"
-                  :stroke-width="2"
-                />
-                <span v-else>{{ index + 1 }}</span>
-              </div>
-              <span
-                class="ml-2 hidden text-sm font-medium sm:inline"
-                :class="
-                  currentStep >= index
-                    ? 'text-gray-900 dark:text-white'
+      <!-- Progress Steps:等宽序号,当前步靛蓝,已完成步墨色对勾 -->
+      <ol class="mb-6 flex items-center justify-center" :aria-label="t('ui52.publicPages.setup.progress')">
+        <template v-for="(step, index) in steps" :key="step.id">
+          <li class="flex items-center" :aria-current="currentStep === index ? 'step' : undefined">
+            <span
+              :class="[
+                'flex h-8 w-8 items-center justify-center rounded-lg font-mono text-xs font-semibold transition-all',
+                currentStep > index
+                  ? 'bg-gray-950 text-white dark:bg-white dark:text-gray-950'
+                  : currentStep === index
+                    ? 'bg-primary-600 text-white shadow-glow dark:bg-primary-500'
+                    : 'bg-white text-gray-400 ring-1 ring-inset ring-gray-200 dark:bg-dark-900 dark:text-dark-500 dark:ring-dark-700'
+              ]"
+            >
+              <Icon
+                v-if="currentStep > index"
+                name="check"
+                size="sm"
+                :stroke-width="2.5"
+              />
+              <span v-else>{{ String(index + 1).padStart(2, '0') }}</span>
+            </span>
+            <span
+              class="ml-2 hidden text-sm font-medium sm:inline"
+              :class="
+                currentStep === index
+                  ? 'text-gray-950 dark:text-white'
+                  : currentStep > index
+                    ? 'text-gray-600 dark:text-dark-300'
                     : 'text-gray-400 dark:text-dark-500'
-                "
-              >
-                {{ step.title }}
-              </span>
-            </div>
-            <div
-              v-if="index < steps.length - 1"
-              class="mx-2 h-0.5 w-6 sm:mx-3 sm:w-12"
-              :class="currentStep > index ? 'bg-primary-500' : 'bg-gray-200 dark:bg-dark-700'"
-            ></div>
-          </template>
-        </div>
-      </div>
+              "
+            >
+              {{ step.title }}
+            </span>
+          </li>
+          <li
+            v-if="index < steps.length - 1"
+            class="mx-2 h-px w-6 sm:mx-3 sm:w-10"
+            :class="currentStep > index ? 'bg-gray-950 dark:bg-white' : 'bg-gray-300 dark:bg-dark-700'"
+            aria-hidden="true"
+          ></li>
+        </template>
+      </ol>
 
       <!-- Step Content -->
-      <div class="rounded-2xl bg-white p-8 shadow-xl dark:bg-dark-800">
+      <div class="rounded-2xl border border-gray-200/80 bg-white p-6 shadow-glass dark:border-dark-800 dark:bg-dark-900 sm:p-8">
         <!-- Step 1: Database -->
         <div v-if="currentStep === 0" class="space-y-6">
-          <div class="mb-6 text-center">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+          <div class="mb-6 border-b border-gray-100 pb-5 dark:border-dark-800">
+            <p class="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-primary-600 dark:text-primary-400">
+              {{ t('ui52.publicPages.setup.stepOf', { current: currentStep + 1, total: steps.length }) }}
+            </p>
+            <h2 class="mt-1.5 text-xl font-semibold tracking-tight text-gray-950 dark:text-white">
               {{ t('setup.database.title') }}
             </h2>
             <p class="mt-1 text-sm text-gray-500 dark:text-dark-400">
@@ -91,9 +98,9 @@
             </div>
           </div>
 
-          <div class="flex items-center justify-between rounded-xl border border-gray-200 p-3 dark:border-dark-700">
+          <div class="flex items-center justify-between gap-4 rounded-lg border border-gray-200/80 bg-gray-50/60 p-3.5 dark:border-dark-800 dark:bg-dark-950/40">
             <div>
-              <p class="text-sm font-medium text-gray-900 dark:text-white">
+              <p class="text-sm font-medium text-gray-950 dark:text-white">
                 {{ t("setup.redis.enableTls") }}
               </p>
               <p class="text-xs text-gray-500 dark:text-dark-400">
@@ -173,7 +180,7 @@
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            <Icon v-else-if="dbConnected" name="check" size="md" class="mr-2 text-green-500" :stroke-width="2" />
+            <Icon v-else-if="dbConnected" name="check" size="md" class="mr-2 text-emerald-500" :stroke-width="2" />
             {{
               testingDb
                 ? t('setup.status.testing')
@@ -186,8 +193,11 @@
 
         <!-- Step 2: Redis -->
         <div v-if="currentStep === 1" class="space-y-6">
-          <div class="mb-6 text-center">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+          <div class="mb-6 border-b border-gray-100 pb-5 dark:border-dark-800">
+            <p class="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-primary-600 dark:text-primary-400">
+              {{ t('ui52.publicPages.setup.stepOf', { current: currentStep + 1, total: steps.length }) }}
+            </p>
+            <h2 class="mt-1.5 text-xl font-semibold tracking-tight text-gray-950 dark:text-white">
               {{ t('setup.redis.title') }}
             </h2>
             <p class="mt-1 text-sm text-gray-500 dark:text-dark-400">
@@ -246,9 +256,9 @@
             </div>
           </div>
 
-          <div class="flex items-center justify-between rounded-xl border border-gray-200 p-3 dark:border-dark-700">
+          <div class="flex items-center justify-between gap-4 rounded-lg border border-gray-200/80 bg-gray-50/60 p-3.5 dark:border-dark-800 dark:bg-dark-950/40">
             <div>
-              <p class="text-sm font-medium text-gray-900 dark:text-white">
+              <p class="text-sm font-medium text-gray-950 dark:text-white">
                 {{ t("setup.redis.enableTls") }}
               </p>
               <p class="text-xs text-gray-500 dark:text-dark-400">
@@ -287,7 +297,7 @@
               v-else-if="redisConnected"
               name="check"
               size="md"
-              class="mr-2 text-green-500"
+              class="mr-2 text-emerald-500"
               :stroke-width="2"
             />
             {{
@@ -302,8 +312,11 @@
 
         <!-- Step 3: Admin -->
         <div v-if="currentStep === 2" class="space-y-6">
-          <div class="mb-6 text-center">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+          <div class="mb-6 border-b border-gray-100 pb-5 dark:border-dark-800">
+            <p class="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-primary-600 dark:text-primary-400">
+              {{ t('ui52.publicPages.setup.stepOf', { current: currentStep + 1, total: steps.length }) }}
+            </p>
+            <h2 class="mt-1.5 text-xl font-semibold tracking-tight text-gray-950 dark:text-white">
               {{ t('setup.admin.title') }}
             </h2>
             <p class="mt-1 text-sm text-gray-500 dark:text-dark-400">
@@ -350,8 +363,11 @@
 
         <!-- Step 4: Complete -->
         <div v-if="currentStep === 3" class="space-y-6">
-          <div class="mb-6 text-center">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+          <div class="mb-6 border-b border-gray-100 pb-5 dark:border-dark-800">
+            <p class="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-primary-600 dark:text-primary-400">
+              {{ t('ui52.publicPages.setup.stepOf', { current: currentStep + 1, total: steps.length }) }}
+            </p>
+            <h2 class="mt-1.5 text-xl font-semibold tracking-tight text-gray-950 dark:text-white">
               {{ t('setup.ready.title') }}
             </h2>
             <p class="mt-1 text-sm text-gray-500 dark:text-dark-400">
@@ -359,32 +375,32 @@
             </p>
           </div>
 
-          <div class="space-y-4">
-            <div class="rounded-xl bg-gray-50 p-4 dark:bg-dark-700">
-              <h3 class="mb-2 text-sm font-medium text-gray-500 dark:text-dark-400">
+          <div class="divide-y divide-gray-100 overflow-hidden rounded-xl border border-gray-200/80 bg-gray-50/50 dark:divide-dark-800 dark:border-dark-800 dark:bg-dark-950/40">
+            <div class="px-4 py-3.5">
+              <h3 class="mb-1 font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-gray-500 dark:text-dark-400">
                 {{ t('setup.ready.database') }}
               </h3>
-              <p class="text-gray-900 dark:text-white">
+              <p class="break-all font-mono text-sm text-gray-950 dark:text-white">
                 {{ formData.database.user }}@{{ formData.database.host }}:{{
                   formData.database.port
                 }}/{{ formData.database.dbname }}
               </p>
             </div>
 
-            <div class="rounded-xl bg-gray-50 p-4 dark:bg-dark-700">
-              <h3 class="mb-2 text-sm font-medium text-gray-500 dark:text-dark-400">
+            <div class="px-4 py-3.5">
+              <h3 class="mb-1 font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-gray-500 dark:text-dark-400">
                 {{ t('setup.ready.redis') }}
               </h3>
-              <p class="text-gray-900 dark:text-white">
+              <p class="break-all font-mono text-sm text-gray-950 dark:text-white">
                 {{ formData.redis.host }}:{{ formData.redis.port }}
               </p>
             </div>
 
-            <div class="rounded-xl bg-gray-50 p-4 dark:bg-dark-700">
-              <h3 class="mb-2 text-sm font-medium text-gray-500 dark:text-dark-400">
+            <div class="px-4 py-3.5">
+              <h3 class="mb-1 font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-gray-500 dark:text-dark-400">
                 {{ t('setup.ready.adminEmail') }}
               </h3>
-              <p class="text-gray-900 dark:text-white">{{ formData.admin.email }}</p>
+              <p class="break-all font-mono text-sm text-gray-950 dark:text-white">{{ formData.admin.email }}</p>
             </div>
           </div>
         </div>
@@ -392,7 +408,7 @@
         <!-- Error Message -->
         <div
           v-if="errorMessage"
-          class="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800/50 dark:bg-red-900/20"
+          class="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-500/30 dark:bg-red-500/10"
         >
           <div class="flex items-start gap-3">
             <Icon name="exclamationCircle" size="md" class="flex-shrink-0 text-red-500" />
@@ -403,12 +419,12 @@
         <!-- Success Message -->
         <div
           v-if="installSuccess"
-          class="mt-6 rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-800/50 dark:bg-green-900/20"
+          class="mt-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-500/30 dark:bg-emerald-500/10"
         >
           <div class="flex items-start gap-3">
             <svg
               v-if="!serviceReady"
-              class="h-5 w-5 flex-shrink-0 animate-spin text-green-500"
+              class="h-5 w-5 flex-shrink-0 animate-spin text-emerald-500"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -426,12 +442,12 @@
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               ></path>
             </svg>
-            <Icon v-else name="checkCircle" size="md" class="flex-shrink-0 text-green-500" />
+            <Icon v-else name="checkCircle" size="md" class="flex-shrink-0 text-emerald-500" />
             <div>
-              <p class="text-sm font-medium text-green-700 dark:text-green-400">
+              <p class="text-sm font-medium text-emerald-700 dark:text-emerald-400">
                 {{ t('setup.status.completed') }}
               </p>
-              <p class="mt-1 text-sm text-green-600 dark:text-green-500">
+              <p class="mt-1 text-sm text-emerald-600 dark:text-emerald-500">
                 {{
                   serviceReady
                     ? t('setup.status.redirecting')
@@ -443,7 +459,7 @@
         </div>
 
         <!-- Navigation Buttons -->
-        <div class="mt-8 flex justify-between">
+        <div class="mt-8 flex justify-between border-t border-gray-100 pt-6 dark:border-dark-800">
           <button
             v-if="currentStep > 0 && !installSuccess"
             @click="currentStep--"
@@ -496,6 +512,7 @@
       </div>
     </div>
   </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -506,6 +523,8 @@ import { buildGatewayUrl } from '@/api/client'
 import Select from '@/components/common/Select.vue'
 import Toggle from '@/components/common/Toggle.vue'
 import Icon from '@/components/icons/Icon.vue'
+import BrandMark from '@/components/brand/BrandMark.vue'
+import SignalField from '@/components/brand/SignalField.vue'
 
 const { t } = useI18n()
 

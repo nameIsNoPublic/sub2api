@@ -6,7 +6,8 @@ import { describe, expect, it } from 'vitest'
 
 const componentPath = resolve(dirname(fileURLToPath(import.meta.url)), '../AppSidebar.vue')
 const componentSource = readFileSync(componentPath, 'utf8')
-const stylePath = resolve(dirname(fileURLToPath(import.meta.url)), '../../../style.css')
+// 侧边栏 / 页头组件类已从 style.css 拆到 styles/shell.css
+const stylePath = resolve(dirname(fileURLToPath(import.meta.url)), '../../../styles/shell.css')
 const styleSource = readFileSync(stylePath, 'utf8')
 
 describe('AppSidebar custom SVG styles', () => {
@@ -60,6 +61,17 @@ describe('AppSidebar header styles', () => {
     expect(sidebarBrandBlockMatch).not.toBeNull()
     expect(sidebarHeaderBlockMatch?.[0]).not.toContain('@apply overflow-hidden;')
     expect(sidebarBrandBlockMatch?.[0]).not.toContain('overflow: hidden;')
+  })
+
+  it('opens the footer version badge upward without clipping it', () => {
+    const sidebarFooterBlockMatch = styleSource.match(/\.sidebar-footer\s*\{[\s\S]*?\n {2}\}/)
+    const sidebarVersionBlockMatch = componentSource.match(/\.sidebar-version\s*\{[\s\S]*?\n\}/)
+
+    expect(sidebarFooterBlockMatch).not.toBeNull()
+    expect(sidebarVersionBlockMatch).not.toBeNull()
+    expect(sidebarFooterBlockMatch?.[0]).not.toContain('overflow-hidden')
+    expect(sidebarVersionBlockMatch?.[0]).not.toContain('overflow: hidden;')
+    expect(componentSource).toContain('<VersionBadge :version="siteVersion" placement="top" />')
   })
 })
 

@@ -6,26 +6,26 @@
       { '-translate-x-full lg:translate-x-0': !mobileOpen }
     ]"
   >
-    <!-- Logo/Brand -->
+    <!-- Logo/Brand：品牌标识统一由 BrandMark 渲染（自定义 Logo 由 useBrand 统一清洗） -->
     <div class="sidebar-header" :class="{ 'sidebar-header-collapsed': sidebarCollapsed }">
-      <!-- Custom Logo or Default Logo -->
       <router-link
         :to="homePath"
-        class="sidebar-logo flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl shadow-glow transition-opacity hover:opacity-80"
+        class="sidebar-logo flex h-8 w-8 items-center justify-center rounded-lg transition-opacity hover:opacity-85"
+        :aria-label="siteName"
         @click="handleMenuItemClick(homePath)"
       >
-        <img v-if="settingsLoaded" :src="siteLogo || '/logo.svg'" alt="Logo" class="h-full w-full object-contain" />
+        <BrandMark size="md" :show-name="false" />
       </router-link>
       <div class="sidebar-brand" :class="{ 'sidebar-brand-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">
         <router-link
           :to="homePath"
-          class="sidebar-brand-title text-lg font-bold text-gray-900 transition-colors hover:text-primary-600 dark:text-white dark:hover:text-primary-400"
+          class="sidebar-brand-title text-[17px] font-semibold tracking-tightest text-gray-950 transition-colors hover:text-primary-600 dark:text-white dark:hover:text-primary-400"
+          :tabindex="sidebarCollapsed ? -1 : undefined"
           @click="handleMenuItemClick(homePath)"
         >
-          {{ siteName }}
+          <template v-if="isDefaultBrand">52code<span class="ml-px font-mono text-[11px] font-medium tracking-normal text-gray-400 dark:text-dark-500">.ai</span></template>
+          <template v-else>{{ siteName }}</template>
         </router-link>
-        <!-- Version Badge -->
-        <VersionBadge :version="siteVersion" />
       </div>
     </div>
 
@@ -35,6 +35,11 @@
       <template v-if="isAdmin">
         <!-- Admin Section -->
         <div class="sidebar-section">
+          <div class="sidebar-section-title" :class="{ 'sidebar-section-title-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">
+            <span class="sidebar-section-title-text" :class="{ 'sidebar-section-title-text-collapsed': sidebarCollapsed }">
+              {{ t('ui52.shell.adminSection') }}
+            </span>
+          </div>
           <template v-for="item in adminNavItems" :key="item.path">
             <!-- Collapsible group (has children) -->
             <template v-if="item.children?.length">
@@ -62,7 +67,7 @@
                 </span>
               </button>
               <!-- Children -->
-              <div v-if="!sidebarCollapsed && isGroupExpanded(item)" class="mb-1 ml-4 border-l border-gray-200 pl-2 dark:border-dark-600">
+              <div v-if="!sidebarCollapsed && isGroupExpanded(item)" class="mb-1.5 ml-[1.5rem] border-l border-gray-200 pl-2 dark:border-dark-800">
                 <router-link
                   v-for="child in item.children"
                   :key="child.path"
@@ -147,12 +152,13 @@
       </template>
     </nav>
 
-    <!-- Bottom Section -->
-    <div class="mt-auto border-t border-gray-100 p-3 dark:border-dark-800">
+    <!-- Bottom Section：主题、折叠、版本（版本下拉向上展开，容器不得裁剪） -->
+    <div class="sidebar-footer">
       <!-- Theme Toggle -->
       <button
+        type="button"
         @click="toggleTheme"
-        class="sidebar-link mb-2 w-full"
+        class="sidebar-link mb-0.5 w-full"
         :class="{ 'sidebar-link-collapsed': sidebarCollapsed }"
         :title="sidebarCollapsed ? (isDark ? t('nav.lightMode') : t('nav.darkMode')) : undefined"
       >
@@ -165,6 +171,7 @@
 
       <!-- Collapse Button -->
       <button
+        type="button"
         @click="toggleSidebar"
         class="sidebar-link w-full"
         :class="{ 'sidebar-link-collapsed': sidebarCollapsed }"
@@ -174,6 +181,12 @@
         <ChevronDoubleRightIcon v-else class="h-5 w-5 flex-shrink-0" />
         <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ t('nav.collapse') }}</span>
       </button>
+
+      <!-- Version Badge -->
+      <div v-if="!sidebarCollapsed" class="sidebar-version">
+        <span class="sidebar-version-label">{{ t('ui52.shell.version') }}</span>
+        <VersionBadge :version="siteVersion" placement="top" />
+      </div>
     </div>
   </aside>
 
@@ -181,7 +194,7 @@
   <transition name="fade">
     <div
       v-if="mobileOpen"
-      class="fixed inset-0 z-30 bg-black/50 lg:hidden"
+      class="fixed inset-0 z-30 bg-gray-950/40 backdrop-blur-[2px] dark:bg-black/60 lg:hidden"
       @click="closeMobile"
     ></div>
   </transition>
@@ -193,9 +206,10 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAdminSettingsStore, useAppStore, useAuthStore, useOnboardingStore } from '@/stores'
 import VersionBadge from '@/components/common/VersionBadge.vue'
+import BrandMark from '@/components/brand/BrandMark.vue'
 import Icon from '@/components/icons/Icon.vue'
+import { BRAND_DEFAULTS, useBrand } from '@/composables/useBrand'
 import { sanitizeSvg } from '@/utils/sanitize'
-import { sanitizeUrl } from '@/utils/url'
 import { FeatureFlags, makeSidebarFlag } from '@/utils/featureFlags'
 import { resolveSiteBillingMode } from '@/utils/siteBillingMode'
 import { useBatchImageAccess } from '@/composables/useBatchImageAccess'
@@ -260,11 +274,10 @@ const homePath = computed(() => (isAdmin.value ? '/admin/dashboard' : '/dashboar
 // state so an active group can still be collapsed manually.
 const groupExpandOverrides = ref<Map<string, boolean>>(new Map())
 
-// Site settings from appStore (cached, no flicker)
-const siteName = computed(() => appStore.siteName)
-const siteLogo = computed(() => sanitizeUrl(appStore.siteLogo || '', { allowRelative: true, allowDataUrl: true }))
+// Site settings: 品牌名 / Logo 统一走 useBrand（内部对自定义 Logo 做 sanitizeUrl 清洗）
+const { siteName } = useBrand()
+const isDefaultBrand = computed(() => siteName.value === BRAND_DEFAULTS.name)
 const siteVersion = computed(() => appStore.siteVersion)
-const settingsLoaded = computed(() => appStore.publicSettingsLoaded)
 
 // SVG Icon Components
 const DashboardIcon = {
@@ -984,14 +997,12 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .sidebar-logo {
-  flex: 0 0 2.25rem;
-  min-width: 2.25rem;
+  flex: 0 0 2rem;
+  min-width: 2rem;
 }
 
 .sidebar-header-collapsed {
   gap: 0;
-  padding-left: 1.125rem;
-  padding-right: 1.125rem;
 }
 
 .sidebar-brand {
@@ -1045,21 +1056,22 @@ onBeforeUnmount(() => {
     transform 0.16s ease;
 }
 
+/* 折叠态：分组标题收成一条细线 */
 .sidebar-section-title::after {
   content: '';
   position: absolute;
-  left: 0.75rem;
-  right: 0.75rem;
+  left: 0.875rem;
+  right: 0.875rem;
   top: 50%;
   height: 1px;
-  background: rgb(229 231 235);
+  background: theme('colors.gray.200');
   opacity: 0;
   transform: translateY(-50%);
   transition: opacity 0.18s ease;
 }
 
 .dark .sidebar-section-title::after {
-  background: rgb(55 65 81);
+  background: theme('colors.dark.800');
 }
 
 .sidebar-section-title-text-collapsed {
@@ -1087,6 +1099,7 @@ onBeforeUnmount(() => {
 
 .sidebar-label-flex {
   display: flex;
+  flex: 1 1 auto;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
@@ -1097,6 +1110,30 @@ onBeforeUnmount(() => {
   opacity: 0;
   transform: translateX(-4px);
   pointer-events: none;
+}
+
+/* 版本行：VersionBadge 下拉向上展开并以本行左缘为锚点（relative），这里不能 overflow: hidden */
+.sidebar-version {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.375rem 0.25rem 0 0.875rem;
+}
+
+.sidebar-version-label {
+  font-family: theme('fontFamily.mono');
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: theme('colors.gray.400');
+}
+
+.dark .sidebar-version-label {
+  color: theme('colors.dark.500');
 }
 
 /* Custom SVG icon in sidebar: constrain size without overriding uploaded SVG colors */

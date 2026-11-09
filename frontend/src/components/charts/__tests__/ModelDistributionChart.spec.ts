@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 
 import ModelDistributionChart from '../ModelDistributionChart.vue'
+import { CHART_SEMANTIC, CHART_SERIES } from '@/utils/chartTheme'
 
 const messages: Record<string, string> = {
   'admin.dashboard.modelDistribution': 'Model Distribution',
@@ -183,8 +184,9 @@ describe('ModelDistributionChart', () => {
       'Others',
     ])
     expect(chartData.datasets[0].data).toEqual([12, 8, 0, 10])
-    expect(chartData.datasets[0].backgroundColor[0]).toBe('#3b82f6')
-    expect(chartData.datasets[0].backgroundColor[3]).toBe('#94a3b8')
+    // 系列色来自 52code 图表主题，「其他」使用专用的中性色
+    expect(chartData.datasets[0].backgroundColor[0]).toBe(CHART_SERIES[0])
+    expect(chartData.datasets[0].backgroundColor[3]).toBe(CHART_SEMANTIC.light.neutral)
     expect(chartData.datasets[0].backgroundColor[3]).not.toBe(chartData.datasets[0].backgroundColor[0])
 
     const rows = wrapper.findAll('tbody tr')
@@ -198,4 +200,70 @@ describe('ModelDistributionChart', () => {
     expect(rows[3].text()).toContain('400')
     expect(rows[3].text()).toContain('$10.00')
   })
+
+  it('merges models beyond the palette into a neutral Others slice but still lists every model', () => {
+    const count = CHART_SERIES.length + 2
+    const manyModels = Array.from({ length: count }, (_, i) => ({
+      model: `model-${String(i).padStart(2, '0')}`,
+      requests: 1,
+      input_tokens: 0,
+      output_tokens: 0,
+      cache_creation_tokens: 0,
+      cache_read_tokens: 0,
+      total_tokens: (count - i) * 100,
+      cost: 0,
+      actual_cost: 0,
+    }))
+    const wrapper = mount(ModelDistributionChart, {
+      props: { modelStats: manyModels, showAccountCost: false },
+      global: { stubs: { LoadingSpinner: true } },
+    })
+
+    const keep = CHART_SERIES.length - 1
+    const chartData = JSON.parse(wrapper.find('.chart-data').text())
+    expect(chartData.labels).toHaveLength(CHART_SERIES.length)
+    expect(chartData.labels[keep]).toBe('Others')
+    expect(chartData.datasets[0].data[keep]).toBe(
+      manyModels.slice(keep).reduce((sum, m) => sum + m.total_tokens, 0)
+    )
+    expect(chartData.datasets[0].backgroundColor[keep]).toBe(CHART_SEMANTIC.light.neutral)
+    expect(chartData.datasets[0].backgroundColor.slice(0, keep)).toEqual(CHART_SERIES.slice(0, keep))
+
+    // 明细表不删减：全部模型都在
+    const rows = wrapper.findAll('tbody tr')
+    expect(rows).toHaveLength(count)
+    // 色点与扇区对应：前 keep 行为系列色，其余为中性色
+    const swatchStyle = (rowIndex: number) => rows[rowIndex].find('td span[aria-hidden="true"]').attributes('style')
+    expect(swatchStyle(0)).toContain(hexToRgb(CHART_SERIES[0]))
+    expect(swatchStyle(keep - 1)).toContain(hexToRgb(CHART_SERIES[keep - 1]))
+    expect(swatchStyle(keep)).toContain(hexToRgb(CHART_SEMANTIC.light.neutral))
+    expect(swatchStyle(count - 1)).toContain(hexToRgb(CHART_SEMANTIC.light.neutral))
+  })
+
+  it('draws every model when the count equals the palette size', () => {
+    const exact = Array.from({ length: CHART_SERIES.length }, (_, i) => ({
+      model: `m-${i}`,
+      requests: 1,
+      input_tokens: 0,
+      output_tokens: 0,
+      cache_creation_tokens: 0,
+      cache_read_tokens: 0,
+      total_tokens: 100 - i,
+      cost: 0,
+      actual_cost: 0,
+    }))
+    const wrapper = mount(ModelDistributionChart, {
+      props: { modelStats: exact },
+      global: { stubs: { LoadingSpinner: true } },
+    })
+    const chartData = JSON.parse(wrapper.find('.chart-data').text())
+    expect(chartData.labels).toEqual(exact.map((m) => m.model))
+    expect(chartData.datasets[0].backgroundColor).toEqual([...CHART_SERIES])
+  })
 })
+
+function hexToRgb(hex: string): string {
+  const n = hex.replace('#', '')
+  return `rgb(${parseInt(n.slice(0, 2), 16)}, ${parseInt(n.slice(2, 4), 16)}, ${parseInt(n.slice(4, 6), 16)})`
+}
+

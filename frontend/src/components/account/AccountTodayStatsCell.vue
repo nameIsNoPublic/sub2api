@@ -2,9 +2,9 @@
   <div>
     <!-- Loading state -->
     <div v-if="props.loading && !props.stats" class="space-y-0.5">
-      <div class="h-3 w-12 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
-      <div class="h-3 w-16 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
-      <div class="h-3 w-10 animate-pulse rounded bg-gray-200 dark:bg-gray-700"></div>
+      <div class="h-3 w-12 animate-pulse rounded bg-gray-200/80 dark:bg-dark-800"></div>
+      <div class="h-3 w-16 animate-pulse rounded bg-gray-200/80 dark:bg-dark-800"></div>
+      <div class="h-3 w-10 animate-pulse rounded bg-gray-200/80 dark:bg-dark-800"></div>
     </div>
 
     <!-- Error state -->
@@ -19,7 +19,7 @@
         <span class="text-gray-500 dark:text-gray-400"
           >{{ t('admin.accounts.stats.requests') }}:</span
         >
-        <span class="font-medium text-gray-700 dark:text-gray-300">{{
+        <span class="font-mono font-medium tabular-nums text-gray-800 dark:text-gray-200">{{
           formatNumber(props.stats.requests)
         }}</span>
       </div>
@@ -28,21 +28,21 @@
         <span class="text-gray-500 dark:text-gray-400"
           >{{ t('admin.accounts.stats.tokens') }}:</span
         >
-        <span class="font-medium text-gray-700 dark:text-gray-300">{{
+        <span class="font-mono font-medium tabular-nums text-gray-800 dark:text-gray-200">{{
           formatTokens(props.stats.tokens)
         }}</span>
       </div>
       <!-- Cost (Account) -->
       <div class="flex items-center gap-1">
         <span class="text-gray-500 dark:text-gray-400">{{ t('usage.accountBilled') }}:</span>
-        <span class="font-medium text-emerald-600 dark:text-emerald-400">{{
+        <span class="font-mono font-medium tabular-nums text-emerald-600 dark:text-emerald-400">{{
           formatCurrency(props.stats.cost)
         }}</span>
       </div>
       <!-- Cost (User/API Key) -->
       <div v-if="props.stats.user_cost != null" class="flex items-center gap-1">
         <span class="text-gray-500 dark:text-gray-400">{{ t('usage.userBilled') }}:</span>
-        <span class="font-medium text-gray-700 dark:text-gray-300">{{
+        <span class="font-mono font-medium tabular-nums text-gray-800 dark:text-gray-200">{{
           formatCurrency(props.stats.user_cost)
         }}</span>
       </div>

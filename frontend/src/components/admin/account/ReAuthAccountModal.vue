@@ -8,27 +8,27 @@
     <div v-if="account" class="space-y-4">
       <!-- Account Info -->
       <div
-        class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-dark-600 dark:bg-dark-700"
+        class="rounded-xl border border-gray-200/80 bg-gray-50/80 p-4 dark:border-dark-800 dark:bg-dark-950/40"
       >
         <div class="flex items-center gap-3">
           <div
             :class="[
-              'flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br',
+              'flex h-10 w-10 items-center justify-center rounded-lg shadow-[inset_0_1px_0_rgba(255,255,255,0.16)]',
               isOpenAILike
-                ? 'from-green-500 to-green-600'
+                ? 'bg-green-600'
                 : isGemini
-                  ? 'from-blue-500 to-blue-600'
+                  ? 'bg-blue-600'
                   : isAntigravity
-                    ? 'from-purple-500 to-purple-600'
+                    ? 'bg-purple-600'
                     : isGrok
-                      ? 'from-zinc-700 to-zinc-900'
-                      : 'from-orange-500 to-orange-600'
+                      ? 'bg-zinc-900 dark:bg-zinc-700'
+                      : 'bg-orange-600'
             ]"
           >
             <Icon name="sparkles" size="md" class="text-white" />
           </div>
           <div>
-            <span class="block font-semibold text-gray-900 dark:text-white">{{
+            <span class="block font-semibold tracking-tight text-gray-950 dark:text-white">{{
               account.name
             }}</span>
             <span class="text-sm text-gray-500 dark:text-gray-400">
@@ -78,7 +78,7 @@
       </fieldset>
 
       <!-- Gemini OAuth Type Display (read-only) -->
-      <div v-if="isGemini" class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-dark-600 dark:bg-dark-700">
+      <div v-if="isGemini" class="rounded-xl border border-gray-200/80 bg-gray-50/80 p-4 dark:border-dark-800 dark:bg-dark-950/40">
         <div class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
           {{ t('admin.accounts.oauth.gemini.oauthTypeLabel') }}
         </div>

@@ -44,9 +44,9 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* 桌面端：Flexbox 布局 */
+/* 桌面端：Flexbox 布局（工具栏 → 筛选 → 表格 → 分页，统一 16px 节奏） */
 .table-page-layout {
-  @apply flex flex-col gap-6;
+  @apply flex flex-col gap-4;
   height: calc(100vh - 64px - 4rem); /* 减去 header + lg:p-8 的上下padding */
 }
 
@@ -58,9 +58,10 @@ onUnmounted(() => {
   @apply flex-1 min-h-0 flex flex-col;
 }
 
-/* 表格滚动容器 - 增强版表体滚动方案 */
+/* 表格滚动容器 - 增强版表体滚动方案：纸面白卡 + 1px 描边，层级靠描边不靠阴影 */
 .table-scroll-container {
-  @apply flex flex-col overflow-hidden h-full bg-white dark:bg-dark-800 rounded-2xl border border-gray-200 dark:border-dark-700 shadow-sm;
+  @apply flex flex-col overflow-hidden h-full rounded-xl border border-gray-200/80 bg-white shadow-card;
+  @apply dark:border-dark-800 dark:bg-dark-900/80;
 }
 
 .table-scroll-container :deep(.table-wrapper) {
@@ -76,19 +77,46 @@ onUnmounted(() => {
 }
 
 .table-scroll-container :deep(thead) {
-  @apply bg-gray-50/80 dark:bg-dark-800/80 backdrop-blur-sm;
+  @apply bg-gray-50/90 backdrop-blur-sm dark:bg-dark-900/95;
 }
 
 .table-scroll-container :deep(tbody) {
   /* 保持默认 table-row-group 显示，不使用 block */
 }
 
+/*
+ * 表头 / 单元格：只统一字体、垂直节奏与分隔线。
+ * 水平内边距与文字颜色交给表格自身（DataTable 按列数自适应 px-2~px-6、可排序表头 hover 变色），这里不覆盖。
+ */
 .table-scroll-container :deep(th) {
-  @apply px-5 py-4 text-left text-sm font-medium text-gray-600 dark:text-dark-300 border-b border-gray-200 dark:border-dark-700;
+  @apply py-3 text-left font-mono text-[11px] font-medium uppercase tracking-[0.06em];
+  @apply border-b border-gray-200/80 dark:border-dark-800;
 }
 
 .table-scroll-container :deep(td) {
-  @apply px-5 py-4 text-sm text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-dark-800;
+  @apply py-3.5 text-sm;
+  @apply border-b border-gray-100 dark:border-dark-800/70;
+}
+
+/*
+ * 勾选列（首列 key: 'select' 且固定前两列时）：宽度锁定为 DataTable 的 --select-col-width，
+ * 第二固定列 left: var(--select-col-width) 与之严格对齐，横向滚动时两列之间不留缝也不重叠。
+ */
+.table-scroll-container :deep(.sticky-col-left-first) {
+  width: var(--select-col-width, 52px);
+  min-width: var(--select-col-width, 52px);
+  max-width: var(--select-col-width, 52px);
+  padding-left: 0;
+  padding-right: 0;
+  text-align: center;
+}
+
+.table-scroll-container :deep(th.sticky-col-left-first > div) {
+  justify-content: center;
+}
+
+.table-scroll-container :deep(tbody tr:last-child td) {
+  @apply border-b-0;
 }
 
 /* 移动端：恢复正常滚动 */

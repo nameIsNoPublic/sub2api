@@ -34,34 +34,36 @@ const isVisible = computed(() => isLoading.value)
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
+  height: 2px;
   z-index: 9999;
   overflow: hidden;
   background: transparent;
 }
 
+/* 52code 信号条：靛蓝主体 + ember 光头，从左向右扫过 */
 .navigation-progress-bar {
   height: 100%;
   width: 100%;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    theme('colors.primary.400') 20%,
-    theme('colors.primary.500') 50%,
-    theme('colors.primary.400') 80%,
+    theme('colors.primary.500') 35%,
+    theme('colors.primary.600') 70%,
+    theme('colors.ember.500') 92%,
     transparent 100%
   );
-  animation: progress-slide 1.5s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(242, 113, 28, 0.35);
+  animation: progress-slide 1.4s cubic-bezier(0.45, 0, 0.25, 1) infinite;
 }
 
-/* 暗色模式下的进度条颜色 */
+/* 暗色模式下提亮 */
 :root.dark .navigation-progress-bar {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    theme('colors.primary.500') 20%,
-    theme('colors.primary.400') 50%,
-    theme('colors.primary.500') 80%,
+    theme('colors.primary.400') 35%,
+    theme('colors.primary.500') 70%,
+    theme('colors.ember.400') 92%,
     transparent 100%
   );
 }

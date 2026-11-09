@@ -18,6 +18,7 @@ import type { ChartState } from '../types'
 import { formatHistoryLabel, sumNumbers } from '../utils/opsFormatters'
 import HelpTooltip from '@/components/common/HelpTooltip.vue'
 import EmptyState from '@/components/common/EmptyState.vue'
+import { useOpsChartTheme } from '../utils/useOpsChartTheme'
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, LinearScale, PointElement, CategoryScale, Filler)
 
@@ -31,13 +32,8 @@ interface Props {
 const props = defineProps<Props>()
 const { t } = useI18n()
 
-const isDarkMode = computed(() => document.documentElement.classList.contains('dark'))
-const colors = computed(() => ({
-  teal: '#14b8a6',
-  tealAlpha: '#14b8a620',
-  grid: isDarkMode.value ? '#374151' : '#f3f4f6',
-  text: isDarkMode.value ? '#9ca3af' : '#6b7280'
-}))
+const { chrome, semantic, tickFont, legendLabels, tooltip, gridLine, valueAxisBorder, categoryAxisBorder, withAlpha } =
+  useOpsChartTheme()
 
 const totalRequests = computed(() => sumNumbers(props.points.map((p) => p.request_count)))
 
@@ -54,8 +50,10 @@ const chartData = computed(() => {
           if (requests <= 0) return 0
           return switches / requests
         }),
-        borderColor: colors.value.teal,
-        backgroundColor: colors.value.tealAlpha,
+        // 切换率属于 ember 信号色：换号越多越值得关注
+        borderColor: semantic.value.output,
+        backgroundColor: withAlpha(semantic.value.output, 0.1),
+        borderWidth: 2,
         fill: true,
         tension: 0.35,
         pointRadius: 0,
@@ -72,7 +70,7 @@ const state = computed<ChartState>(() => {
 })
 
 const options = computed(() => {
-  const c = colors.value
+  const c = chrome.value
   return {
     responsive: true,
     maintainAspectRatio: false,
@@ -81,15 +79,10 @@ const options = computed(() => {
       legend: {
         position: 'top' as const,
         align: 'end' as const,
-        labels: { color: c.text, usePointStyle: true, boxWidth: 6, font: { size: 10 } }
+        labels: legendLabels.value
       },
       tooltip: {
-        backgroundColor: isDarkMode.value ? '#1f2937' : '#ffffff',
-        titleColor: isDarkMode.value ? '#f3f4f6' : '#111827',
-        bodyColor: isDarkMode.value ? '#d1d5db' : '#4b5563',
-        borderColor: c.grid,
-        borderWidth: 1,
-        padding: 10,
+        ...tooltip.value,
         displayColors: true,
         callbacks: {
           label: (context: any) => {
@@ -103,9 +96,10 @@ const options = computed(() => {
       x: {
         type: 'category' as const,
         grid: { display: false },
+        border: categoryAxisBorder.value,
         ticks: {
-          color: c.text,
-          font: { size: 10 },
+          color: c.muted,
+          font: tickFont,
           maxTicksLimit: 8,
           autoSkip: true,
           autoSkipPadding: 10
@@ -115,10 +109,11 @@ const options = computed(() => {
         type: 'linear' as const,
         display: true,
         position: 'left' as const,
-        grid: { color: c.grid, borderDash: [4, 4] },
+        grid: gridLine.value,
+        border: valueAxisBorder,
         ticks: {
-          color: c.text,
-          font: { size: 10 },
+          color: c.muted,
+          font: tickFont,
           callback: (value: any) => Number(value).toFixed(3)
         }
       }
@@ -128,10 +123,10 @@ const options = computed(() => {
 </script>
 
 <template>
-  <div class="flex h-full flex-col rounded-3xl bg-white p-6 shadow-sm ring-1 ring-gray-900/5 dark:bg-dark-800 dark:ring-dark-700">
+  <div class="card flex h-full flex-col p-5">
     <div class="mb-4 flex shrink-0 items-center justify-between">
-      <h3 class="flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
-        <svg class="h-4 w-4 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <h3 class="section-title flex items-center gap-2 text-sm">
+        <svg class="h-4 w-4 text-ember-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10M7 12h6m-6 5h3" />
         </svg>
         {{ t('admin.ops.switchRateTrend') }}
@@ -142,7 +137,7 @@ const options = computed(() => {
     <div class="min-h-0 flex-1">
       <Line v-if="state === 'ready' && chartData" :data="chartData" :options="options" />
       <div v-else class="flex h-full items-center justify-center">
-        <div v-if="state === 'loading'" class="animate-pulse text-sm text-gray-400">{{ t('common.loading') }}</div>
+        <div v-if="state === 'loading'" class="animate-pulse text-sm text-gray-400 dark:text-dark-400">{{ t('common.loading') }}</div>
         <EmptyState v-else :title="t('common.noData')" :description="t('admin.ops.charts.emptyRequest')" />
       </div>
     </div>

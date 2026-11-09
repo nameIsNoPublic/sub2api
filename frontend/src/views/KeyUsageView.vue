@@ -1,126 +1,150 @@
 <template>
   <div class="relative flex min-h-screen flex-col bg-gray-50 dark:bg-dark-950">
-    <!-- Header (same pattern as HomeView) -->
-    <header class="relative z-20 px-6 py-4">
-      <nav class="mx-auto flex max-w-6xl items-center justify-between">
-        <router-link to="/home" class="flex items-center gap-3">
-          <div class="h-10 w-10 overflow-hidden rounded-xl shadow-md">
-            <img :src="siteLogo || '/logo.svg'" alt="Logo" class="h-full w-full object-contain" />
-          </div>
-          <span class="text-lg font-semibold tracking-tight text-gray-900 dark:text-white">{{ siteName }}</span>
-        </router-link>
-        <div class="flex items-center gap-3">
+    <!-- 首屏信号等高线背景:向下渐隐 -->
+    <div
+      class="pointer-events-none absolute inset-x-0 top-0 h-[520px] overflow-hidden [mask-image:linear-gradient(to_bottom,black_40%,transparent)]"
+      aria-hidden="true"
+    >
+      <SignalField variant="ambient" :seed="52" class="absolute inset-0" />
+    </div>
+
+    <!-- 顶部品牌条 -->
+    <header class="sticky top-0 z-40 border-b border-gray-200/80 bg-gray-50/80 backdrop-blur-md supports-[backdrop-filter]:bg-gray-50/70 dark:border-dark-800 dark:bg-dark-950/80 dark:supports-[backdrop-filter]:bg-dark-950/70">
+      <nav class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+        <div class="flex min-w-0 items-center gap-3">
+          <router-link to="/home" class="flex min-w-0 items-center rounded-md" :aria-label="t('ui52.publicPages.nav.home')">
+            <BrandMark size="sm" show-domain />
+          </router-link>
+          <span class="hidden h-4 w-px shrink-0 bg-gray-300 dark:bg-dark-700 sm:block" aria-hidden="true"></span>
+          <span class="hidden shrink-0 whitespace-nowrap font-mono text-xs font-medium uppercase tracking-kicker text-gray-500 dark:text-dark-400 sm:inline">
+            {{ t('ui52.publicPages.keyUsage.navLabel') }}
+          </span>
+        </div>
+        <div class="flex shrink-0 items-center gap-1.5">
           <LocaleSwitcher />
           <a
             v-if="docUrl"
             :href="docUrl"
             target="_blank"
             rel="noopener noreferrer"
-            class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-dark-400 dark:hover:bg-dark-800 dark:hover:text-white"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-200/60 hover:text-gray-950 dark:text-dark-400 dark:hover:bg-dark-800 dark:hover:text-white"
             :title="t('home.viewDocs')"
+            :aria-label="t('home.viewDocs')"
           >
-            <Icon name="book" size="md" />
+            <Icon name="book" size="sm" />
           </a>
           <button
-            @click="toggleTheme"
-            class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-dark-400 dark:hover:bg-dark-800 dark:hover:text-white"
+            type="button"
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-200/60 hover:text-gray-950 dark:text-dark-400 dark:hover:bg-dark-800 dark:hover:text-white"
             :title="isDark ? t('home.switchToLight') : t('home.switchToDark')"
+            :aria-label="isDark ? t('home.switchToLight') : t('home.switchToDark')"
+            @click="toggleTheme"
           >
-            <Icon v-if="isDark" name="sun" size="md" />
-            <Icon v-else name="moon" size="md" />
+            <Icon v-if="isDark" name="sun" size="sm" />
+            <Icon v-else name="moon" size="sm" />
           </button>
         </div>
       </nav>
     </header>
 
     <!-- Main Content -->
-    <main class="flex-1 w-full max-w-5xl mx-auto px-6 py-12">
+    <main class="relative z-10 mx-auto w-full max-w-5xl flex-1 px-4 pb-16 pt-14 sm:px-6 sm:pt-20">
       <!-- Hero -->
-      <div class="text-center mb-12">
-        <h1 class="text-3xl sm:text-4xl font-bold tracking-tight mb-3 text-gray-900 dark:text-white">
+      <div class="mb-10 text-center">
+        <p class="kicker justify-center">
+          <span class="signal-dot"></span>
+          {{ t('ui52.publicPages.keyUsage.kicker') }}
+        </p>
+        <h1 class="mt-4 text-4xl font-semibold tracking-tightest text-gray-950 dark:text-white sm:text-5xl">
           {{ t('keyUsage.title') }}
         </h1>
-        <p class="text-gray-500 dark:text-dark-400 text-base max-w-md mx-auto">
+        <p class="mx-auto mt-3 max-w-md text-base text-gray-500 dark:text-dark-400">
           {{ t('keyUsage.subtitle') }}
         </p>
       </div>
 
-      <!-- Input Section -->
-      <div class="max-w-xl mx-auto mb-14">
-        <div class="flex gap-3">
-          <div class="flex-1 relative">
-            <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-dark-500">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-              </svg>
-            </div>
+      <!-- Input Section:仿终端接入条,左侧等宽标签 + 密钥输入 + 查询 -->
+      <div class="mx-auto mb-14 max-w-2xl">
+        <div
+          class="key-bar flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-2 shadow-[0_1px_0_rgba(23,24,28,0.04),0_12px_32px_-16px_rgba(23,24,28,0.18)] transition-[border-color,box-shadow] dark:border-dark-700 dark:bg-dark-900 sm:flex-row sm:items-center"
+        >
+          <div class="relative flex min-w-0 flex-1 items-center">
+            <span
+              class="pointer-events-none hidden select-none pl-3 pr-2 font-mono text-[10.5px] font-medium uppercase tracking-[0.12em] text-gray-400 dark:text-dark-500 sm:inline"
+              aria-hidden="true"
+            >API_KEY</span>
+            <span class="pointer-events-none pl-3 text-gray-400 dark:text-dark-500 sm:hidden" aria-hidden="true">
+              <Icon name="key" size="sm" />
+            </span>
             <input
               v-model="apiKey"
               :type="keyVisible ? 'text' : 'password'"
               :placeholder="t('keyUsage.placeholder')"
-              class="input-ring w-full h-12 pl-12 pr-12 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 placeholder:text-gray-400 transition-all dark:border-dark-700 dark:bg-dark-900 dark:text-white dark:placeholder:text-dark-500"
+              :aria-label="t('keyUsage.placeholder')"
+              autocomplete="off"
+              spellcheck="false"
+              class="h-11 w-full min-w-0 flex-1 border-0 bg-transparent pl-2 pr-11 font-mono text-[15px] text-gray-950 placeholder:font-sans placeholder:text-sm placeholder:text-gray-400 focus:outline-none focus:ring-0 dark:text-white dark:placeholder:text-dark-500"
               @keydown.enter="queryKey"
             />
             <button
+              type="button"
+              class="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-dark-500 dark:hover:bg-dark-800 dark:hover:text-white"
+              :aria-label="keyVisible ? t('ui52.publicPages.keyUsage.hideKey') : t('ui52.publicPages.keyUsage.showKey')"
               @click="keyVisible = !keyVisible"
-              class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 dark:text-dark-500 dark:hover:text-white transition-colors"
             >
-              <svg v-if="!keyVisible" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                <line x1="1" y1="1" x2="23" y2="23"/>
-              </svg>
-              <svg v-else class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-              </svg>
+              <Icon v-if="!keyVisible" name="eyeOff" size="sm" />
+              <Icon v-else name="eye" size="sm" />
             </button>
           </div>
           <button
-            @click="queryKey"
+            type="button"
             :disabled="isQuerying"
-            class="h-12 px-7 rounded-xl bg-primary-500 hover:bg-primary-600 text-white font-medium text-sm transition-all active:scale-[0.97] flex items-center gap-2 whitespace-nowrap disabled:opacity-60"
+            class="btn btn-ink h-11 whitespace-nowrap px-6"
+            @click="queryKey"
           >
-            <svg v-if="isQuerying" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+            <svg v-if="isQuerying" class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity="0.25"/>
               <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
             </svg>
-            <svg v-else class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
+            <Icon v-else name="search" size="sm" />
             {{ isQuerying ? t('keyUsage.querying') : t('keyUsage.query') }}
           </button>
         </div>
-        <p class="text-xs text-gray-400 dark:text-dark-500 mt-3 text-center">
+        <p class="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-gray-400 dark:text-dark-500">
+          <Icon name="lock" size="xs" class="h-3.5 w-3.5 shrink-0" />
           {{ t('keyUsage.privacyNote') }}
         </p>
 
         <!-- Date Range Picker -->
-        <div v-if="showDatePicker" class="mt-4">
-          <div class="flex flex-wrap items-center gap-2 justify-center">
-            <span class="text-xs text-gray-500 dark:text-dark-400">{{ t('keyUsage.dateRange') }}</span>
-            <button
-              v-for="range in dateRanges"
-              :key="range.key"
-              @click="setDateRange(range.key)"
-              class="text-xs px-3 py-1.5 rounded-lg border transition-all"
-              :class="currentRange === range.key
-                ? 'bg-primary-500 text-white border-primary-500'
-                : 'border-gray-200 bg-white text-gray-700 dark:border-dark-700 dark:bg-dark-900 dark:text-dark-200 hover:border-primary-300 dark:hover:border-dark-600'"
-            >{{ range.label }}</button>
-            <div v-if="currentRange === 'custom'" class="flex items-center gap-2 ml-1">
+        <div v-if="showDatePicker" class="mt-5">
+          <div class="flex flex-wrap items-center justify-center gap-2">
+            <span class="font-mono text-[11px] uppercase tracking-[0.1em] text-gray-500 dark:text-dark-400">{{ t('keyUsage.dateRange') }}</span>
+            <div class="tabs">
+              <button
+                v-for="range in dateRanges"
+                :key="range.key"
+                type="button"
+                class="tab !px-3 !py-1 text-xs"
+                :class="{ 'tab-active': currentRange === range.key }"
+                @click="setDateRange(range.key)"
+              >{{ range.label }}</button>
+            </div>
+            <div v-if="currentRange === 'custom'" class="ml-1 flex items-center gap-2">
               <input
                 v-model="customStartDate"
                 type="date"
-                class="input-ring text-xs px-2 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-900 dark:border-dark-700 dark:bg-dark-900 dark:text-white"
+                class="input !w-auto !px-2 !py-1.5 text-xs"
               />
               <span class="text-xs text-gray-400">-</span>
               <input
                 v-model="customEndDate"
                 type="date"
-                class="input-ring text-xs px-2 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-900 dark:border-dark-700 dark:bg-dark-900 dark:text-white"
+                class="input !w-auto !px-2 !py-1.5 text-xs"
               />
               <button
+                type="button"
+                class="btn btn-primary btn-sm"
                 @click="queryKey"
-                class="text-xs px-3 py-1.5 rounded-lg bg-primary-500 text-white hover:bg-primary-600"
               >{{ t('keyUsage.apply') }}</button>
             </div>
           </div>
@@ -132,16 +156,16 @@
         <!-- Loading Skeleton -->
         <div v-if="showLoading" class="space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="rounded-2xl border border-gray-200 bg-white p-8 dark:border-dark-700 dark:bg-dark-900">
+            <div class="rounded-xl border border-gray-200/80 bg-white p-8 dark:border-dark-800 dark:bg-dark-900/80">
               <div class="skeleton h-5 w-24 mb-6"></div>
               <div class="flex justify-center"><div class="skeleton w-44 h-44 rounded-full"></div></div>
             </div>
-            <div class="rounded-2xl border border-gray-200 bg-white p-8 dark:border-dark-700 dark:bg-dark-900">
+            <div class="rounded-xl border border-gray-200/80 bg-white p-8 dark:border-dark-800 dark:bg-dark-900/80">
               <div class="skeleton h-5 w-24 mb-6"></div>
               <div class="flex justify-center"><div class="skeleton w-44 h-44 rounded-full"></div></div>
             </div>
           </div>
-          <div class="rounded-2xl border border-gray-200 bg-white p-8 dark:border-dark-700 dark:bg-dark-900">
+          <div class="rounded-xl border border-gray-200/80 bg-white p-8 dark:border-dark-800 dark:bg-dark-900/80">
             <div class="skeleton h-5 w-32 mb-6"></div>
             <div class="space-y-4">
               <div class="skeleton h-4 w-full"></div>
@@ -156,14 +180,20 @@
         <div v-else-if="resultData" class="space-y-6">
           <!-- Status Badge -->
           <div v-if="statusInfo" class="fade-up flex items-center justify-center mb-2">
-            <div class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-gray-200 bg-white/90 shadow-sm backdrop-blur-sm dark:border-dark-700 dark:bg-dark-900/90">
-              <span
-                class="w-2.5 h-2.5 rounded-full pulse-dot"
-                :class="statusInfo.isActive ? 'bg-emerald-500' : 'bg-rose-500'"
-              ></span>
-              <span class="text-sm font-medium text-gray-900 dark:text-white">{{ statusInfo.label }}</span>
-              <span class="text-xs text-gray-400 dark:text-dark-500">|</span>
-              <span class="text-xs text-gray-500 dark:text-dark-400">{{ statusInfo.statusText }}</span>
+            <div class="inline-flex items-center gap-2.5 rounded-full border border-gray-200/80 bg-white px-4 py-2 shadow-[0_1px_0_rgba(23,24,28,0.04)] dark:border-dark-700 dark:bg-dark-900">
+              <span class="relative flex h-2 w-2">
+                <span
+                  class="absolute inline-flex h-full w-full rounded-full opacity-60 motion-safe:animate-signal-ping"
+                  :class="statusInfo.isActive ? 'bg-emerald-500' : 'bg-red-500'"
+                ></span>
+                <span
+                  class="relative inline-flex h-2 w-2 rounded-full"
+                  :class="statusInfo.isActive ? 'bg-emerald-500' : 'bg-red-500'"
+                ></span>
+              </span>
+              <span class="text-sm font-medium text-gray-950 dark:text-white">{{ statusInfo.label }}</span>
+              <span class="h-3 w-px bg-gray-200 dark:bg-dark-700" aria-hidden="true"></span>
+              <span class="font-mono text-xs text-gray-500 dark:text-dark-400">{{ statusInfo.statusText }}</span>
             </div>
           </div>
 
@@ -172,11 +202,11 @@
             <div
               v-for="(ring, i) in ringItems"
               :key="i"
-              class="fade-up rounded-2xl border border-gray-200 bg-white/90 p-8 backdrop-blur-sm transition-all duration-300 hover:shadow-lg dark:border-dark-700 dark:bg-dark-900/90"
+              class="fade-up rounded-xl border border-gray-200/80 bg-white p-7 transition-[border-color,box-shadow] duration-200 hover:border-gray-300 hover:shadow-card-hover dark:border-dark-800 dark:bg-dark-900/80 dark:hover:border-dark-700"
               :class="`fade-up-delay-${Math.min(i + 1, 4)}`"
             >
               <div class="flex items-center justify-between mb-6">
-                <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-400">
+                <h3 class="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-gray-500 dark:text-dark-400">
                   {{ ring.title }}
                 </h3>
                 <!-- Clock icon -->
@@ -213,20 +243,20 @@
                   </svg>
                   <div class="absolute inset-0 flex flex-col items-center justify-center">
                     <template v-if="ring.isBalance">
-                      <span class="text-2xl font-bold tabular-nums" :style="{ color: RING_GRADIENTS[i % 4].from }">
+                      <span class="num text-2xl font-semibold" :style="{ color: RING_GRADIENTS[i % 4].from }">
                         {{ ring.amount }}
                       </span>
                     </template>
                     <template v-else>
-                      <span class="text-3xl font-bold tabular-nums text-gray-900 dark:text-white">
+                      <span class="num text-3xl font-semibold text-gray-950 dark:text-white">
                         {{ displayPcts[i] ?? 0 }}%
                       </span>
                       <span class="text-xs text-gray-500 dark:text-dark-400 mt-0.5">{{ t('keyUsage.used') }}</span>
                       <span
-                        class="text-sm font-semibold mt-1 tabular-nums"
+                        class="num mt-1 text-sm font-semibold"
                         :style="{ color: RING_GRADIENTS[i % 4].from }"
                       >{{ ring.amount }}</span>
-                      <p v-if="ring.resetAt && formatResetTime(ring.resetAt)" class="text-xs text-gray-400 dark:text-gray-500 mt-0.5 tabular-nums">
+                      <p v-if="ring.resetAt && formatResetTime(ring.resetAt)" class="num mt-0.5 text-xs text-gray-400 dark:text-dark-500">
                         ⟳ {{ formatResetTime(ring.resetAt) }}
                       </p>
                     </template>
@@ -239,19 +269,19 @@
           <!-- Detail Card -->
           <div
             v-if="detailRows.length > 0"
-            class="fade-up fade-up-delay-3 rounded-2xl border border-gray-200 bg-white/90 backdrop-blur-sm overflow-hidden dark:border-dark-700 dark:bg-dark-900/90"
+            class="fade-up fade-up-delay-3 overflow-hidden rounded-xl border border-gray-200/80 bg-white dark:border-dark-800 dark:bg-dark-900/80"
           >
-            <div class="px-8 py-5 border-b border-gray-200 dark:border-dark-700">
-              <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-400">{{ t('keyUsage.detailInfo') }}</h3>
+            <div class="border-b border-gray-100 px-6 py-4 dark:border-dark-800">
+              <h3 class="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-gray-500 dark:text-dark-400">{{ t('keyUsage.detailInfo') }}</h3>
             </div>
             <div class="divide-y divide-gray-100 dark:divide-dark-800">
               <div
                 v-for="(row, i) in detailRows"
                 :key="i"
-                class="px-8 py-4 flex items-center justify-between"
+                class="flex items-center justify-between gap-4 px-6 py-3.5"
               >
                 <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-lg flex items-center justify-center" :class="row.iconBg">
+                  <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg" :class="row.iconBg">
                     <svg
                       class="w-4 h-4"
                       :class="row.iconColor"
@@ -262,7 +292,7 @@
                   </div>
                   <span class="text-sm text-gray-700 dark:text-dark-200">{{ row.label }}</span>
                 </div>
-                <span class="text-sm font-semibold tabular-nums" :class="row.valueClass || 'text-gray-900 dark:text-white'">
+                <span class="num text-right text-sm font-semibold" :class="row.valueClass || 'text-gray-950 dark:text-white'">
                   {{ row.value }}
                 </span>
               </div>
@@ -272,19 +302,19 @@
           <!-- Usage Stats Card -->
           <div
             v-if="usageStatCells.length > 0"
-            class="fade-up fade-up-delay-3 rounded-2xl border border-gray-200 bg-white/90 backdrop-blur-sm overflow-hidden dark:border-dark-700 dark:bg-dark-900/90"
+            class="fade-up fade-up-delay-3 overflow-hidden rounded-xl border border-gray-200/80 bg-white dark:border-dark-800 dark:bg-dark-900/80"
           >
-            <div class="px-8 py-5 border-b border-gray-200 dark:border-dark-700">
-              <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-400">{{ t('keyUsage.tokenStats') }}</h3>
+            <div class="border-b border-gray-100 px-6 py-4 dark:border-dark-800">
+              <h3 class="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-gray-500 dark:text-dark-400">{{ t('keyUsage.tokenStats') }}</h3>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-px bg-gray-100 dark:bg-dark-800">
+            <div class="grid grid-cols-2 gap-px bg-gray-100 dark:bg-dark-800 md:grid-cols-4">
               <div
                 v-for="(cell, i) in usageStatCells"
                 :key="i"
                 class="bg-white px-6 py-4 dark:bg-dark-900"
               >
-                <div class="text-xs text-gray-500 dark:text-dark-400 mb-1">{{ cell.label }}</div>
-                <div class="text-sm font-semibold tabular-nums text-gray-900 dark:text-white">{{ cell.value }}</div>
+                <div class="mb-1.5 text-xs text-gray-500 dark:text-dark-400">{{ cell.label }}</div>
+                <div class="num text-base font-semibold text-gray-950 dark:text-white">{{ cell.value }}</div>
               </div>
             </div>
           </div>
@@ -292,19 +322,18 @@
           <!-- Daily Usage Table -->
           <div
             v-if="showDailyUsage"
-            class="fade-up fade-up-delay-4 rounded-2xl border border-gray-200 bg-white/90 backdrop-blur-sm overflow-hidden dark:border-dark-700 dark:bg-dark-900/90"
+            class="fade-up fade-up-delay-4 overflow-hidden rounded-xl border border-gray-200/80 bg-white dark:border-dark-800 dark:bg-dark-900/80"
           >
-            <div class="flex flex-col gap-3 px-8 py-5 border-b border-gray-200 dark:border-dark-700 sm:flex-row sm:items-center sm:justify-between">
-              <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-400">{{ t('keyUsage.dailyDetail') }}</h3>
-              <div class="inline-flex rounded-lg border border-gray-200 bg-white p-0.5 dark:border-dark-700 dark:bg-dark-950">
+            <div class="flex flex-col gap-3 border-b border-gray-100 px-6 py-4 dark:border-dark-800 sm:flex-row sm:items-center sm:justify-between">
+              <h3 class="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-gray-500 dark:text-dark-400">{{ t('keyUsage.dailyDetail') }}</h3>
+              <div class="tabs self-start sm:self-auto">
                 <button
                   v-for="option in dailyUsageOptions"
                   :key="option.value"
+                  type="button"
+                  class="tab min-w-12 !px-3 !py-1 text-xs"
+                  :class="{ 'tab-active': dailyUsageDays === option.value }"
                   @click="setDailyUsageDays(option.value)"
-                  class="min-w-12 rounded-md px-3 py-1.5 text-xs font-medium transition-colors"
-                  :class="dailyUsageDays === option.value
-                    ? 'bg-primary-500 text-white'
-                    : 'text-gray-600 hover:bg-gray-100 dark:text-dark-300 dark:hover:bg-dark-800'"
                 >
                   {{ option.label }}
                 </button>
@@ -313,34 +342,34 @@
             <div v-if="dailyUsageRows.length > 0" class="overflow-x-auto">
               <table class="w-full">
                 <thead>
-                  <tr class="border-b border-gray-200 bg-gray-50 dark:border-dark-700 dark:bg-dark-950">
-                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-400">{{ t('keyUsage.date') }}</th>
-                    <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-400">{{ t('keyUsage.requests') }}</th>
-                    <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-400">{{ t('keyUsage.inputTokens') }}</th>
-                    <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-400">{{ t('keyUsage.outputTokens') }}</th>
-                    <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-400">{{ t('keyUsage.cacheReadTokens') }}</th>
-                    <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-400">{{ t('keyUsage.cacheWriteTokens') }}</th>
-                    <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-400">{{ t('keyUsage.cost') }}</th>
+                  <tr class="border-b border-gray-200/80 bg-gray-50/80 dark:border-dark-800 dark:bg-dark-950/60">
+                    <th class="px-4 py-3 text-left font-mono text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500 dark:text-dark-400">{{ t('keyUsage.date') }}</th>
+                    <th class="px-4 py-3 text-right font-mono text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500 dark:text-dark-400">{{ t('keyUsage.requests') }}</th>
+                    <th class="px-4 py-3 text-right font-mono text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500 dark:text-dark-400">{{ t('keyUsage.inputTokens') }}</th>
+                    <th class="px-4 py-3 text-right font-mono text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500 dark:text-dark-400">{{ t('keyUsage.outputTokens') }}</th>
+                    <th class="px-4 py-3 text-right font-mono text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500 dark:text-dark-400">{{ t('keyUsage.cacheReadTokens') }}</th>
+                    <th class="px-4 py-3 text-right font-mono text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500 dark:text-dark-400">{{ t('keyUsage.cacheWriteTokens') }}</th>
+                    <th class="px-4 py-3 text-right font-mono text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500 dark:text-dark-400">{{ t('keyUsage.cost') }}</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr
                     v-for="row in dailyUsageRows"
                     :key="row.date"
-                    class="border-b border-gray-100 last:border-b-0 dark:border-dark-800"
+                    class="border-b border-gray-100 transition-colors last:border-b-0 hover:bg-gray-50/70 dark:border-dark-800/70 dark:hover:bg-dark-800/40"
                   >
-                    <td class="px-4 py-3 text-sm font-medium whitespace-nowrap text-gray-900 dark:text-white">{{ row.date }}</td>
-                    <td class="px-4 py-3 text-sm tabular-nums text-right text-gray-700 dark:text-dark-200">{{ fmtNum(row.requests) }}</td>
-                    <td class="px-4 py-3 text-sm tabular-nums text-right text-gray-700 dark:text-dark-200">{{ fmtNum(row.input_tokens) }}</td>
-                    <td class="px-4 py-3 text-sm tabular-nums text-right text-gray-700 dark:text-dark-200">{{ fmtNum(row.output_tokens) }}</td>
-                    <td class="px-4 py-3 text-sm tabular-nums text-right text-gray-700 dark:text-dark-200">{{ fmtNum(row.cache_read_tokens) }}</td>
-                    <td class="px-4 py-3 text-sm tabular-nums text-right text-gray-700 dark:text-dark-200">{{ fmtNum(row.cache_write_tokens) }}</td>
-                    <td class="px-4 py-3 text-sm tabular-nums text-right font-medium text-gray-900 dark:text-white">{{ usd(row.actual_cost != null ? row.actual_cost : row.cost) }}</td>
+                    <td class="whitespace-nowrap px-4 py-3 font-mono text-[13px] font-medium text-gray-950 dark:text-white">{{ row.date }}</td>
+                    <td class="num px-4 py-3 text-right text-[13px] text-gray-700 dark:text-dark-200">{{ fmtNum(row.requests) }}</td>
+                    <td class="num px-4 py-3 text-right text-[13px] text-gray-700 dark:text-dark-200">{{ fmtNum(row.input_tokens) }}</td>
+                    <td class="num px-4 py-3 text-right text-[13px] text-gray-700 dark:text-dark-200">{{ fmtNum(row.output_tokens) }}</td>
+                    <td class="num px-4 py-3 text-right text-[13px] text-gray-700 dark:text-dark-200">{{ fmtNum(row.cache_read_tokens) }}</td>
+                    <td class="num px-4 py-3 text-right text-[13px] text-gray-700 dark:text-dark-200">{{ fmtNum(row.cache_write_tokens) }}</td>
+                    <td class="num px-4 py-3 text-right text-[13px] font-semibold text-gray-950 dark:text-white">{{ usd(row.actual_cost != null ? row.actual_cost : row.cost) }}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
-            <div v-else class="px-8 py-8 text-center text-sm text-gray-500 dark:text-dark-400">
+            <div v-else class="px-6 py-10 text-center text-sm text-gray-500 dark:text-dark-400">
               {{ t('keyUsage.noDailyUsage') }}
             </div>
           </div>
@@ -348,39 +377,39 @@
           <!-- Model Stats Table -->
           <div
             v-if="modelStats.length > 0"
-            class="fade-up fade-up-delay-4 rounded-2xl border border-gray-200 bg-white/90 backdrop-blur-sm overflow-hidden dark:border-dark-700 dark:bg-dark-900/90"
+            class="fade-up fade-up-delay-4 overflow-hidden rounded-xl border border-gray-200/80 bg-white dark:border-dark-800 dark:bg-dark-900/80"
           >
-            <div class="px-8 py-5 border-b border-gray-200 dark:border-dark-700">
-              <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-400">{{ t('keyUsage.modelStats') }}</h3>
+            <div class="border-b border-gray-100 px-6 py-4 dark:border-dark-800">
+              <h3 class="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-gray-500 dark:text-dark-400">{{ t('keyUsage.modelStats') }}</h3>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full">
                 <thead>
-                  <tr class="border-b border-gray-200 bg-gray-50 dark:border-dark-700 dark:bg-dark-950">
-                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-400">{{ t('keyUsage.model') }}</th>
-                    <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-400">{{ t('keyUsage.requests') }}</th>
-                    <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-400">{{ t('keyUsage.inputTokens') }}</th>
-                    <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-400">{{ t('keyUsage.outputTokens') }}</th>
-                    <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-400">{{ t('keyUsage.cacheCreationTokens') }}</th>
-                    <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-400">{{ t('keyUsage.cacheReadTokens') }}</th>
-                    <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-400">{{ t('keyUsage.totalTokens') }}</th>
-                    <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-dark-400">{{ t('keyUsage.cost') }}</th>
+                  <tr class="border-b border-gray-200/80 bg-gray-50/80 dark:border-dark-800 dark:bg-dark-950/60">
+                    <th class="px-4 py-3 text-left font-mono text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500 dark:text-dark-400">{{ t('keyUsage.model') }}</th>
+                    <th class="px-4 py-3 text-right font-mono text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500 dark:text-dark-400">{{ t('keyUsage.requests') }}</th>
+                    <th class="px-4 py-3 text-right font-mono text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500 dark:text-dark-400">{{ t('keyUsage.inputTokens') }}</th>
+                    <th class="px-4 py-3 text-right font-mono text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500 dark:text-dark-400">{{ t('keyUsage.outputTokens') }}</th>
+                    <th class="px-4 py-3 text-right font-mono text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500 dark:text-dark-400">{{ t('keyUsage.cacheCreationTokens') }}</th>
+                    <th class="px-4 py-3 text-right font-mono text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500 dark:text-dark-400">{{ t('keyUsage.cacheReadTokens') }}</th>
+                    <th class="px-4 py-3 text-right font-mono text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500 dark:text-dark-400">{{ t('keyUsage.totalTokens') }}</th>
+                    <th class="px-4 py-3 text-right font-mono text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500 dark:text-dark-400">{{ t('keyUsage.cost') }}</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr
                     v-for="(m, i) in modelStats"
                     :key="i"
-                    class="border-b border-gray-100 last:border-b-0 dark:border-dark-800"
+                    class="border-b border-gray-100 transition-colors last:border-b-0 hover:bg-gray-50/70 dark:border-dark-800/70 dark:hover:bg-dark-800/40"
                   >
-                    <td class="px-4 py-3 text-sm font-medium whitespace-nowrap text-gray-900 dark:text-white">{{ m.model || '-' }}</td>
-                    <td class="px-4 py-3 text-sm tabular-nums text-right text-gray-700 dark:text-dark-200">{{ fmtNum(m.requests) }}</td>
-                    <td class="px-4 py-3 text-sm tabular-nums text-right text-gray-700 dark:text-dark-200">{{ fmtNum(m.input_tokens) }}</td>
-                    <td class="px-4 py-3 text-sm tabular-nums text-right text-gray-700 dark:text-dark-200">{{ fmtNum(m.output_tokens) }}</td>
-                    <td class="px-4 py-3 text-sm tabular-nums text-right text-gray-700 dark:text-dark-200">{{ fmtNum(m.cache_creation_tokens) }}</td>
-                    <td class="px-4 py-3 text-sm tabular-nums text-right text-gray-700 dark:text-dark-200">{{ fmtNum(m.cache_read_tokens) }}</td>
-                    <td class="px-4 py-3 text-sm tabular-nums text-right text-gray-700 dark:text-dark-200">{{ fmtNum(m.total_tokens) }}</td>
-                    <td class="px-4 py-3 text-sm tabular-nums text-right font-medium text-gray-900 dark:text-white">{{ usd(m.actual_cost != null ? m.actual_cost : m.cost) }}</td>
+                    <td class="whitespace-nowrap px-4 py-3 font-mono text-[13px] font-medium text-gray-950 dark:text-white">{{ m.model || '-' }}</td>
+                    <td class="num px-4 py-3 text-right text-[13px] text-gray-700 dark:text-dark-200">{{ fmtNum(m.requests) }}</td>
+                    <td class="num px-4 py-3 text-right text-[13px] text-gray-700 dark:text-dark-200">{{ fmtNum(m.input_tokens) }}</td>
+                    <td class="num px-4 py-3 text-right text-[13px] text-gray-700 dark:text-dark-200">{{ fmtNum(m.output_tokens) }}</td>
+                    <td class="num px-4 py-3 text-right text-[13px] text-gray-700 dark:text-dark-200">{{ fmtNum(m.cache_creation_tokens) }}</td>
+                    <td class="num px-4 py-3 text-right text-[13px] text-gray-700 dark:text-dark-200">{{ fmtNum(m.cache_read_tokens) }}</td>
+                    <td class="num px-4 py-3 text-right text-[13px] text-gray-700 dark:text-dark-200">{{ fmtNum(m.total_tokens) }}</td>
+                    <td class="num px-4 py-3 text-right text-[13px] font-semibold text-gray-950 dark:text-white">{{ usd(m.actual_cost != null ? m.actual_cost : m.cost) }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -390,26 +419,27 @@
       </div>
     </main>
 
-    <!-- Footer (same pattern as HomeView) -->
-    <footer class="relative z-10 border-t border-gray-200/50 px-6 py-8 dark:border-dark-800/50">
-      <div class="mx-auto flex max-w-6xl flex-col items-center justify-center gap-4 text-center sm:flex-row sm:text-left">
-        <p class="text-sm text-gray-500 dark:text-dark-400">
-          &copy; {{ currentYear }} {{ siteName }}. {{ t('home.footer.allRightsReserved') }}
-        </p>
-        <div class="flex items-center gap-4">
+    <!-- Footer -->
+    <footer class="relative z-10 border-t border-gray-200/80 px-4 py-8 dark:border-dark-800 sm:px-6">
+      <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 sm:flex-row">
+        <div class="flex items-center gap-3">
+          <BrandMark size="sm" />
+          <p class="font-mono text-xs text-gray-400 dark:text-dark-500">
+            &copy; {{ currentYear }} {{ siteName }}. {{ t('home.footer.allRightsReserved') }}
+          </p>
+        </div>
+        <div class="flex items-center gap-5 text-sm">
+          <router-link
+            to="/home"
+            class="text-gray-500 transition-colors hover:text-gray-950 dark:text-dark-400 dark:hover:text-white"
+          >{{ t('ui52.publicPages.nav.home') }}</router-link>
           <a
             v-if="docUrl"
             :href="docUrl"
             target="_blank"
             rel="noopener noreferrer"
-            class="text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-dark-400 dark:hover:text-white"
+            class="text-gray-500 transition-colors hover:text-gray-950 dark:text-dark-400 dark:hover:text-white"
           >{{ t('home.docs') }}</a>
-          <a
-            :href="githubUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-dark-400 dark:hover:text-white"
-          >GitHub</a>
         </div>
       </div>
     </footer>
@@ -426,6 +456,9 @@ import Icon from '@/components/icons/Icon.vue'
 import { buildGatewayUrl } from '@/api/client'
 import { formatDateLocalInput } from '@/utils/format'
 import { sanitizeUrl } from '@/utils/url'
+import BrandMark from '@/components/brand/BrandMark.vue'
+import SignalField from '@/components/brand/SignalField.vue'
+import { useBrand } from '@/composables/useBrand'
 
 const { t, locale } = useI18n()
 const appStore = useAppStore()
@@ -433,10 +466,8 @@ const subscriptionFeatureEnabled = computed(() => resolveFeatureFlag(appStore.ca
 
 // ==================== Site Settings (same as HomeView) ====================
 
-const siteName = computed(() => appStore.cachedPublicSettings?.site_name || appStore.siteName || 'Sub2API')
-const siteLogo = computed(() => sanitizeUrl(appStore.cachedPublicSettings?.site_logo || appStore.siteLogo || '', { allowRelative: true, allowDataUrl: true }))
+const { siteName } = useBrand()
 const docUrl = computed(() => sanitizeUrl(appStore.cachedPublicSettings?.doc_url || appStore.docUrl || ''))
-const githubUrl = 'https://github.com/Wei-Shaw/sub2api'
 
 // ==================== Theme (same as HomeView) ====================
 
@@ -528,17 +559,18 @@ function setDailyUsageDays(days: 7 | 30 | 90) {
 // ==================== Ring Animation ====================
 
 const CIRCUMFERENCE = 2 * Math.PI * 68
+// 52code 环形配色:靛蓝 → ember → 翡翠 → 天蓝,与 chartTheme 系列色序一致
 const RING_GRADIENTS = [
-  { from: '#14b8a6', to: '#5eead4' },
-  { from: '#6366F1', to: '#A5B4FC' },
-  { from: '#10B981', to: '#6EE7B7' },
-  { from: '#F59E0B', to: '#FCD34D' },
+  { from: '#5b47e6', to: '#9688f8' },
+  { from: '#f2711c', to: '#fdb174' },
+  { from: '#10b981', to: '#6ee7b7' },
+  { from: '#0ea5e9', to: '#7dd3fc' },
 ]
 
 const ringAnimated = ref(false)
 const displayPcts = ref<number[]>([])
 
-const ringTrackColor = computed(() => isDark.value ? '#222222' : '#F0F0EE')
+const ringTrackColor = computed(() => isDark.value ? '#1c1d23' : '#efefec')
 
 interface RingItem {
   title: string
@@ -674,7 +706,7 @@ interface DetailRow {
 }
 
 function getUsageColor(pct: number): string {
-  if (pct > 90) return 'text-rose-500'
+  if (pct > 90) return 'text-red-500'
   if (pct > 70) return 'text-amber-500'
   return 'text-emerald-500'
 }
@@ -691,7 +723,7 @@ const detailRows = computed<DetailRow[]>(() => {
 
   if (data.mode === 'quota_limited') {
     if (data.quota) {
-      const remainColor = data.quota.remaining <= 0 ? 'text-rose-500'
+      const remainColor = data.quota.remaining <= 0 ? 'text-red-500'
         : data.quota.remaining < data.quota.limit * 0.1 ? 'text-amber-500'
         : 'text-emerald-500'
       rows.push({
@@ -747,7 +779,7 @@ const detailRows = computed<DetailRow[]>(() => {
       if (sub.weekly_limit_usd > 0) {
         const pct = (sub.weekly_usage_usd / sub.weekly_limit_usd) * 100
         rows.push({
-          iconBg: 'bg-indigo-500/10', iconColor: 'text-indigo-500', iconSvg: ICON_DOLLAR,
+          iconBg: 'bg-primary-500/10', iconColor: 'text-primary-500', iconSvg: ICON_DOLLAR,
           label: `${t('keyUsage.usedQuota')} (${locale.value === 'zh' ? '周' : 'W'})`, value: `${usd(sub.weekly_usage_usd)} / ${usd(sub.weekly_limit_usd)}`, valueClass: getUsageColor(pct),
         })
       }
@@ -767,7 +799,7 @@ const detailRows = computed<DetailRow[]>(() => {
     }
 
     const remainColor = data.remaining != null
-      ? (data.remaining <= 0 ? 'text-rose-500' : data.remaining < 10 ? 'text-amber-500' : 'text-emerald-500')
+      ? (data.remaining <= 0 ? 'text-red-500' : data.remaining < 10 ? 'text-amber-500' : 'text-emerald-500')
       : ''
     rows.push({
       iconBg: 'bg-emerald-500/10', iconColor: 'text-emerald-500', iconSvg: ICON_SHIELD,
@@ -944,14 +976,10 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* Input focus ring */
-.input-ring {
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
-}
-.input-ring:focus {
-  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2);
-  border-color: #14b8a6;
-  outline: none;
+/* 接入条聚焦:整条描边变靛蓝 + 柔光环 */
+.key-bar:focus-within {
+  border-color: rgb(114 98 241 / 0.7);
+  box-shadow: 0 0 0 4px rgb(114 98 241 / 0.1), 0 12px 32px -16px rgb(23 24 28 / 0.18);
 }
 
 /* Ring animation */
@@ -961,47 +989,47 @@ onUnmounted(() => {
   transform-origin: 50% 50%;
 }
 
-/* Skeleton loading */
+/* Skeleton loading(暖调纸面色) */
 @keyframes shimmer-kv {
   0%   { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
 .skeleton {
-  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background: linear-gradient(90deg, #e4e4e0 25%, #efefec 50%, #e4e4e0 75%);
   background-size: 200% 100%;
   animation: shimmer-kv 1.8s ease-in-out infinite;
   border-radius: 8px;
 }
-:global(.dark) .skeleton {
-  background: linear-gradient(90deg, #334155 25%, #1e293b 50%, #334155 75%);
+.dark .skeleton {
+  background: linear-gradient(90deg, #1c1d23 25%, #26272c 50%, #1c1d23 75%);
   background-size: 200% 100%;
 }
 
 /* Fade up animation */
 @keyframes fade-up-kv {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
 .fade-up {
-  animation: fade-up-kv 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: fade-up-kv 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
-.fade-up-delay-1 { animation-delay: 0.1s; opacity: 0; }
-.fade-up-delay-2 { animation-delay: 0.2s; opacity: 0; }
-.fade-up-delay-3 { animation-delay: 0.3s; opacity: 0; }
-.fade-up-delay-4 { animation-delay: 0.4s; opacity: 0; }
+.fade-up-delay-1 { animation-delay: 0.08s; opacity: 0; }
+.fade-up-delay-2 { animation-delay: 0.16s; opacity: 0; }
+.fade-up-delay-3 { animation-delay: 0.24s; opacity: 0; }
+.fade-up-delay-4 { animation-delay: 0.32s; opacity: 0; }
 
-/* Pulse dot */
-@keyframes pulse-dot-kv {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 currentColor; }
-  50% { opacity: 0.6; box-shadow: 0 0 8px 2px currentColor; }
-}
-.pulse-dot {
-  animation: pulse-dot-kv 2s ease-in-out infinite;
-}
-
-/* Tabular nums */
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
+@media (prefers-reduced-motion: reduce) {
+  .progress-ring,
+  .fade-up,
+  .skeleton {
+    animation: none;
+    transition: none;
+  }
+  .fade-up-delay-1,
+  .fade-up-delay-2,
+  .fade-up-delay-3,
+  .fade-up-delay-4 {
+    opacity: 1;
+  }
 }
 </style>

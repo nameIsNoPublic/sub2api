@@ -1,46 +1,55 @@
 <template>
-  <div class="space-y-4">
+  <div class="space-y-5">
     <!-- Quick Amount Buttons -->
     <div>
-      <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+      <label class="mb-1 block text-sm font-semibold text-gray-950 dark:text-white">
         {{ t('payment.quickAmounts') }}
       </label>
-      <div class="grid grid-cols-3 gap-x-4 gap-y-4 pt-2">
+      <div class="grid grid-cols-3 gap-x-3 gap-y-4 pt-3">
         <button
           v-for="amt in filteredAmounts"
           :key="amt"
           type="button"
+          :aria-pressed="modelValue === amt"
           :class="[
-            'relative rounded-lg border-2 px-3 py-3 text-center font-medium transition-colors',
+            'relative rounded-xl border px-3 py-3 text-center transition-[border-color,background-color,box-shadow] duration-150',
+            'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/50',
             modelValue === amt
-              ? 'border-primary-500 bg-primary-50 text-primary-700 dark:border-primary-400 dark:bg-primary-900/40 dark:text-primary-300'
+              ? 'border-primary-500 bg-primary-50/70 text-primary-700 ring-1 ring-primary-500 dark:border-primary-400 dark:bg-primary-500/10 dark:text-primary-200 dark:ring-primary-400'
               : quoteFor(amt).percent > 0
-                ? 'border-red-200 bg-white text-gray-700 hover:border-red-300 dark:border-red-500/40 dark:bg-dark-800 dark:text-gray-200 dark:hover:border-red-400/60'
-                : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 dark:border-dark-600 dark:bg-dark-800 dark:text-gray-200 dark:hover:border-dark-500',
+                ? 'border-ember-200 bg-white text-gray-800 hover:border-ember-300 hover:bg-ember-50/40 dark:border-ember-500/30 dark:bg-dark-900 dark:text-gray-100 dark:hover:border-ember-400/50'
+                : 'border-gray-200 bg-white text-gray-800 hover:border-gray-300 hover:bg-gray-50 dark:border-dark-700 dark:bg-dark-900 dark:text-gray-100 dark:hover:border-dark-600 dark:hover:bg-dark-800',
           ]"
           :data-testid="`quick-amount-${amt}`"
           @click="selectAmount(amt)"
         >
-          <!-- 促销价签（单行）：仅命中档位的金额显示；红底白字、内圈点线、右侧圆孔、整体旋转 -->
+          <!-- 选中勾 -->
+          <span
+            v-if="modelValue === amt"
+            class="pointer-events-none absolute left-1.5 top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary-600 text-white dark:bg-primary-500"
+            aria-hidden="true"
+          >
+            <svg class="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          </span>
+          <!-- 促销价签：仅命中档位的金额显示 -->
           <span
             v-if="quoteFor(amt).percent > 0"
-            class="pointer-events-none absolute -right-2 -top-3 z-10 rotate-12"
+            class="pointer-events-none absolute -right-1.5 -top-2.5 z-10"
             data-testid="quick-amount-bonus-badge"
           >
             <span
-              class="relative flex items-center gap-1 whitespace-nowrap rounded bg-red-600 py-0.5 pl-1.5 pr-1 text-[11px] font-extrabold leading-tight tracking-tight text-white shadow-md ring-2 ring-white before:pointer-events-none before:absolute before:inset-[2px] before:rounded-sm before:border before:border-dotted before:border-white/70 dark:bg-red-500 dark:ring-dark-800"
-            >
-              <span>{{ badgeText(amt) }}</span>
-              <span class="h-1 w-1 shrink-0 rounded-full bg-white"></span>
-            </span>
+              class="flex items-center whitespace-nowrap rounded-md bg-ember-500 px-1.5 py-0.5 font-mono text-[10.5px] font-semibold leading-tight text-white shadow-[0_2px_6px_-2px_rgba(217,90,14,0.6)] ring-2 ring-white dark:ring-dark-900"
+            >{{ badgeText(amt) }}</span>
           </span>
-          <span class="block">{{ amt }}</span>
+          <span class="num block text-lg font-semibold">{{ amt }}</span>
           <!-- 配置了优惠阶梯时，所有按钮都显示第二行，保持高度一致：赠金显示到账 USD，折扣显示折后实付 -->
           <span
             v-if="showSecondLine"
             :class="[
-              'mt-0.5 block text-[11px] font-normal leading-tight',
-              quoteFor(amt).percent > 0 ? 'text-red-600 dark:text-red-300' : 'text-gray-400 dark:text-gray-500',
+              'mt-0.5 block font-mono text-[11px] font-normal leading-tight',
+              quoteFor(amt).percent > 0 ? 'text-ember-600 dark:text-ember-300' : 'text-gray-400 dark:text-dark-400',
             ]"
             data-testid="quick-amount-credited"
           >{{ secondLine(amt) }}</span>
@@ -50,19 +59,20 @@
 
     <!-- Custom Amount Input -->
     <div>
-      <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+      <label class="mb-2 block text-sm font-semibold text-gray-950 dark:text-white">
         {{ t('payment.customAmount') }}
       </label>
       <div class="relative">
-        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-dark-500">
-          $
+        <span class="num pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-lg text-gray-400 dark:text-dark-400">
+          {{ inputSymbol }}
         </span>
         <input
           type="text"
           inputmode="decimal"
           :value="customText"
           :placeholder="placeholderText"
-          class="input w-full py-3 pl-8 pr-4"
+          class="input num h-14 w-full pr-4 text-xl font-semibold placeholder:text-base placeholder:font-normal"
+          :style="{ paddingLeft: inputPaddingLeft }"
           @input="handleInput"
         />
       </div>
@@ -75,7 +85,7 @@ import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { RechargeBonusTier } from '@/types/payment'
 import { formatRechargeBonusNumber, quoteRechargeBonus, type RechargeBonusMode } from '@/utils/rechargeBonus'
-import { formatPaymentAmount } from './currency'
+import { currencySymbol, formatPaymentAmount } from './currency'
 
 const props = withDefaults(defineProps<{
   amounts?: number[]
@@ -145,6 +155,10 @@ function secondLine(amt: number): string {
   }
   return t('payment.rechargeBonus.creditedShort', { amount: '$' + quote.credited.toFixed(2) })
 }
+
+// 自定义金额前缀：跟随支付币种；未传币种时沿用美元符号
+const inputSymbol = computed(() => (props.currency ? currencySymbol(props.currency) : '$'))
+const inputPaddingLeft = computed(() => `${1.5 + inputSymbol.value.length * 0.7}rem`)
 
 const placeholderText = computed(() => {
   if (props.min > 0 && props.max > 0) return `${props.min} - ${props.max}`

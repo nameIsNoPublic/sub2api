@@ -1,31 +1,41 @@
 <template>
   <AppLayout>
-    <div class="mx-auto flex max-w-md flex-col items-center space-y-6 py-8">
-      <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
-        {{ qrUrl ? scanTitle : t('payment.qr.payInNewWindow') }}
-      </h2>
-      <div v-if="qrUrl" class="rounded-2xl bg-white p-6 shadow-lg dark:bg-dark-800">
-        <canvas ref="qrCanvas" class="mx-auto"></canvas>
+    <div class="mx-auto max-w-md py-6">
+      <div class="card overflow-hidden">
+        <div class="flex flex-col items-center gap-5 px-5 pb-6 pt-7 sm:px-8">
+          <h2 class="text-center text-lg font-semibold tracking-tight text-gray-950 dark:text-white">
+            {{ qrUrl ? scanTitle : t('payment.qr.payInNewWindow') }}
+          </h2>
+          <div v-if="qrUrl" class="rounded-xl border border-gray-200 bg-white p-3 ring-4 ring-gray-100 dark:border-dark-700 dark:ring-dark-800">
+            <canvas ref="qrCanvas" class="mx-auto"></canvas>
+          </div>
+          <p v-if="!qrUrl && !expired" class="text-center text-sm text-gray-500 dark:text-dark-400">
+            {{ t('payment.qr.payInNewWindowHint') }}
+          </p>
+          <!-- Scan prompt for QR code -->
+          <p v-if="qrUrl && !expired && scanHint" class="text-center text-sm text-gray-500 dark:text-dark-400">
+            {{ scanHint }}
+          </p>
+          <div v-if="expired" class="flex flex-col items-center gap-3 text-center">
+            <span class="badge badge-danger">{{ t('payment.qr.expired') }}</span>
+            <button class="btn btn-primary" @click="router.push('/purchase')">{{ t('payment.result.backToRecharge') }}</button>
+          </div>
+          <a v-if="payUrl && !qrUrl && !expired" :href="payUrl" target="_blank" rel="noopener noreferrer"
+            class="btn btn-primary w-full py-3">
+            <Icon name="externalLink" size="sm" />
+            {{ t('payment.qr.openPayWindow') }}
+          </a>
+        </div>
+        <div v-if="!expired" class="flex items-center justify-between gap-4 border-t border-gray-100 bg-gray-50/60 px-5 py-3 dark:border-dark-800 dark:bg-dark-950/40">
+          <span class="kicker"><span class="signal-dot"></span>{{ t('ui52.userB.status.awaiting') }}</span>
+          <span class="text-right">
+            <span class="block text-2xs text-gray-500 dark:text-dark-400">{{ t('payment.qr.expiresIn') }}</span>
+            <span class="num text-lg font-semibold text-gray-950 dark:text-white">{{ countdownDisplay }}</span>
+          </span>
+        </div>
       </div>
-      <!-- Scan prompt for QR code -->
-      <p v-if="qrUrl && !expired && scanHint" class="text-center text-sm text-gray-500 dark:text-gray-400">
-        {{ scanHint }}
-      </p>
-      <div v-if="expired" class="text-center">
-        <p class="text-lg font-medium text-red-500">{{ t('payment.qr.expired') }}</p>
-        <button class="btn btn-primary mt-4" @click="router.push('/purchase')">{{ t('payment.result.backToRecharge') }}</button>
-      </div>
-      <div v-else class="text-center">
-        <p class="text-sm text-gray-500 dark:text-gray-400">{{ qrUrl ? t('payment.qr.expiresIn') : t('payment.qr.payInNewWindowHint') }}</p>
-        <p class="mt-1 text-2xl font-bold tabular-nums text-gray-900 dark:text-white">{{ countdownDisplay }}</p>
-        <p class="mt-2 text-sm text-gray-400 dark:text-gray-500">{{ t('payment.qr.waitingPayment') }}</p>
-      </div>
-      <a v-if="payUrl && !qrUrl && !expired" :href="payUrl" target="_blank" rel="noopener noreferrer"
-        class="btn btn-primary w-full py-3">
-        {{ t('payment.qr.openPayWindow') }}
-      </a>
       <!-- Cancel button -->
-      <button v-if="!expired && orderId" class="btn btn-secondary w-full" :disabled="cancelling" @click="handleCancel">
+      <button v-if="!expired && orderId" class="btn btn-ghost mt-4 w-full" :disabled="cancelling" @click="handleCancel">
         {{ cancelling ? t('common.processing') : t('payment.qr.cancelOrder') }}
       </button>
     </div>
@@ -37,6 +47,7 @@ import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import AppLayout from '@/components/layout/AppLayout.vue'
+import Icon from '@/components/icons/Icon.vue'
 import { usePaymentStore } from '@/stores/payment'
 import { paymentAPI } from '@/api/payment'
 import { extractI18nErrorMessage } from '@/utils/apiError'

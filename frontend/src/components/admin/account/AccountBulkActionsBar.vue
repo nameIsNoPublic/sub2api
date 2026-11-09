@@ -1,29 +1,34 @@
 <template>
-  <div class="mb-4 flex items-center justify-between rounded-lg bg-primary-50 p-3 dark:bg-primary-900/20">
+  <div class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary-200/70 bg-primary-50/70 px-3 py-2.5 dark:border-primary-400/20 dark:bg-primary-500/10">
     <div class="flex flex-wrap items-center gap-2">
-      <span v-if="allResultsSelected" class="text-sm font-medium text-primary-900 dark:text-primary-100">
+      <span
+        aria-hidden="true"
+        class="h-1.5 w-1.5 shrink-0 rounded-full"
+        :class="selectedIds.length > 0 ? 'bg-primary-500 shadow-glow' : 'bg-gray-300 dark:bg-dark-600'"
+      ></span>
+      <span v-if="allResultsSelected" class="text-sm font-medium tabular-nums text-primary-950 dark:text-primary-100">
         {{ t('admin.accounts.bulkActions.selectedAll', { count: selectedIds.length }) }}
       </span>
-      <span v-else-if="selectedIds.length > 0" class="text-sm font-medium text-primary-900 dark:text-primary-100">
+      <span v-else-if="selectedIds.length > 0" class="text-sm font-medium tabular-nums text-primary-950 dark:text-primary-100">
         {{ t('admin.accounts.bulkActions.selected', { count: selectedIds.length }) }}
       </span>
-      <span v-else class="text-sm font-medium text-primary-900 dark:text-primary-100">
+      <span v-else class="text-sm font-medium tabular-nums text-primary-950 dark:text-primary-100">
         {{ t('admin.accounts.bulkEdit.title') }}
       </span>
       <template v-if="selectedIds.length > 0">
         <button
           @click="$emit('select-page')"
-          class="text-xs font-medium text-primary-700 hover:text-primary-800 dark:text-primary-300 dark:hover:text-primary-200"
+          class="rounded text-xs font-medium text-primary-700 underline-offset-4 hover:text-primary-800 hover:underline dark:text-primary-300 dark:hover:text-primary-200"
         >
           {{ t('admin.accounts.bulkActions.selectCurrentPage') }}
         </button>
       </template>
       <template v-if="!allResultsSelected && totalResults > selectedIds.length">
-        <span v-if="selectedIds.length > 0" class="text-gray-300 dark:text-primary-800">•</span>
+        <span v-if="selectedIds.length > 0" class="text-primary-300 dark:text-primary-700">•</span>
         <button
           :disabled="selectingAll"
           @click="$emit('select-all-results')"
-          class="text-xs font-medium text-primary-700 hover:text-primary-800 disabled:cursor-not-allowed disabled:opacity-60 dark:text-primary-300 dark:hover:text-primary-200"
+          class="rounded text-xs font-medium text-primary-700 underline-offset-4 hover:text-primary-800 hover:underline disabled:cursor-not-allowed disabled:opacity-60 dark:text-primary-300 dark:hover:text-primary-200"
         >
           {{
             selectingAll
@@ -33,16 +38,16 @@
         </button>
       </template>
       <template v-if="selectedIds.length > 0">
-        <span class="text-gray-300 dark:text-primary-800">•</span>
+        <span class="text-primary-300 dark:text-primary-700">•</span>
         <button
           @click="$emit('clear')"
-          class="text-xs font-medium text-primary-700 hover:text-primary-800 dark:text-primary-300 dark:hover:text-primary-200"
+          class="rounded text-xs font-medium text-primary-700 underline-offset-4 hover:text-primary-800 hover:underline dark:text-primary-300 dark:hover:text-primary-200"
         >
           {{ t('admin.accounts.bulkActions.clear') }}
         </button>
       </template>
     </div>
-    <div class="flex gap-2">
+    <div class="flex flex-wrap gap-2">
       <template v-if="selectedIds.length > 0">
         <button @click="$emit('delete')" class="btn btn-danger btn-sm">{{ t('admin.accounts.bulkActions.delete') }}</button>
         <button @click="$emit('reset-status')" class="btn btn-secondary btn-sm">{{ t('admin.accounts.bulkActions.resetStatus') }}</button>

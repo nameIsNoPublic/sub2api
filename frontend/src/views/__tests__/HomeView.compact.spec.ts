@@ -50,6 +50,7 @@ function mountHome(settings: Record<string, unknown> = {}) {
         RouterLink: RouterLinkStub,
         LocaleSwitcher: { template: '<div data-testid="locale-switcher" />' },
         Icon: { template: '<span data-testid="icon" />' },
+        SignalField: { template: '<div data-testid="signal-field" />' },
       },
     },
   })
@@ -108,7 +109,7 @@ describe('HomeView compact mode', () => {
     const wrapper = mountHome(settings)
 
     expect(wrapper.find('[data-testid="compact-home"]').exists()).toBe(false)
-    expect(wrapper.find('.terminal-container').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="home-default"]').exists()).toBe(true)
   })
 
   it('links unauthenticated visitors to login', () => {
@@ -170,6 +171,53 @@ describe('HomeView compact mode', () => {
     })
 
     expect(modelPlazaDestination(wrapper)).toBe('/model-plaza')
+  })
+
+  it('shows the configured API base URL without duplicating /v1 on the default home', () => {
+    const wrapper = mountHome({ api_base_url: 'https://api.example.com/v1/' })
+
+    expect(wrapper.get('#home-access-url code').text()).toBe('https://api.example.com/v1')
+  })
+
+  it('uses the custom site subtitle as the hero kicker for custom brands', () => {
+    const wrapper = mountHome()
+
+    expect(wrapper.get('[data-testid="home-default"] .kicker').text()).toBe('Test subtitle')
+  })
+
+  it('links the default home primary CTA to the dashboard for signed-in users', () => {
+    authStore.isAuthenticated = true
+
+    const destinations = mountHome()
+      .findAllComponents(RouterLinkStub)
+      .map((link) => link.props('to'))
+    expect(destinations).toContain('/dashboard')
+    expect(destinations).not.toContain('/login')
+  })
+
+  it('does not imply self sign-up in the quickstart when registration is closed', () => {
+    const closed = mountHome({ registration_enabled: false }).text()
+    expect(closed).toContain('ui52.home.quickstart.steps.register.titleClosed')
+    expect(closed).not.toContain('ui52.home.quickstart.steps.register.titleOpen')
+
+    const open = mountHome({ registration_enabled: true }).text()
+    expect(open).toContain('ui52.home.quickstart.steps.register.titleOpen')
+  })
+
+  it('keeps the collapsible menu in the DOM and closes it on Escape', async () => {
+    const wrapper = mountHome()
+    const toggle = wrapper.get('button[aria-controls="home-mobile-menu"]')
+
+    expect(wrapper.find('#home-mobile-menu').exists()).toBe(true)
+    expect(toggle.attributes('aria-expanded')).toBe('false')
+
+    await toggle.trigger('click')
+    expect(toggle.attributes('aria-expanded')).toBe('true')
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    await wrapper.vm.$nextTick()
+    expect(toggle.attributes('aria-expanded')).toBe('false')
+    wrapper.unmount()
   })
 
   it('hides the model plaza link when the feature is disabled', () => {

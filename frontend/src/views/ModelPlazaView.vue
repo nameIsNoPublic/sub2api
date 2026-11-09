@@ -5,9 +5,16 @@
   </AppLayout>
 
   <!-- 独立形态:自带导航条(logo/站名 + 登录/回后台) -->
-  <div v-else class="min-h-screen bg-gray-50 dark:bg-dark-950">
+  <div v-else class="relative min-h-screen bg-gray-50 dark:bg-dark-950">
+    <!-- 顶部信号等高线头图条:向下渐隐,不干扰价格表阅读 -->
+    <div
+      class="pointer-events-none absolute inset-x-0 top-0 h-[360px] overflow-hidden [mask-image:linear-gradient(to_bottom,black,transparent)]"
+      aria-hidden="true"
+    >
+      <SignalField variant="ambient" :seed="31" class="absolute inset-0" />
+    </div>
     <PlazaNavBar />
-    <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+    <main class="relative mx-auto max-w-7xl px-4 pb-16 pt-8 sm:px-6 lg:px-8 lg:pt-12">
       <ModelPlazaContent :response="data" :loading="loading" :error="loadFailed" />
     </main>
   </div>
@@ -19,6 +26,7 @@ import { useRoute } from 'vue-router'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import PlazaNavBar from '@/components/modelPlaza/PlazaNavBar.vue'
 import ModelPlazaContent from '@/components/modelPlaza/ModelPlazaContent.vue'
+import SignalField from '@/components/brand/SignalField.vue'
 import { getModelPlaza, type ModelPlazaResponse } from '@/api/modelPlaza'
 import { useAppStore } from '@/stores/app'
 import { useAuthStore } from '@/stores/auth'
