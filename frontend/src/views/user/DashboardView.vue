@@ -1,40 +1,139 @@
 <template>
   <AppLayout>
-    <div class="space-y-4">
-      <div v-if="loading" class="flex items-center justify-center py-16"><LoadingSpinner /></div>
+    <div class="dashboard-page space-y-5">
+      <div v-if="loading" class="flex items-center justify-center py-16">
+        <LoadingSpinner />
+      </div>
       <template v-else-if="stats">
-        <UserDashboardStats :stats="stats" :balance="user?.balance || 0" :is-simple="authStore.isSimpleMode" :platform-quotas="platformQuotas" />
-        <UserDashboardCharts v-model:startDate="startDate" v-model:endDate="endDate" v-model:granularity="granularity" class="pt-2" :loading="loadingCharts" :trend="trendData" :models="modelStats" @dateRangeChange="loadCharts" @granularityChange="loadCharts" @refresh="refreshAll" />
-        <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <div class="min-w-0 lg:col-span-2"><UserDashboardRecentUsage :data="recentUsage" :loading="loadingUsage" /></div>
-          <div class="min-w-0 lg:col-span-1"><UserDashboardQuickActions /></div>
+        <UserDashboardStats
+          :stats="stats"
+          :balance="user?.balance || 0"
+          :is-simple="authStore.isSimpleMode"
+          :trend="heroTrend"
+        />
+        <div
+          class="dashboard-secondary"
+          :class="{ 'dashboard-secondary--full': !monitorEnabled }"
+        >
+          <UserDashboardQuickConnect />
+          <UserDashboardChannelStatus v-if="monitorEnabled" />
         </div>
+        <UserDashboardCharts
+          v-model:startDate="startDate"
+          v-model:endDate="endDate"
+          v-model:granularity="granularity"
+          class="pt-2"
+          :loading="loadingCharts"
+          :trend="trendData"
+          :models="modelStats"
+          @dateRangeChange="loadCharts"
+          @granularityChange="loadCharts"
+          @refresh="refreshAll"
+        />
+        <UserDashboardRecentUsage :data="recentUsage" :loading="loadingUsage" />
       </template>
     </div>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'; import { useAuthStore } from '@/stores/auth'; import { usageAPI, type UserDashboardStats as UserStatsType } from '@/api/usage'
-import AppLayout from '@/components/layout/AppLayout.vue'; import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
-import UserDashboardStats from '@/components/user/dashboard/UserDashboardStats.vue'; import UserDashboardCharts from '@/components/user/dashboard/UserDashboardCharts.vue'
-import UserDashboardRecentUsage from '@/components/user/dashboard/UserDashboardRecentUsage.vue'; import UserDashboardQuickActions from '@/components/user/dashboard/UserDashboardQuickActions.vue'
-import type { UsageLog, TrendDataPoint, ModelStat, PlatformQuotaItem } from '@/types'
-import { getMyPlatformQuotas } from '@/api/user'
+import { ref, computed, onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { usageAPI, type UserDashboardStats as UserStatsType } from '@/api/usage'
+import AppLayout from '@/components/layout/AppLayout.vue'
+import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
+import UserDashboardStats from '@/components/user/dashboard/UserDashboardStats.vue'
+import UserDashboardCharts from '@/components/user/dashboard/UserDashboardCharts.vue'
+import UserDashboardRecentUsage from '@/components/user/dashboard/UserDashboardRecentUsage.vue'
+import UserDashboardQuickConnect from '@/components/user/dashboard/UserDashboardQuickConnect.vue'
+import UserDashboardChannelStatus from '@/components/user/dashboard/UserDashboardChannelStatus.vue'
+import '@/styles/dashboard.css'
+import { isChannelMonitorRouteEnabled } from '@/utils/featureFlags'
+import type { UsageLog, TrendDataPoint, ModelStat } from '@/types'
 import { formatDateLocalInput } from '@/utils/format'
 
-const authStore = useAuthStore(); const user = computed(() => authStore.user)
-const stats = ref<UserStatsType | null>(null); const loading = ref(false); const loadingUsage = ref(false); const loadingCharts = ref(false)
-const trendData = ref<TrendDataPoint[]>([]); const modelStats = ref<ModelStat[]>([]); const recentUsage = ref<UsageLog[]>([])
-const platformQuotas = ref<PlatformQuotaItem[] | null>(null)
+const authStore = useAuthStore()
+const user = computed(() => authStore.user)
+const stats = ref<UserStatsType | null>(null)
+const loading = ref(false)
+const loadingUsage = ref(false)
+const loadingCharts = ref(false)
+const trendData = ref<TrendDataPoint[]>([])
+const modelStats = ref<ModelStat[]>([])
+const recentUsage = ref<UsageLog[]>([])
+const monitorEnabled = computed(() => isChannelMonitorRouteEnabled())
+// hero 卡的派生指标（日均/预计可用/sparkline）固定用近 7 天按天趋势，不随图表筛选范围变化
+const heroTrend = ref<TrendDataPoint[]>([])
 
-const startDate = ref(formatDateLocalInput(new Date(Date.now() - 6 * 86400000))); const endDate = ref(formatDateLocalInput(new Date())); const granularity = ref('day')
+const startDate = ref(formatDateLocalInput(new Date(Date.now() - 6 * 86400000)))
+const endDate = ref(formatDateLocalInput(new Date()))
+const granularity = ref('day')
 
-const loadStats = async () => { loading.value = true; try { await authStore.refreshUser(); stats.value = await usageAPI.getDashboardStats() } catch (error) { console.error('Failed to load dashboard stats:', error) } finally { loading.value = false } }
-const loadCharts = async () => { loadingCharts.value = true; try { const res = await Promise.all([usageAPI.getDashboardTrend({ start_date: startDate.value, end_date: endDate.value, granularity: granularity.value as any }), usageAPI.getDashboardModels({ start_date: startDate.value, end_date: endDate.value })]); trendData.value = res[0].trend || []; modelStats.value = res[1].models || [] } catch (error) { console.error('Failed to load charts:', error) } finally { loadingCharts.value = false } }
-const loadRecent = async () => { loadingUsage.value = true; try { const res = await usageAPI.getByDateRange(startDate.value, endDate.value); recentUsage.value = res.items.slice(0, 5) } catch (error) { console.error('Failed to load recent usage:', error) } finally { loadingUsage.value = false } }
-const loadPlatformQuotas = async () => { try { const data = await getMyPlatformQuotas(); platformQuotas.value = data.platform_quotas ?? [] } catch (error) { console.warn('Failed to load platform quotas:', error); platformQuotas.value = [] } }
-const refreshAll = () => { loadStats(); loadCharts(); loadRecent(); loadPlatformQuotas() }
+const loadStats = async () => {
+  loading.value = true
+  try {
+    await authStore.refreshUser()
+    stats.value = await usageAPI.getDashboardStats()
+  } catch (error) {
+    console.error('Failed to load dashboard stats:', error)
+  } finally {
+    loading.value = false
+  }
+}
+const loadHeroTrend = async () => {
+  try {
+    const res = await usageAPI.getDashboardTrend({
+      start_date: formatDateLocalInput(new Date(Date.now() - 6 * 86400000)),
+      end_date: formatDateLocalInput(new Date()),
+      granularity: 'day'
+    })
+    heroTrend.value = res.trend || []
+  } catch (error) {
+    console.warn('Failed to load hero trend:', error)
+    heroTrend.value = []
+  }
+}
+const loadCharts = async () => {
+  loadingCharts.value = true
+  try {
+    const res = await Promise.all([
+      usageAPI.getDashboardTrend({
+        start_date: startDate.value,
+        end_date: endDate.value,
+        granularity: granularity.value as any
+      }),
+      usageAPI.getDashboardModels({
+        start_date: startDate.value,
+        end_date: endDate.value
+      })
+    ])
+    trendData.value = res[0].trend || []
+    modelStats.value = res[1].models || []
+  } catch (error) {
+    console.error('Failed to load charts:', error)
+  } finally {
+    loadingCharts.value = false
+  }
+}
+const loadRecent = async () => {
+  loadingUsage.value = true
+  try {
+    const res = await usageAPI.getByDateRange(startDate.value, endDate.value)
+    recentUsage.value = res.items.slice(0, 5)
+  } catch (error) {
+    console.error('Failed to load recent usage:', error)
+  } finally {
+    loadingUsage.value = false
+  }
+}
+const refreshAll = () => {
+  loadStats()
+  loadHeroTrend()
+  loadCharts()
+  loadRecent()
+}
 
-onMounted(() => { refreshAll() })
+onMounted(() => {
+  refreshAll()
+})
 </script>

@@ -564,6 +564,7 @@ function mountView() {
         ProxySelector: true,
         ImageUpload: ImageUploadStub,
         BackupSettings: true,
+        TicketImageSettings: true,
       },
     },
   });

@@ -102,6 +102,8 @@
               <span v-if="item.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(item.iconSvg)"></span>
               <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
               <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ item.label }}</span>
+              <span v-if="item.badge" class="sidebar-badge num" :class="{ 'sidebar-badge-collapsed': sidebarCollapsed }" aria-hidden="true">{{ formatBadge(item.badge) }}</span>
+              <span v-if="item.badge" class="sr-only">{{ item.badgeLabel }}</span>
             </router-link>
           </template>
         </div>
@@ -127,6 +129,8 @@
             <span v-if="item.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(item.iconSvg)"></span>
             <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
             <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ item.label }}</span>
+            <span v-if="item.badge" class="sidebar-badge num" :class="{ 'sidebar-badge-collapsed': sidebarCollapsed }" aria-hidden="true">{{ formatBadge(item.badge) }}</span>
+            <span v-if="item.badge" class="sr-only">{{ item.badgeLabel }}</span>
           </router-link>
         </div>
       </template>
@@ -147,6 +151,8 @@
             <span v-if="item.iconSvg" class="h-5 w-5 flex-shrink-0 sidebar-svg-icon" v-html="sanitizeSvg(item.iconSvg)"></span>
             <component v-else :is="item.icon" class="h-5 w-5 flex-shrink-0" />
             <span class="sidebar-label" :class="{ 'sidebar-label-collapsed': sidebarCollapsed }" :aria-hidden="sidebarCollapsed ? 'true' : 'false'">{{ item.label }}</span>
+            <span v-if="item.badge" class="sidebar-badge num" :class="{ 'sidebar-badge-collapsed': sidebarCollapsed }" aria-hidden="true">{{ formatBadge(item.badge) }}</span>
+            <span v-if="item.badge" class="sr-only">{{ item.badgeLabel }}</span>
           </router-link>
         </div>
       </template>
@@ -204,7 +210,7 @@
 import { computed, h, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAdminSettingsStore, useAppStore, useAuthStore, useOnboardingStore } from '@/stores'
+import { useAdminSettingsStore, useAppStore, useAuthStore, useOnboardingStore, useSupportTicketStore } from '@/stores'
 import VersionBadge from '@/components/common/VersionBadge.vue'
 import BrandMark from '@/components/brand/BrandMark.vue'
 import Icon from '@/components/icons/Icon.vue'
@@ -233,6 +239,10 @@ interface NavItem {
    * 开关切换时菜单自动更新。
    */
   featureFlag?: () => boolean | undefined
+  /** Count shown after the label, or as a corner dot when the sidebar is collapsed. */
+  badge?: number
+  /** Screen-reader text for the badge. */
+  badgeLabel?: string
 }
 
 // applyFeatureFlags 递归过滤掉 featureFlag() === false 的节点（含子节点）。
@@ -258,6 +268,7 @@ const appStore = useAppStore()
 const authStore = useAuthStore()
 const onboardingStore = useOnboardingStore()
 const adminSettingsStore = useAdminSettingsStore()
+const supportTicketStore = useSupportTicketStore()
 const { canUseBatchImage, refreshBatchImageAccess } = useBatchImageAccess()
 
 const sidebarCollapsed = computed(() => appStore.sidebarCollapsed)
@@ -751,6 +762,13 @@ function buildSelfNavItems(withDashboard: boolean): NavItem[] {
     { path: '/orders', label: t('nav.myOrders'), icon: OrderListIcon, hideInSimpleMode: true, featureFlag: flagPayment },
     { path: '/redeem', label: t('nav.redeem'), icon: GiftIcon, hideInSimpleMode: true },
     { path: '/affiliate', label: t('nav.affiliate'), icon: UsersIcon, hideInSimpleMode: true, featureFlag: flagAffiliate },
+    {
+      path: '/support-tickets',
+      label: t('supportTickets.title'),
+      icon: TicketIcon,
+      badge: supportTicketStore.mine?.attention,
+      badgeLabel: t('supportTickets.badge.unread', { count: supportTicketStore.mine?.attention ?? 0 }),
+    },
     { path: '/profile', label: t('nav.profile'), icon: UserIcon },
     { path: '/settings/mcp', label: t('mcp.title'), icon: MCPIcon, featureFlag: flagMCP },
     ...customMenuItemsForUser.value.map((item): NavItem => ({
@@ -813,6 +831,13 @@ const adminNavItems = computed((): NavItem[] => {
     { path: '/admin/subscriptions', label: t('nav.subscriptions'), icon: CreditCardIcon, hideInSimpleMode: true, featureFlag: flagSubscription },
     { path: '/admin/accounts', label: t('nav.accounts'), icon: GlobeIcon },
     { path: '/admin/plugins', label: t('nav.plugins'), icon: PluginIcon, featureFlag: flagPluginManagement },
+    {
+      path: '/admin/support-tickets',
+      label: t('supportTickets.adminTitle'),
+      icon: TicketIcon,
+      badge: supportTicketStore.queue?.attention,
+      badgeLabel: t('supportTickets.badge.waiting', { count: supportTicketStore.queue?.attention ?? 0 }),
+    },
     { path: '/admin/announcements', label: t('nav.announcements'), icon: BellIcon },
     { path: '/admin/proxies', label: t('nav.proxies'), icon: ServerIcon },
     {
@@ -911,6 +936,10 @@ function handleMenuItemClick(itemPath: string) {
   if (selector && onboardingStore.isCurrentStep(selector)) {
     onboardingStore.nextStep(500)
   }
+}
+
+function formatBadge(count: number): string {
+  return count > 99 ? '99+' : String(count)
 }
 
 function isActive(path: string): boolean {
@@ -1032,6 +1061,8 @@ onBeforeUnmount(() => {
 }
 
 .sidebar-link-collapsed {
+  /* 折叠态的计数信号点相对链接定位 */
+  position: relative;
   gap: 0;
   padding-left: 0.875rem;
   padding-right: 0.875rem;
@@ -1110,6 +1141,38 @@ onBeforeUnmount(() => {
   opacity: 0;
   transform: translateX(-4px);
   pointer-events: none;
+}
+
+/* 导航计数：展开时跟在文字后，折叠时缩成图标右上角的信号点 */
+.sidebar-badge {
+  margin-left: auto;
+  flex-shrink: 0;
+  min-width: 1.25rem;
+  border-radius: 9999px;
+  padding: 0 0.375rem;
+  background: theme('colors.ember.500');
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.25rem;
+  text-align: center;
+}
+
+.sidebar-badge-collapsed {
+  position: absolute;
+  top: 0.375rem;
+  left: 1.875rem;
+  min-width: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  padding: 0;
+  overflow: hidden;
+  color: transparent;
+  box-shadow: 0 0 0 2px theme('colors.gray.50');
+}
+
+.dark .sidebar-badge-collapsed {
+  box-shadow: 0 0 0 2px theme('colors.dark.950');
 }
 
 /* 版本行：VersionBadge 下拉向上展开并以本行左缘为锚点（relative），这里不能 overflow: hidden */

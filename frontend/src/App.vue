@@ -6,7 +6,7 @@ import NavigationProgress from '@/components/common/NavigationProgress.vue'
 import AdminComplianceDialog from '@/components/admin/AdminComplianceDialog.vue'
 import { resolveRouteDocumentTitle } from '@/router/title'
 import AnnouncementPopup from '@/components/common/AnnouncementPopup.vue'
-import { useAppStore, useAuthStore, useSubscriptionStore, useAnnouncementStore, useAdminComplianceStore, useAdminSettingsStore } from '@/stores'
+import { useAppStore, useAuthStore, useSubscriptionStore, useAnnouncementStore, useAdminComplianceStore, useAdminSettingsStore, useSupportTicketStore } from '@/stores'
 import { getSetupStatus } from '@/api/setup'
 import { updateFavicon } from '@/utils/branding'
 import { FeatureFlags, isFeatureFlagEnabled } from '@/utils/featureFlags'
@@ -20,6 +20,7 @@ const subscriptionStore = useSubscriptionStore()
 const announcementStore = useAnnouncementStore()
 const adminComplianceStore = useAdminComplianceStore()
 const adminSettingsStore = useAdminSettingsStore()
+const supportTicketStore = useSupportTicketStore()
 
 function updateDocumentTitle() {
   const customMenuItems = [
@@ -62,6 +63,7 @@ watch(
 function onVisibilityChange() {
   if (document.visibilityState === 'visible' && authStore.isAuthenticated) {
     announcementStore.fetchAnnouncements()
+    supportTicketStore.refreshIfStale()
   }
 }
 
@@ -114,6 +116,8 @@ watch(
         announcementStore.fetchAnnouncements()
       }
 
+      supportTicketStore.start()
+
       // Register visibility change listener
       document.addEventListener('visibilitychange', onVisibilityChange)
     } else {
@@ -121,6 +125,7 @@ watch(
       subscriptionStore.clear()
       announcementStore.reset()
       adminComplianceStore.reset()
+      supportTicketStore.reset()
       document.removeEventListener('visibilitychange', onVisibilityChange)
     }
   },

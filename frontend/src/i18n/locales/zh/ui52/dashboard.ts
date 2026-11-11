@@ -18,5 +18,78 @@ export default {
   clientOpenAI: 'OpenAI 兼容 / Codex',
   clientClaude: 'Claude Code / Gemini CLI',
   clientGemini: 'Gemini API',
-  rootOnly: '根地址'
+  rootOnly: '根地址',
+  hero: {
+    accountBalance: '账户余额',
+    overview: '账户概览',
+    hideBalance: '隐藏余额',
+    showBalance: '显示余额',
+    spend7d: '近 7 天消费',
+    savings: '累计节省',
+    savedPct: '省 {percent}%',
+    avg7d: '近 7 日日均',
+    runway: '预计可用',
+    days: '{days} 天',
+    recharge: '充值',
+    useLogs: '使用日志'
+  },
+  metrics: {
+    keysUnit: '个',
+    requestsUnit: '次',
+    manage: '管理',
+    cacheShare: '缓存 {percent}%'
+  },
+  channelStatus: {
+    retry: '重试',
+    allHealthy: '全部正常运行',
+    healthy: '正常',
+    warning: '部分波动',
+    critical: '异常',
+    unknown: '暂无数据',
+    loadFailed: '获取失败',
+    empty: '暂无已配置的渠道监控',
+    details: '查看渠道详情',
+    availability7d: '近 7 天可用率',
+    success24h: '近 24 小时成功率',
+    recentBuckets: '最近 32 个区间',
+    stale: '刷新失败，显示上次状态'
+  },
+  quickConnect: {
+    steps: '3 步完成',
+    categoryLabel: '接入方式',
+    clientLabel: '客户端',
+    categories: {
+      editor: '编程助手',
+      sdk: 'SDK / API',
+      client: '客户端',
+      image: '生图'
+    },
+    openaiHint: 'OpenAI 兼容客户端使用带 /v1 的地址',
+    clientFields: '将以上地址和密钥填入客户端的 OpenAI 兼容设置',
+    modelHint:
+      '将示例中的 YOUR_MODEL / YOUR_IMAGE_MODEL 替换为密钥分组可用的模型。',
+    faqTitle: '常见问题',
+    faq: '401 密钥错误或已停用 · 403 分组无该模型权限 · 429 触发限流',
+    title: '快速接入',
+    hint: '选择客户端 → 选择密钥 → 复制配置，粘贴即可调用',
+    baseUrl: 'Base URL',
+    apiKey: 'API 密钥',
+    newKey: '新建',
+    copyKey: '复制密钥',
+    copyConfig: '复制配置',
+    copyBaseUrl: '复制 Base URL',
+    copied: '已复制',
+    noKeys: '还没有可用密钥，先创建一个',
+    keysLoadFailed: '密钥列表加载失败，请稍后重试',
+    secretNote: '复制的配置会包含完整密钥，请勿公开分享。',
+    codexNote:
+      'Codex CLI 还需要 ~/.codex/config.toml 配置，用密钥页的「使用向导」一键生成。',
+    codexSnippetNote:
+      '~/.codex/config.toml 核心字段如下，完整内容用密钥页「使用向导」生成',
+    openWizard: '打开使用向导',
+    claudeHint: 'Claude Code 使用根地址（不带 /v1）',
+    codexHint: 'Codex 的 Base URL 需要带 /v1',
+    geminiHint: 'Gemini CLI 使用根地址，版本路径由 CLI 自行拼接',
+    runAfter: '写入环境变量后启动 {client}'
+  }
 }

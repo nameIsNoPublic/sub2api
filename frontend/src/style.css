@@ -97,6 +97,32 @@
     outline-offset: 2px;
   }
 
+  /* 浏览器自动填充：用大面积 inset 阴影盖住浏览器的浅蓝底色，底色与 .input 一致并随明暗切换。
+   * 阴影列表末尾拼上 Tailwind 的 ring 变量，聚焦时的靛蓝外环不会被覆盖。 */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    --autofill-bg: #ffffff;
+    -webkit-text-fill-color: #17181c;
+    caret-color: #17181c;
+    -webkit-box-shadow:
+      0 0 0 1000px var(--autofill-bg) inset,
+      var(--tw-ring-offset-shadow, 0 0 #0000),
+      var(--tw-ring-shadow, 0 0 #0000) !important;
+    box-shadow:
+      0 0 0 1000px var(--autofill-bg) inset,
+      var(--tw-ring-offset-shadow, 0 0 #0000),
+      var(--tw-ring-shadow, 0 0 #0000) !important;
+  }
+
+  .dark input:-webkit-autofill,
+  .dark input:-webkit-autofill:hover,
+  .dark input:-webkit-autofill:focus {
+    --autofill-bg: #131418;
+    -webkit-text-fill-color: #efefec;
+    caret-color: #efefec;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;

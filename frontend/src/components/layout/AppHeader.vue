@@ -10,6 +10,12 @@
           :aria-label="t('common.toggleMenu')"
         >
           <Icon name="menu" size="md" />
+          <!-- 移动端侧栏收起时，提示菜单里有待看的工单 -->
+          <span
+            v-if="hasTicketBadge"
+            class="signal-dot absolute right-2 top-2 ring-2 ring-gray-50 dark:ring-dark-950"
+            aria-hidden="true"
+          ></span>
         </button>
 
         <!-- 移动端：侧栏收起时用品牌标识保持识别；<400px 让位给右侧操作区，避免 360px 横向溢出 -->
@@ -288,7 +294,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAppStore, useAuthStore, useOnboardingStore } from '@/stores'
+import { useAppStore, useAuthStore, useOnboardingStore, useSupportTicketStore } from '@/stores'
 import { useAdminSettingsStore } from '@/stores/adminSettings'
 import LocaleSwitcher from '@/components/common/LocaleSwitcher.vue'
 import SubscriptionProgressMini from '@/components/common/SubscriptionProgressMini.vue'
@@ -307,8 +313,12 @@ const appStore = useAppStore()
 const authStore = useAuthStore()
 const adminSettingsStore = useAdminSettingsStore()
 const onboardingStore = useOnboardingStore()
+const supportTicketStore = useSupportTicketStore()
 
 const user = computed(() => authStore.user)
+const hasTicketBadge = computed(() =>
+  Boolean(supportTicketStore.mine?.attention || (authStore.isAdmin && supportTicketStore.queue?.attention))
+)
 const dropdownOpen = ref(false)
 const dropdownRef = ref<HTMLElement | null>(null)
 const contactInfo = computed(() => appStore.contactInfo)

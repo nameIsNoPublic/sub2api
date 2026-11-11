@@ -259,3 +259,39 @@ func TestBodyReadTimeoutHTTP2DoesNotCancelOtherStreams(t *testing.T) {
 		t.Fatalf("other stream failed: %s %s", resp.Proto, resp.Status)
 	}
 }
+
+func TestBodyReadLimitsStopsSlowUploadBeforeIdleTimeout(t *testing.T) {
+	readDone := make(chan error, 1)
+	srv := httptest.NewServer(WithBodyReadLimits(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, err := io.ReadAll(r.Body)
+		readDone <- err
+	}), 5*time.Second, func(*http.Request) time.Duration { return 100 * time.Millisecond }))
+	defer srv.Close()
+	conn, err := net.Dial("tcp", srv.Listener.Addr().String())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = conn.Close() }()
+	if _, err := io.WriteString(conn, "POST / HTTP/1.1\r\nHost: test\r\nContent-Length: 1024\r\n\r\nx"); err != nil {
+		t.Fatal(err)
+	}
+
+	ticker := time.NewTicker(20 * time.Millisecond)
+	defer ticker.Stop()
+	wait := time.After(2 * time.Second)
+	for {
+		select {
+		case err := <-readDone:
+			var timeout net.Error
+			if !errors.As(err, &timeout) || !timeout.Timeout() {
+				t.Fatalf("want total upload timeout, got %v", err)
+			}
+			return
+		case <-ticker.C:
+			// The upload stays active enough to avoid any individual idle timeout.
+			_, _ = io.WriteString(conn, "x")
+		case <-wait:
+			t.Fatal("slow upload was not interrupted by the total timeout")
+		}
+	}
+}

@@ -1,5 +1,6 @@
 import adminAccessKeys from './adminAccessKeys'
 import mcp from './mcp'
+import supportTickets from './supportTickets'
 import landing from './landing'
 import common from './common'
 import dashboard from './dashboard'
@@ -12,6 +13,7 @@ import ui52 from './ui52'
 export default {
   adminAccessKeys,
   mcp,
+  supportTickets,
   ...landing,
   ...common,
   ...dashboard,

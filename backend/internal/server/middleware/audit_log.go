@@ -58,7 +58,7 @@ var auditExtraAllowedKeys = map[string]struct{}{
 	"config_version": {}, "endpoint_count": {}, "scanner_count": {},
 	"all_groups": {}, "group_count": {}, "guard_endpoint_id": {},
 	"http_status": {}, "latency_ms": {}, "token_applied": {}, "retryable": {},
-	"event_id": {}, "requested_count": {}, "deleted_events": {}, "deleted_jobs": {},
+	"event_id": {}, "ticket_id": {}, "requested_count": {}, "deleted_events": {}, "deleted_jobs": {},
 	"matched_count": {}, "snapshot_max_id": {}, "filter_hash": {}, "confirm": {},
 }
 
@@ -111,6 +111,11 @@ func truncateAuditExtraString(value string, limit int) string {
 
 // auditSensitiveReads 需要审计的敏感 GET 读取（method+FullPath → 动作名）。
 var auditSensitiveReads = map[string]string{
+	"GET /api/v1/admin/support-tickets/:id/events/:version/images/:position": "admin.support_tickets.image_read",
+
+	"GET /api/v1/admin/support-tickets":           "admin.support_tickets.list",
+	"GET /api/v1/admin/support-tickets/:id":       "admin.support_tickets.read",
+	"GET /api/v1/admin/support-tickets/knowledge": "admin.support_tickets.knowledge_export",
 	"GET /api/v1/admin/accounts/data":             "admin.accounts.export",
 	"GET /api/v1/admin/proxies/data":              "admin.proxies.export",
 	"GET /api/v1/admin/redeem-codes/export":       "admin.redeem_codes.export",
@@ -149,6 +154,11 @@ var auditActionOverrides = map[string]string{
 // auditBodyOmittedRoutes 请求体几乎整体由凭证构成的路由（如整块粘贴 auth JSON 的导入接口）。
 // 这类 body 的凭证内嵌在普通字符串值里，键级脱敏无法覆盖，整体不入库。
 var auditBodyOmittedRoutes = map[string]struct{}{
+	// 工单和知识正文为自由文本，可能含凭证或用户隐私。
+	"POST /api/v1/support-tickets":                              {},
+	"POST /api/v1/support-tickets/:id/actions":                  {},
+	"POST /api/v1/admin/support-tickets/:id/actions":            {},
+	"PUT /api/v1/admin/support-tickets/:id/knowledge":           {},
 	"POST /api/v1/auth/passkey/login/finish":                    {},
 	"POST /api/v1/user/passkeys/register/finish":                {},
 	"POST /api/v1/admin/accounts/import/codex-session":          {},

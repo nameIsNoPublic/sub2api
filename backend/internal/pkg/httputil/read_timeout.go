@@ -13,12 +13,23 @@ import (
 // WithBodyReadTimeout bounds each socket read while receiving a body. It does
 // not set a whole-request deadline or limit the duration of an SSE response.
 func WithBodyReadTimeout(next http.Handler, timeout time.Duration) http.Handler {
-	if timeout <= 0 {
+	return WithBodyReadLimits(next, timeout, nil)
+}
+
+// WithBodyReadLimits applies an idle timeout and an optional total body timeout selected per request.
+func WithBodyReadLimits(next http.Handler, idle time.Duration, totalTimeout func(*http.Request) time.Duration) http.Handler {
+	if idle <= 0 && totalTimeout == nil {
 		return next
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Body != nil && r.Body != http.NoBody {
-			body := &bodyReadTimeout{ReadCloser: r.Body, controller: http.NewResponseController(w), timeout: timeout}
+		var deadline time.Time
+		if totalTimeout != nil {
+			if total := totalTimeout(r); total > 0 {
+				deadline = time.Now().Add(total)
+			}
+		}
+		if r.Body != nil && r.Body != http.NoBody && (idle > 0 || !deadline.IsZero()) {
+			body := &bodyReadTimeout{ReadCloser: r.Body, controller: http.NewResponseController(w), timeout: idle, deadline: deadline}
 			r.Body = body
 			if r.ProtoMajor == 1 {
 				writer := &bodyDrainTimeoutWriter{ResponseWriter: w, body: body}
@@ -41,12 +52,13 @@ type bodyReadTimeout struct {
 	io.ReadCloser
 	controller *http.ResponseController
 	timeout    time.Duration
+	deadline   time.Time
 	finished   atomic.Bool
 	failed     atomic.Bool
 }
 
 func (r *bodyReadTimeout) Read(p []byte) (int, error) {
-	err := r.controller.SetReadDeadline(time.Now().Add(r.timeout))
+	err := r.controller.SetReadDeadline(r.nextDeadline())
 	if err != nil && !errors.Is(err, http.ErrNotSupported) {
 		return 0, err
 	}
@@ -76,11 +88,22 @@ func (r *bodyReadTimeout) Close() error {
 	return err
 }
 
+func (r *bodyReadTimeout) nextDeadline() time.Time {
+	if r.timeout <= 0 {
+		return r.deadline
+	}
+	idleDeadline := time.Now().Add(r.timeout)
+	if !r.deadline.IsZero() && r.deadline.Before(idleDeadline) {
+		return r.deadline
+	}
+	return idleDeadline
+}
+
 func (r *bodyReadTimeout) startDrain() bool {
 	if r.finished.Load() || r.failed.Load() {
 		return false
 	}
-	return r.controller.SetReadDeadline(time.Now().Add(r.timeout)) == nil
+	return r.controller.SetReadDeadline(r.nextDeadline()) == nil
 }
 
 func (r *bodyReadTimeout) finishDrain(armed bool) {

@@ -1,5 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
-import { mount, type VueWrapper } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
+
+const { mockPush } = vi.hoisted(() => ({ mockPush: vi.fn() }))
+vi.mock('vue-router', () => ({ useRouter: () => ({ push: mockPush }) }))
 
 // t() 回显 key；带参数时附上 JSON，便于断言计数
 vi.mock('vue-i18n', async () => {
@@ -8,14 +11,13 @@ vi.mock('vue-i18n', async () => {
     ...actual,
     useI18n: () => ({
       t: (key: string, params?: Record<string, unknown>) =>
-        params ? `${key}:${JSON.stringify(params)}` : key,
-    }),
+        params ? `${key}:${JSON.stringify(params)}` : key
+    })
   }
 })
 
 import UserDashboardStats from '../UserDashboardStats.vue'
-import type { UserDashboardStats as UserStatsType, PlatformDashboardStats } from '@/api/usage'
-import type { PlatformQuotaItem } from '@/types'
+import type { UserDashboardStats as UserStatsType } from '@/api/usage'
 
 function makeStats(over: Partial<UserStatsType> = {}): UserStatsType {
   return {
@@ -41,122 +43,122 @@ function makeStats(over: Partial<UserStatsType> = {}): UserStatsType {
     rpm: 0,
     tpm: 0,
     by_platform: [],
-    ...over,
+    ...over
   }
 }
 
-function usage(platform: string, cost: number): PlatformDashboardStats {
-  return {
-    platform,
-    total_requests: 1,
-    total_tokens: 10,
-    total_actual_cost: cost,
-    today_requests: 1,
-    today_tokens: 10,
-    today_actual_cost: cost,
-  }
-}
-
-function quota(over: Partial<PlatformQuotaItem> & { platform: string }): PlatformQuotaItem {
-  return {
-    daily_limit_usd: null,
-    weekly_limit_usd: null,
-    monthly_limit_usd: null,
-    daily_usage_usd: 0,
-    weekly_usage_usd: 0,
-    monthly_usage_usd: 0,
-    ...over,
-  } as PlatformQuotaItem
-}
-
-function mountStats(stats: UserStatsType, platformQuotas: PlatformQuotaItem[] | null = null, isSimple = false) {
+function mountStats(stats: UserStatsType, isSimple = false) {
   return mount(UserDashboardStats, {
-    props: { stats, balance: 0, isSimple, platformQuotas },
-    global: { stubs: { Icon: true } },
+    props: { stats, balance: 0, isSimple },
+    global: { stubs: { Icon: true } }
   })
 }
 
-/** 渲染出的平台卡片，按 DOM 顺序返回 data-platform */
-function cardPlatforms(w: VueWrapper): string[] {
-  return w.findAll('[data-testid="platform-card"]').map((c) => c.attributes('data-platform') ?? '')
-}
-
-describe('UserDashboardStats 按平台拆分', () => {
-  it('只有用量的平台才产生卡片；三档全空的限额记录不产生卡片', () => {
+describe('UserDashboardStats 账户概览', () => {
+  it('账户概览不再展示按平台拆分', () => {
     const w = mountStats(
-      makeStats({ total_actual_cost: 0.03, today_actual_cost: 0.03, by_platform: [usage('grok', 0.03)] }),
-      [
-        quota({ platform: 'anthropic' }),
-        quota({ platform: 'openai' }),
-        quota({ platform: 'gemini' }),
-        quota({ platform: 'grok' }),
+      makeStats({
+        by_platform: [
+          {
+            platform: 'openai',
+            total_requests: 1,
+            total_tokens: 10,
+            total_actual_cost: 1,
+            today_requests: 1,
+            today_tokens: 10,
+            today_actual_cost: 1
+          }
+        ]
+      })
+    )
+    expect(w.find('[data-testid="platform-card"]').exists()).toBe(false)
+    expect(w.text()).not.toContain('dashboard.platformBreakdown')
+  })
+
+  it('隐藏余额时移除金额和可反推余额的可用天数，支持再次显示', async () => {
+    const w = mountStats(makeStats())
+    await w.setProps({
+      balance: 1234.56,
+      trend: [
+        {
+          date: '2026-11-10',
+          requests: 1,
+          input_tokens: 1,
+          output_tokens: 0,
+          cache_creation_tokens: 0,
+          cache_read_tokens: 0,
+          total_tokens: 1,
+          cost: 10,
+          actual_cost: 10
+        }
       ]
-    )
-    expect(cardPlatforms(w)).toEqual(['grok'])
-    expect(w.text()).toContain('dashboard.platformCount:{"count":1}')
-    expect(w.html()).not.toContain('dashboard.platformQuota.title')
+    })
+    expect(w.get('[data-testid="account-balance"]').text()).toBe('$1,234.56')
+    expect(w.text()).toContain('ui52.dashboard.hero.days:{"days":"123"}')
+    await w
+      .get('button[aria-label="ui52.dashboard.hero.hideBalance"]')
+      .trigger('click')
+    expect(w.get('[data-testid="account-balance"]').text()).toBe('••••••')
+    expect(
+      w.get('[data-testid="account-balance"]').attributes('title')
+    ).toBeUndefined()
+    expect(w.text()).not.toContain('1,234.56')
+    expect(w.text()).not.toContain('ui52.dashboard.hero.days')
+    expect(
+      w
+        .get('button[aria-label="ui52.dashboard.hero.showBalance"]')
+        .attributes('aria-pressed')
+    ).toBe('true')
+    await w
+      .get('button[aria-label="ui52.dashboard.hero.showBalance"]')
+      .trigger('click')
+    expect(w.get('[data-testid="account-balance"]').text()).toBe('$1,234.56')
   })
 
-  it('配置了限额但没有用量的平台也产生卡片，并渲染配额区', () => {
+  it('Token 构成条合并缓存创建和读取，三段占比合计为 100%', () => {
     const w = mountStats(
-      makeStats({ total_actual_cost: 0.03, today_actual_cost: 0.03, by_platform: [usage('grok', 0.03)] }),
-      [quota({ platform: 'openai', daily_limit_usd: 10, daily_usage_usd: 2.5 }), quota({ platform: 'anthropic' })]
+      makeStats({
+        total_tokens: 100,
+        total_input_tokens: 20,
+        total_output_tokens: 10,
+        total_cache_creation_tokens: 30,
+        total_cache_read_tokens: 40
+      })
     )
-    // 固定顺序：openai 排在 grok 前
-    expect(cardPlatforms(w)).toEqual(['openai', 'grok'])
-    expect(w.text()).toContain('dashboard.platformQuota.title')
-    expect(w.text()).toContain('dashboard.platformCount:{"count":2}')
-  })
-
-  it('同一平台既有用量又有限额只产生一张卡片', () => {
-    const w = mountStats(
-      makeStats({ total_actual_cost: 1, today_actual_cost: 1, by_platform: [usage('openai', 1)] }),
-      [quota({ platform: 'openai', daily_limit_usd: 10, daily_usage_usd: 1 })]
+    const segments = w.findAll('.token-track > span')
+    expect(segments.map((segment) => segment.attributes('style'))).toEqual([
+      'width: 20%;',
+      'width: 10%;',
+      'width: 70%;'
+    ])
+    expect(w.get('.token-legend').text()).toContain('dashboard.cache 70')
+    expect(w.text()).toContain(
+      'ui52.dashboard.metrics.cacheShare:{"percent":"40.0"}'
     )
-    expect(cardPlatforms(w)).toEqual(['openai'])
-    expect(w.text()).toContain('dashboard.platformQuota.title')
   })
 
-  it('限额为 0 的平台视为已配置，渲染禁用态', () => {
-    const w = mountStats(makeStats(), [quota({ platform: 'gemini', weekly_limit_usd: 0 })])
-    expect(cardPlatforms(w)).toEqual(['gemini'])
-    expect(w.text()).toContain('dashboard.platformQuota.disabled')
-    expect(w.text()).toContain('dashboard.platformCount:{"count":1}')
+  it('零用量与缺失趋势不渲染虚构曲线或无效占比', () => {
+    const w = mountStats(makeStats({ total_api_keys: 0, active_api_keys: 0 }))
+    expect(
+      w
+        .findAll('.token-track > span')
+        .every((segment) => segment.attributes('style') === 'width: 0%;')
+    ).toBe(true)
+    expect(w.find('[role="meter"]').exists()).toBe(false)
+    expect(w.findAll('.overview-spark')).toHaveLength(0)
+    expect(w.html()).not.toMatch(/NaN|Infinity/)
   })
 
-  it('固定顺序之外的平台也产生卡片，并排在固定顺序之后', () => {
-    const w = mountStats(
-      makeStats({ total_actual_cost: 0.5, today_actual_cost: 0, by_platform: [usage('kimi', 0.3), usage('anthropic', 0.2)] })
-    )
-    expect(cardPlatforms(w)).toEqual(['anthropic', 'kimi'])
-    expect(w.text()).toContain('Kimi')
-  })
-
-  it('TypeSafe 使用 Jev 标签并位于未知平台之前', () => {
-    const w = mountStats(
-      makeStats({ total_actual_cost: 0.5, today_actual_cost: 0, by_platform: [usage('kimi', 0.3), usage('typesafe', 0.2)] })
-    )
-    expect(cardPlatforms(w)).toEqual(['typesafe', 'kimi'])
-    expect(w.text()).toContain('TypeSafe / Jev')
-  })
-
-  it('总值大于各平台之和时追加"其他"卡片，且不计入平台计数', () => {
-    const w = mountStats(
-      makeStats({ total_actual_cost: 1.0, today_actual_cost: 0, by_platform: [usage('anthropic', 0.4)] })
-    )
-    expect(cardPlatforms(w)).toEqual(['anthropic', '__other__'])
-    expect(w.text()).toContain('dashboard.platformOther')
-    expect(w.text()).toContain('dashboard.platformCount:{"count":1}')
-  })
-
-  it('没有任何用量也没有配置限额时不渲染整块', () => {
-    const w = mountStats(makeStats(), [quota({ platform: 'anthropic' }), quota({ platform: 'openai' })])
-    expect(w.html()).not.toContain('dashboard.platformBreakdown')
-    expect(cardPlatforms(w)).toEqual([])
-  })
-
-  it('简易模式不渲染整块', () => {
-    const w = mountStats(makeStats({ by_platform: [usage('openai', 1)] }), null, true)
-    expect(w.html()).not.toContain('dashboard.platformBreakdown')
+  it('四个账户操作跳转到现有页面', async () => {
+    mockPush.mockClear()
+    const w = mountStats(makeStats())
+    for (const button of w.findAll('.balance-panel__actions button'))
+      await button.trigger('click')
+    expect(mockPush.mock.calls.map((call) => call[0])).toEqual([
+      '/purchase',
+      '/keys',
+      '/redeem',
+      '/usage'
+    ])
   })
 })

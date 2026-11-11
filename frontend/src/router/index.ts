@@ -300,6 +300,19 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/support-tickets',
+    name: 'SupportTickets',
+    component: () => import('@/features/support-tickets/SupportTicketsView.vue'),
+    props: { admin: false },
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: false,
+      title: 'My support tickets',
+      titleKey: 'supportTickets.title',
+      descriptionKey: 'supportTickets.description'
+    }
+  },
+  {
     path: '/profile',
     name: 'Profile',
     component: () => import('@/views/user/ProfileView.vue'),
@@ -558,6 +571,19 @@ const routes: RouteRecordRaw[] = [
       title: 'Plugin Management',
       titleKey: 'admin.plugins.title',
       descriptionKey: 'admin.plugins.description'
+    }
+  },
+  {
+    path: '/admin/support-tickets',
+    name: 'AdminSupportTickets',
+    component: () => import('@/features/support-tickets/SupportTicketsView.vue'),
+    props: { admin: true },
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: true,
+      title: 'Support tickets',
+      titleKey: 'supportTickets.adminTitle',
+      descriptionKey: 'supportTickets.adminDescription'
     }
   },
   {

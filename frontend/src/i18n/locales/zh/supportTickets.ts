@@ -1,0 +1,120 @@
+export default {
+  title: '我的工单',
+  description: '提交问题，与客服沟通并确认处理结果。',
+  adminTitle: '工单管理',
+  adminDescription: '处理用户问题、跟踪解决进度并整理可复用的问答。',
+  list: '工单列表',
+  conversation: '工单详情',
+  collapse: '收起详情',
+  create: '发起工单',
+  subject: '标题',
+  categoryLabel: '问题分类',
+  problem: '问题描述',
+  privacyHint: '请勿填写 API 密钥、密码或其他敏感信息。',
+  filter: '按工单状态筛选',
+  all: '全部状态',
+  empty: '当前筛选条件下暂无工单。',
+  selectTicket: '选择一张工单查看对话与处理进度。',
+  loadFailed: '加载工单列表失败，请刷新重试。',
+  detailFailed: '加载工单详情失败，请刷新重试。',
+  createFailed: '提交工单失败，请检查内容后重试。',
+  earlier: '加载更早的记录',
+  requester: '发起用户 #{id}',
+  replyLabel: '回复内容',
+  reopenReason: '重开原因',
+  closeNote: '结束说明（选填）',
+  confirmHint: '请确认方案是否解决了问题。如果问题仍在，可以说明原因并重开工单。',
+  resolvedAdminHint: '方案已提交，等待用户确认。如无需继续跟进，可以直接结束工单。',
+  closedHint: '工单已结束。如问题仍未解决，可以说明原因后重新打开。',
+  actionConflict: '工单已更新。请查看最新状态后再提交。',
+  actionFailed: '提交操作失败，请重试。',
+  unread: '有新进展',
+  badge: {
+    unread: '{count} 张工单有新进展',
+    waiting: '{count} 张工单待客服处理'
+  },
+  status: {
+    waiting_support: '待客服',
+    waiting_user: '待用户',
+    resolved: '待确认',
+    closed: '已结束'
+  },
+  category: {
+    api: 'API 使用',
+    billing: '支付与账单',
+    account: '账号问题',
+    other: '其他'
+  },
+  role: {
+    user: '用户',
+    admin: '客服'
+  },
+  event: {
+    create: '发起工单',
+    reply: '回复',
+    resolve: '提交解决方案',
+    confirm: '确认解决并结束',
+    reopen: '重新打开',
+    close: '结束工单'
+  },
+  action: {
+    reply: '发送回复',
+    resolve: '提交方案，等待确认',
+    confirm: '确认解决并结束',
+    reopen: '重新打开工单',
+    close: '结束工单'
+  },
+  settings: {
+    title: '工单图片上传与存储',
+    description: '控制图片上传频率和历史附件存量，额度按工单归属账号累计。',
+    hint: '填写大于 0 的整数。减少额度后，已有图片继续保留，新上传按新的额度检查。1 MiB = 1024 KiB。',
+    effectiveHint: '保存后当前节点立即生效，多节点上传频率最多 1 分钟内同步。',
+    save: '保存工单图片设置',
+    saved: '工单图片设置已保存。',
+    loadFailed: '读取工单图片设置失败，请重试。',
+    saveFailed: '保存失败，请检查填写范围后重试。',
+    fields: {
+      user_rpm: '单账号每分钟上传次数',
+      site_rpm: '全站每分钟上传次数',
+      ticket_max_images: '单张工单最多图片数',
+      account_max_images: '单账号最多保留图片数',
+      account_max_mib: '单账号图片容量（MiB）',
+      site_max_images: '全站最多保留图片数',
+      site_max_mib: '全站图片容量（MiB）'
+    }
+  },
+  images: {
+    choose: '选择图片',
+    dropHint: '拖拽图片到此处，或粘贴截图',
+    label: '图片附件',
+    hint: 'PNG、JPEG、WebP，每张最多 5 MiB。请遮盖敏感信息。',
+    invalid: '请检查图片格式、数量和大小后重新选择。',
+    ticketQuota: '这张工单的图片数量已达上限。可移除本次附件后发送文字。',
+    accountQuota: '此账号的工单图片存量已达上限。可移除本次附件后发送文字。',
+    siteQuota: '站点的工单图片存储已达上限。可移除本次附件后发送文字。',
+    rateLimited: '图片上传过于频繁或服务繁忙，请稍后重试。',
+    unavailable: '图片上传暂不可用。可移除附件后发送文字。',
+    timeout: '上传超时，请缩小图片后重试。',
+    remove: '移除',
+    removeNamed: '移除 {name}',
+    view: '查看图片 {position}',
+    preview: '图片预览',
+    loadFailed: '加载图片失败，请关闭后重试。'
+  },
+  knowledge: {
+    title: '知识沉淀',
+    hint: '将处理经验改写为通用问答，供后续智能客服检索。',
+    question: '通用问题',
+    answer: '通用答案',
+    reviewed: '我已审核问答，去除了账号信息、订单号、凭证和私密日志。',
+    published: '已发布',
+    unpublished: '未发布',
+    publish: '发布问答',
+    update: '更新问答',
+    withdraw: '撤回',
+    saved: '知识问答已发布。',
+    withdrawn: '知识问答已撤回。',
+    conflict: '问答已被更新。刷新以查看最新版本，当前未保存的内容会被替换。',
+    failed: '保存知识问答失败，请重试。'
+  }
+}

@@ -48,6 +48,10 @@ func RegisterAdminRoutes(
 		// 账号管理
 		registerAccountRoutes(admin, h, stepUpAuth)
 
+		if h.SupportTicket != nil {
+			h.SupportTicket.Register(admin, true, panelRateLimiter.SupportTicketUpload())
+		}
+
 		// 公告管理
 		registerAnnouncementRoutes(admin, h)
 
@@ -598,6 +602,8 @@ func registerSettingsRoutes(admin *gin.RouterGroup, h *handler.Handlers, stepUpA
 		// 注册邮箱精确黑名单
 		adminSettings.GET("/registration-email-blacklist", h.Admin.Setting.GetRegistrationEmailBlacklist)
 		adminSettings.PUT("/registration-email-blacklist", h.Admin.Setting.UpdateRegistrationEmailBlacklist)
+		adminSettings.GET("/support-ticket-images", h.Admin.Setting.GetSupportTicketImageSettings)
+		adminSettings.PUT("/support-ticket-images", h.Admin.Setting.UpdateSupportTicketImageSettings)
 		// 面板 API 限流配置
 		adminSettings.GET("/panel-rate-limit", h.Admin.Setting.GetPanelRateLimitSettings)
 		adminSettings.PUT("/panel-rate-limit", h.Admin.Setting.UpdatePanelRateLimitSettings)

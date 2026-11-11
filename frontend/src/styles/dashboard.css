@@ -1,0 +1,76 @@
+/* 用户仪表盘：截图中的接入 / 状态双栏，配色与 aihubx dev-uiux 一致。 */
+.dashboard-page {
+  --dashboard-primary: #4b57f5;
+  --dashboard-primary-soft: #eef0ff;
+  --dashboard-orange: #f06a3c;
+  --dashboard-surface: #fff;
+  --dashboard-paper: #fbfcff;
+  --dashboard-ink: #10131b;
+  --dashboard-muted: #6f7582;
+  --dashboard-line: #e5e7ee;
+  --dashboard-success: #40a878;
+}
+.dark .dashboard-page {
+  --dashboard-primary: #929bff;
+  --dashboard-primary-soft: #222744;
+  --dashboard-orange: #ff9976;
+  --dashboard-surface: #191e2a;
+  --dashboard-paper: #151923;
+  --dashboard-ink: #f0f4fb;
+  --dashboard-muted: #a4afc1;
+  --dashboard-line: #2d3545;
+  --dashboard-success: #68d3a1;
+}
+.dashboard-secondary {
+  display: grid;
+  align-items: stretch;
+  gap: 24px;
+}
+.dashboard-panel {
+  min-width: 0;
+  border: 1px solid var(--dashboard-line);
+  border-radius: 24px;
+  padding: 26px;
+  background: var(--dashboard-surface);
+  color: var(--dashboard-ink);
+}
+.dashboard-panel__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 26px;
+}
+.dashboard-panel__title {
+  font-size: 14px;
+  font-weight: 600;
+}
+.dashboard-panel__hint {
+  margin-top: 6px;
+  color: var(--dashboard-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.dashboard-link {
+  color: var(--dashboard-primary);
+  font-size: 12px;
+  font-weight: 500;
+  transition: opacity 150ms;
+}
+.dashboard-link:hover {
+  opacity: 0.75;
+}
+@media (min-width: 1280px) {
+  .dashboard-secondary {
+    grid-template-columns: minmax(0, 2.1fr) minmax(0, 1fr);
+  }
+  .dashboard-secondary--full {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 559px) {
+  .dashboard-panel {
+    padding: 20px;
+  }
+}

@@ -1,356 +1,486 @@
 <template>
-  <!-- Row 1: 余额卡 + 指标拼贴网格 -->
-  <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
-    <!-- 余额（简易模式下改为展示 API 密钥） -->
-    <section class="card relative flex min-h-[13rem] flex-col overflow-hidden p-5 sm:p-6">
-      <div
-        class="pointer-events-none absolute inset-y-0 right-0 w-2/3 bg-dot-grid bg-dot-sm opacity-70 dark:bg-dot-grid-dark"
-        style="mask-image: linear-gradient(225deg, #000 0%, transparent 62%); -webkit-mask-image: linear-gradient(225deg, #000 0%, transparent 62%)"
-        aria-hidden="true"
-      ></div>
+  <!-- 账户概览：余额主卡与六项用量指标，数据均来自现有统计接口。 -->
+  <div class="dashboard-overview">
+    <section class="balance-panel">
+      <header class="balance-panel__header">
+        <h2>
+          <span class="balance-panel__dot" aria-hidden="true"></span
+          >{{
+            t(
+              isSimple
+                ? 'dashboard.apiKeys'
+                : 'ui52.dashboard.hero.accountBalance'
+            )
+          }}
+        </h2>
+        <span class="overview-badge">{{
+          t('ui52.dashboard.hero.overview')
+        }}</span>
+      </header>
 
       <template v-if="!isSimple">
-        <p class="kicker relative">{{ t('dashboard.balance') }}</p>
-        <p
-          class="relative mt-4 truncate text-4xl font-semibold leading-none tracking-tightest text-gray-950 tabular-nums dark:text-white sm:text-[2.75rem]"
-          :title="`$${formatBalance(balance)}`"
-        >
-          <span class="mr-0.5 align-top text-2xl font-medium text-gray-400 dark:text-dark-400 sm:text-[1.75rem]">$</span>{{ formatBalance(balance) }}
-        </p>
-        <p class="relative mt-3 inline-flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-dark-400">
-          <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.15)]"></span>
-          {{ t('common.available') }}
+        <div class="balance-panel__amount-row">
+          <p class="balance-panel__amount" data-testid="account-balance">
+            <template v-if="balanceVisible"
+              ><span class="balance-panel__currency">$</span>{{ balanceParts[0]
+              }}<span class="balance-panel__decimal"
+                >.{{ balanceParts[1] }}</span
+              ></template
+            >
+            <span v-else class="balance-panel__masked">••••••</span>
+          </p>
+          <button
+            type="button"
+            class="balance-panel__visibility"
+            :aria-label="
+              t(
+                balanceVisible
+                  ? 'ui52.dashboard.hero.hideBalance'
+                  : 'ui52.dashboard.hero.showBalance'
+              )
+            "
+            :aria-pressed="!balanceVisible"
+            @click="balanceVisible = !balanceVisible"
+          >
+            <Icon :name="balanceVisible ? 'eye' : 'eyeOff'" size="sm" />
+          </button>
+        </div>
+        <p v-if="totalSaved > 0" class="balance-panel__savings">
+          {{ t('ui52.dashboard.hero.savings') }}
+          <strong>${{ formatUsd(totalSaved) }}</strong>
+          <span>{{
+            t('ui52.dashboard.hero.savedPct', { percent: savedPercent })
+          }}</span>
         </p>
 
-        <div class="relative mt-auto flex items-center justify-between gap-3 border-t border-gray-100 pt-4 dark:border-dark-800">
-          <span class="inline-flex items-center gap-2 text-sm text-gray-500 dark:text-dark-400">
-            <Icon name="key" size="sm" :stroke-width="1.75" />
-            {{ t('dashboard.apiKeys') }}
-          </span>
-          <span class="font-mono text-sm tabular-nums">
-            <span class="font-medium text-gray-950 dark:text-white">{{ stats?.total_api_keys || 0 }}</span>
-            <span class="mx-1.5 text-gray-300 dark:text-dark-600">·</span>
-            <span class="text-emerald-600 dark:text-emerald-400">{{ stats?.active_api_keys || 0 }}</span>
-            <span class="ml-1 font-sans text-xs text-gray-500 dark:text-dark-400">{{ t('common.active') }}</span>
-          </span>
+        <div class="balance-summary">
+          <div>
+            <span class="balance-summary__label">{{
+              t('ui52.dashboard.hero.avg7d')
+            }}</span>
+            <strong>{{
+              dailyAvgCost == null ? '—' : `$${formatUsd(dailyAvgCost)}`
+            }}</strong>
+          </div>
+          <div>
+            <span class="balance-summary__label">{{
+              t('ui52.dashboard.hero.runway')
+            }}</span>
+            <strong>{{
+              balanceVisible && runwayDays
+                ? t('ui52.dashboard.hero.days', { days: runwayDays })
+                : '—'
+            }}</strong>
+          </div>
+        </div>
+        <div class="balance-trend">
+          <div class="balance-trend__heading">
+            <span>{{ t('ui52.dashboard.hero.spend7d') }}</span>
+            <strong>{{
+              dailyAvgCost == null ? '—' : `$${formatUsd(weeklyCost)}`
+            }}</strong>
+          </div>
+          <svg
+            v-if="costSpark"
+            class="overview-spark balance-trend__chart"
+            viewBox="0 0 100 28"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <polygon
+              :points="costSpark.area"
+              fill="currentColor"
+              opacity="0.08"
+            />
+            <polyline
+              :points="costSpark.line"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              vector-effect="non-scaling-stroke"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+            />
+          </svg>
+          <p v-else class="balance-trend__empty">
+            {{ t('dashboard.noDataAvailable') }}
+          </p>
         </div>
       </template>
-
       <template v-else>
-        <p class="kicker relative">{{ t('dashboard.apiKeys') }}</p>
-        <p class="relative mt-4 text-4xl font-semibold leading-none tracking-tightest text-gray-950 tabular-nums dark:text-white sm:text-[2.75rem]">
-          {{ stats?.total_api_keys || 0 }}
-        </p>
-        <p class="relative mt-3 inline-flex items-center gap-2 text-xs font-medium text-gray-500 dark:text-dark-400">
-          <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_0_3px_rgba(16,185,129,0.15)]"></span>
-          <span class="font-mono tabular-nums text-emerald-600 dark:text-emerald-400">{{ stats?.active_api_keys || 0 }}</span>
-          {{ t('common.active') }}
+        <p class="balance-panel__amount">{{ stats?.total_api_keys || 0 }}</p>
+        <p class="balance-panel__savings">
+          <strong>{{ stats?.active_api_keys || 0 }}</strong
+          >{{ t('common.active') }}
         </p>
       </template>
+
+      <nav
+        class="balance-panel__actions"
+        :aria-label="t('dashboard.quickActions')"
+      >
+        <button
+          v-if="!isSimple"
+          type="button"
+          class="hero-btn-primary"
+          @click="go('/purchase')"
+        >
+          <Icon name="plus" size="sm" :stroke-width="2" />{{
+            t('ui52.dashboard.hero.recharge')
+          }}
+        </button>
+        <button
+          type="button"
+          :class="isSimple ? 'hero-btn-primary' : 'hero-btn'"
+          @click="go('/keys')"
+        >
+          {{ t('dashboard.createApiKey') }}
+        </button>
+        <button
+          v-if="!isSimple"
+          type="button"
+          class="hero-btn"
+          @click="go('/redeem')"
+        >
+          {{ t('dashboard.redeemCode') }}
+        </button>
+        <button type="button" class="hero-btn" @click="go('/usage')">
+          {{ t('ui52.dashboard.hero.useLogs') }}
+        </button>
+      </nav>
     </section>
 
-    <!-- 指标网格：1px 内分隔线拼贴 -->
-    <div class="panel-grid grid-cols-2 lg:col-span-2 xl:grid-cols-3">
-      <!-- Today Requests -->
-      <div class="flex min-w-0 flex-col p-4 sm:p-5">
-        <p class="kicker">{{ t('dashboard.todayRequests') }}</p>
-        <p class="mt-2.5 truncate text-xl font-semibold tracking-tight text-gray-950 tabular-nums dark:text-white sm:text-2xl">
-          {{ formatNumber(stats?.today_requests || 0) }}
+    <div class="overview-metrics">
+      <section class="stat-tile">
+        <header class="stat-tile__header">
+          <h3 class="stat-tile__label">{{ t('dashboard.todayCost') }}</h3>
+          <span class="stat-tile__meta stat-tile__tag"
+            >{{ t('dashboard.actual') }} / {{ t('dashboard.standard') }}</span
+          >
+        </header>
+        <p class="stat-tile__value">
+          ${{ formatOverviewCost(stats?.today_actual_cost || 0)
+          }}<s :title="t('dashboard.standard')"
+            >${{ formatOverviewCost(stats?.today_cost || 0) }}</s
+          >
         </p>
-        <p class="mt-auto truncate pt-2 font-mono text-[11px] text-gray-500 dark:text-dark-400">
-          {{ t('common.total') }}: {{ formatNumber(stats?.total_requests || 0) }}
-        </p>
-      </div>
+        <div class="stat-tile__footer">
+          <p class="stat-tile__sub">
+            {{ t('common.total') }}
+            <strong :title="t('dashboard.actual')"
+              >${{ formatOverviewCost(stats?.total_actual_cost || 0) }}</strong
+            >
+          </p>
+          <p class="stat-tile__sub">
+            <s :title="t('dashboard.standard')"
+              >${{ formatOverviewCost(stats?.total_cost || 0) }}</s
+            >
+            <span>{{ t('dashboard.standard') }}</span>
+          </p>
+        </div>
+      </section>
 
-      <!-- Today Cost -->
-      <div class="flex min-w-0 flex-col p-4 sm:p-5">
-        <p class="kicker">{{ t('dashboard.todayCost') }}</p>
-        <p class="mt-2.5 text-xl font-semibold tracking-tight text-gray-950 tabular-nums dark:text-white sm:text-2xl">
-          <span :title="t('dashboard.actual')">${{ formatCost(stats?.today_actual_cost || 0) }}</span>
-          <span class="ml-1 whitespace-nowrap text-sm font-normal text-gray-400 dark:text-dark-500" :title="t('dashboard.standard')">/ ${{ formatCost(stats?.today_cost || 0) }}</span>
+      <section class="stat-tile">
+        <header class="stat-tile__header">
+          <h3 class="stat-tile__label">{{ t('dashboard.apiKeys') }}</h3>
+          <button type="button" class="stat-tile__link" @click="go('/keys')">
+            {{ t('ui52.dashboard.metrics.manage') }}
+          </button>
+        </header>
+        <p class="stat-tile__value">
+          {{ stats?.total_api_keys || 0
+          }}<span class="stat-tile__unit">{{
+            t('ui52.dashboard.metrics.keysUnit')
+          }}</span>
         </p>
-        <p class="mt-auto truncate pt-2 font-mono text-[11px]">
-          <span class="text-gray-500 dark:text-dark-400">{{ t('common.total') }}: </span>
-          <span class="text-gray-800 dark:text-gray-200" :title="t('dashboard.actual')">${{ formatCost(stats?.total_actual_cost || 0) }}</span>
-          <span class="text-gray-400 dark:text-dark-500" :title="t('dashboard.standard')"> / ${{ formatCost(stats?.total_cost || 0) }}</span>
-        </p>
-      </div>
+        <div class="stat-tile__footer">
+          <div class="stat-tile__split stat-tile__sub">
+            <span
+              ><strong class="overview-accent">{{
+                stats?.active_api_keys || 0
+              }}</strong>
+              {{ t('common.active') }}</span
+            ><span v-if="activeKeyPercent != null"
+              >{{ activeKeyPercent }}%</span
+            >
+          </div>
+          <div
+            v-if="activeKeyPercent != null"
+            class="metric-track"
+            role="meter"
+            :aria-label="t('common.active')"
+            :aria-valuenow="activeKeyPercent"
+            :aria-valuemin="0"
+            :aria-valuemax="100"
+          >
+            <div
+              class="metric-track__fill"
+              :style="{ width: `${activeKeyPercent}%` }"
+            ></div>
+          </div>
+        </div>
+      </section>
 
-      <!-- Today Tokens -->
-      <div class="flex min-w-0 flex-col p-4 sm:p-5">
-        <p class="kicker">{{ t('dashboard.todayTokens') }}</p>
-        <p class="mt-2.5 truncate text-xl font-semibold tracking-tight text-gray-950 tabular-nums dark:text-white sm:text-2xl">
-          {{ formatTokens(stats?.today_tokens || 0) }}
+      <section class="stat-tile">
+        <header class="stat-tile__header">
+          <h3 class="stat-tile__label">{{ t('dashboard.todayRequests') }}</h3>
+          <span class="stat-tile__meta">{{ t('dashboard.last7Days') }}</span>
+        </header>
+        <p class="stat-tile__value">
+          {{ formatNumber(stats?.today_requests || 0)
+          }}<span class="stat-tile__unit">{{
+            t('ui52.dashboard.metrics.requestsUnit')
+          }}</span>
         </p>
-        <p class="mt-auto truncate pt-2 font-mono text-[11px] text-gray-500 dark:text-dark-400" :title="tokenBreakdown('today')">
-          {{ tokenBreakdown('today') }}
-        </p>
-      </div>
+        <div class="stat-tile__footer">
+          <svg
+            v-if="requestSpark"
+            class="overview-spark"
+            viewBox="0 0 100 28"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <polygon
+              :points="requestSpark.area"
+              fill="currentColor"
+              opacity="0.1"
+            />
+            <polyline
+              :points="requestSpark.line"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              vector-effect="non-scaling-stroke"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+            />
+          </svg>
+          <p class="stat-tile__sub">
+            {{ t('common.total') }}
+            <strong>{{ formatNumber(stats?.total_requests || 0) }}</strong>
+            {{ t('ui52.dashboard.metrics.requestsUnit') }}
+          </p>
+        </div>
+      </section>
 
-      <!-- Total Tokens -->
-      <div class="flex min-w-0 flex-col p-4 sm:p-5">
-        <p class="kicker">{{ t('dashboard.totalTokens') }}</p>
-        <p class="mt-2.5 truncate text-xl font-semibold tracking-tight text-gray-950 tabular-nums dark:text-white sm:text-2xl">
+      <section class="stat-tile">
+        <header class="stat-tile__header">
+          <h3 class="stat-tile__label">{{ t('dashboard.totalTokens') }}</h3>
+          <span v-if="cacheSharePercent != null" class="overview-badge">{{
+            t('ui52.dashboard.metrics.cacheShare', {
+              percent: cacheSharePercent
+            })
+          }}</span>
+        </header>
+        <p class="stat-tile__value">
           {{ formatTokens(stats?.total_tokens || 0) }}
         </p>
-        <p class="mt-auto truncate pt-2 font-mono text-[11px] text-gray-500 dark:text-dark-400" :title="tokenBreakdown('total')">
-          {{ tokenBreakdown('total') }}
-        </p>
-      </div>
+        <div class="stat-tile__footer">
+          <div
+            class="metric-track token-track"
+            :title="tokenBreakdown('total')"
+            aria-hidden="true"
+          >
+            <span
+              v-for="segment in tokenSegments"
+              :key="segment.key"
+              :class="`token-color--${segment.key}`"
+              :style="{ width: `${segment.percent}%` }"
+            ></span>
+          </div>
+          <div class="token-legend">
+            <span
+              v-for="segment in tokenSegments"
+              :key="segment.key"
+              :title="`${t(`dashboard.${segment.key}`)} ${formatNumber(segment.value)}`"
+              ><i :class="`token-color--${segment.key}`" aria-hidden="true"></i
+              >{{ t(`dashboard.${segment.key}`) }}
+              {{ formatTokens(segment.value) }}</span
+            >
+          </div>
+        </div>
+      </section>
 
-      <!-- Performance (RPM/TPM) -->
-      <div class="flex min-w-0 flex-col p-4 sm:p-5">
-        <p class="kicker">{{ t('dashboard.performance') }}</p>
-        <p class="mt-2.5 truncate text-xl font-semibold tracking-tight text-gray-950 tabular-nums dark:text-white sm:text-2xl">
-          {{ formatTokens(stats?.rpm || 0) }}
-          <span class="ml-0.5 font-mono text-xs font-medium text-gray-400 dark:text-dark-500">RPM</span>
+      <section class="stat-tile">
+        <header class="stat-tile__header">
+          <h3 class="stat-tile__label">{{ t('dashboard.todayTokens') }}</h3>
+          <span class="stat-tile__meta">{{ t('dashboard.last7Days') }}</span>
+        </header>
+        <p class="stat-tile__value">
+          {{ formatTokens(stats?.today_tokens || 0) }}
         </p>
-        <p class="mt-auto truncate pt-2 font-mono text-[11px] text-gray-500 dark:text-dark-400">
-          <span class="text-gray-800 dark:text-gray-200">{{ formatTokens(stats?.tpm || 0) }}</span> TPM
-        </p>
-      </div>
+        <div class="stat-tile__footer">
+          <svg
+            v-if="tokenSpark"
+            class="overview-spark overview-spark--orange"
+            viewBox="0 0 100 28"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <polygon
+              :points="tokenSpark.area"
+              fill="currentColor"
+              opacity="0.1"
+            />
+            <polyline
+              :points="tokenSpark.line"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              vector-effect="non-scaling-stroke"
+              stroke-linejoin="round"
+              stroke-linecap="round"
+            />
+          </svg>
+          <p class="stat-tile__sub" :title="tokenBreakdown('today')">
+            {{ tokenBreakdown('today') }}
+          </p>
+        </div>
+      </section>
 
-      <!-- Avg Response Time -->
-      <div class="flex min-w-0 flex-col p-4 sm:p-5">
-        <p class="kicker">{{ t('dashboard.avgResponse') }}</p>
-        <p class="mt-2.5 truncate text-xl font-semibold tracking-tight text-gray-950 tabular-nums dark:text-white sm:text-2xl">
-          {{ formatDuration(stats?.average_duration_ms || 0) }}
+      <section class="stat-tile">
+        <header class="stat-tile__header">
+          <h3 class="stat-tile__label">{{ t('dashboard.avgResponse') }}</h3>
+          <Icon name="clock" size="sm" class="stat-tile__muted-icon" />
+        </header>
+        <p class="stat-tile__value">
+          {{ responseValue
+          }}<span class="stat-tile__unit">{{ responseUnit }}</span>
         </p>
-        <p class="mt-auto truncate pt-2 font-mono text-[11px] text-gray-500 dark:text-dark-400">
-          {{ t('dashboard.averageTime') }}
-        </p>
-      </div>
+        <div class="response-details stat-tile__footer">
+          <div>
+            <span>RPM</span><strong>{{ formatTokens(stats?.rpm || 0) }}</strong>
+          </div>
+          <div>
+            <span>TPM</span><strong>{{ formatTokens(stats?.tpm || 0) }}</strong>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 
-  <!-- Row 2: Per-platform breakdown -->
-  <section v-if="!isSimple && platformCards.length > 0" class="card overflow-hidden">
-    <div class="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-3.5 dark:border-dark-800">
-      <h3 class="text-sm font-semibold tracking-tight text-gray-950 dark:text-white">{{ t('dashboard.platformBreakdown') }}</h3>
-      <span class="font-mono text-xs text-gray-500 dark:text-dark-400">
-        {{ t('dashboard.platformCount', { count: platformCount }) }}
-      </span>
-    </div>
-    <div class="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div
-        v-for="item in platformCards"
-        :key="item.platform"
-        data-testid="platform-card"
-        :data-platform="item.platform"
-        :class="[
-          'rounded-lg border p-3.5 transition-colors',
-          item.isOther
-            ? 'border-dashed border-gray-300 bg-gray-50/70 dark:border-dark-700 dark:bg-dark-950/40'
-            : 'border-gray-200/80 bg-white hover:border-gray-300 dark:border-dark-800 dark:bg-dark-900 dark:hover:border-dark-700'
-        ]"
-      >
-        <div class="flex items-baseline justify-between gap-3">
-          <span class="truncate text-sm font-semibold text-gray-950 dark:text-white">
-            {{ item.isOther ? t('dashboard.platformOther') : platformLabel(item.platform) }}
-          </span>
-          <span class="font-mono text-sm font-semibold tabular-nums text-gray-950 dark:text-white" :title="t('dashboard.actual')">
-            ${{ formatCost(item.total_actual_cost) }}
-          </span>
-        </div>
-        <div class="mt-3 space-y-1.5 text-xs">
-          <div class="flex items-center justify-between gap-3">
-            <span class="text-gray-500 dark:text-dark-400">{{ t('dashboard.todayCost') }}</span>
-            <span class="font-mono tabular-nums text-gray-900 dark:text-gray-100">${{ formatCost(item.today_actual_cost) }}</span>
-          </div>
-          <div class="flex items-center justify-between gap-3">
-            <span class="text-gray-500 dark:text-dark-400">{{ t('dashboard.requests') }}</span>
-            <span class="font-mono tabular-nums text-gray-700 dark:text-gray-300">
-              {{ item.total_requests > 0 ? formatNumber(item.total_requests) : '-' }}
-            </span>
-          </div>
-          <div class="flex items-center justify-between gap-3">
-            <span class="text-gray-500 dark:text-dark-400">{{ t('dashboard.tokens') }}</span>
-            <span class="font-mono tabular-nums text-gray-700 dark:text-gray-300">
-              {{ item.total_tokens > 0 ? formatTokens(item.total_tokens) : '-' }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Quota 区：仅当 quota 配置存在、非 __other__ 且至少有一个窗口配了 limit 时显示 -->
-        <div v-if="hasAnyLimit(item.quota) && !item.isOther" class="mt-3 space-y-2 border-t border-gray-100 pt-3 dark:border-dark-800">
-          <p class="font-mono text-[10px] uppercase tracking-[0.12em] text-gray-400 dark:text-dark-500">
-            {{ t('dashboard.platformQuota.title') }}
-          </p>
-          <template v-for="w in (['daily', 'weekly', 'monthly'] as const)" :key="w">
-            <div v-if="quotaVal(item.quota, `${w}_limit_usd`) != null" class="space-y-1">
-              <!-- limit=0：完全禁用 -->
-              <template v-if="(quotaVal(item.quota, `${w}_limit_usd`) as number) === 0">
-                <div class="flex items-center justify-between text-xs">
-                  <span class="text-gray-600 dark:text-gray-300">{{ t(`dashboard.platformQuota.${w}`) }}</span>
-                  <span class="font-mono text-red-600 dark:text-red-400">{{ t('dashboard.platformQuota.disabled') }}</span>
-                </div>
-                <div class="h-1 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-dark-800">
-                  <div class="h-full w-full rounded-full bg-red-500" />
-                </div>
-              </template>
-              <!-- limit>0：正常用量进度条 -->
-              <template v-else>
-                <div class="flex items-center justify-between gap-2 text-xs">
-                  <span class="text-gray-600 dark:text-gray-300">{{ t(`dashboard.platformQuota.${w}`) }}</span>
-                  <span class="font-mono tabular-nums text-gray-700 dark:text-gray-200">
-                    ${{ formatUsd((quotaVal(item.quota, `${w}_usage_usd`) as number) ?? 0) }}<span class="text-gray-400 dark:text-dark-500"> / ${{ formatUsd(quotaVal(item.quota, `${w}_limit_usd`) as number) }}</span>
-                  </span>
-                </div>
-                <div class="h-1 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-dark-800">
-                  <div
-                    class="h-full rounded-full transition-all"
-                    :class="quotaBarClass(calcPercent((quotaVal(item.quota, `${w}_usage_usd`) as number) ?? 0, quotaVal(item.quota, `${w}_limit_usd`) as number))"
-                    :style="{ width: calcPercent((quotaVal(item.quota, `${w}_usage_usd`) as number) ?? 0, quotaVal(item.quota, `${w}_limit_usd`) as number) + '%' }"
-                  />
-                </div>
-                <p v-if="quotaVal(item.quota, `${w}_window_resets_at`)" class="font-mono text-[10px] text-gray-400 dark:text-dark-500">
-                  {{ t('dashboard.platformQuota.resetsAt', { time: formatResetTime(quotaVal(item.quota, `${w}_window_resets_at`) as string) }) }}
-                </p>
-              </template>
-            </div>
-          </template>
-        </div>
-      </div>
-    </div>
-  </section>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import Icon from '@/components/icons/Icon.vue'
-import type { PlatformDashboardStats, UserDashboardStats as UserStatsType } from '@/api/usage'
-import type { PlatformQuotaItem } from '@/types'
-
-interface FusedPlatformCard {
-  platform: string
-  total_actual_cost: number
-  today_actual_cost: number
-  total_requests: number
-  total_tokens: number
-  isOther?: boolean
-  quota?: PlatformQuotaItem
-}
+import type { UserDashboardStats as UserStatsType } from '@/api/usage'
+import type { TrendDataPoint } from '@/types'
 
 const props = defineProps<{
   stats: UserStatsType
   balance: number
   isSimple: boolean
-  platformQuotas?: PlatformQuotaItem[] | null
+  /** 近 7 日（按天）趋势，用于 hero 派生指标与 sparkline；缺省时相关 UI 自动隐藏 */
+  trend?: TrendDataPoint[] | null
 }>()
 const { t } = useI18n()
+const router = useRouter()
+const balanceVisible = ref(true)
+const balanceParts = computed(() => formatBalance(props.balance).split('.'))
+const responseValue = computed(() => {
+  const ms = props.stats?.average_duration_ms || 0
+  return ms >= 1000 ? (ms / 1000).toFixed(2) : ms.toFixed(0)
+})
+const responseUnit = computed(() =>
+  (props.stats?.average_duration_ms || 0) >= 1000 ? 's' : 'ms'
+)
 
-const PLATFORM_LABELS: Record<string, string> = {
-  anthropic: 'Claude',
-  openai: 'OpenAI',
-  gemini: 'Gemini',
-  antigravity: 'Antigravity',
-  grok: 'Grok',
-  kimi: 'Kimi',
-  zhipu: 'Zhipu GLM',
-  deepseek: 'DeepSeek',
-  minimax: 'MiniMax',
-  typesafe: 'TypeSafe / Jev',
-}
-
-const platformLabel = (p: string) => PLATFORM_LABELS[p] ?? p
-
-// 处理"各平台之和 < 总值"的差值：后端按平台聚合时过滤了无法归属平台的行
-// （group 与 account 都缺 platform）。这里把差值作为"其他"卡片显式展示，
-// 避免 Row 1 总值与 Row 3 平台拆分加总对不上、用户困惑。
-const OTHER_THRESHOLD = 0.0001
-const platformCards = computed<FusedPlatformCard[]>(() => {
-  // 建立 by_platform Map
-  const byPlat = new Map<string, PlatformDashboardStats>()
-  for (const item of props.stats?.by_platform ?? []) byPlat.set(item.platform, item)
-
-  // 建立 quota Map。三档全空的记录不产生卡片，挂到卡片上也不渲染配额区。
-  const byQuota = new Map<string, PlatformQuotaItem>()
-  for (const q of props.platformQuotas ?? []) byQuota.set(q.platform, q)
-
-  // 卡片集合 = 有用量的平台 ∪ 至少配置了一档限额的平台。
-  // 三档全空的限额记录等价于不限额，不单独产生卡片。
-  // 后端 by_platform / quota 接口均不会返回 platform='__other__'，
-  // 无需显式排除；__other__ 由下方差值补差逻辑单独追加。
-  const platforms = new Set<string>(byPlat.keys())
-  for (const [platform, q] of byQuota) {
-    if (hasAnyLimit(q)) platforms.add(platform)
-  }
-
-  const PLATFORM_ORDER = ['anthropic', 'openai', 'gemini', 'antigravity', 'grok', 'typesafe']
-  const cards: FusedPlatformCard[] = []
-
-  for (const p of platforms) {
-    const stat = byPlat.get(p)
-    cards.push({
-      platform: p,
-      total_actual_cost: stat?.total_actual_cost ?? 0,
-      today_actual_cost: stat?.today_actual_cost ?? 0,
-      total_requests: stat?.total_requests ?? 0,
-      total_tokens: stat?.total_tokens ?? 0,
-      quota: byQuota.get(p),
-    })
-  }
-
-  // 排序：按 PLATFORM_ORDER，未知平台按名称排序
-  cards.sort((a, b) => {
-    const ai = PLATFORM_ORDER.indexOf(a.platform)
-    const bi = PLATFORM_ORDER.indexOf(b.platform)
-    if (ai === -1 && bi === -1) return a.platform.localeCompare(b.platform)
-    if (ai === -1) return 1
-    if (bi === -1) return -1
-    return ai - bi
-  })
-
-  // __other__ 补差逻辑：只对 by_platform 有 usage 数据的总和计算
-  const total = props.stats?.total_actual_cost ?? 0
-  const today = props.stats?.today_actual_cost ?? 0
-  const sumTotal = cards.reduce((s, c) => s + c.total_actual_cost, 0)
-  const sumToday = cards.reduce((s, c) => s + c.today_actual_cost, 0)
-  const diffTotal = Math.max(0, total - sumTotal)
-  const diffToday = Math.max(0, today - sumToday)
-
-  if (diffTotal > OTHER_THRESHOLD || diffToday > OTHER_THRESHOLD) {
-    cards.push({
-      platform: '__other__',
-      total_actual_cost: diffTotal,
-      today_actual_cost: diffToday,
-      total_requests: 0,
-      total_tokens: 0,
-      isOther: true,
-    })
-  }
-
-  return cards
+/** 构成条使用互斥的输入、输出与缓存计数归一化；零用量时保留空轨道。 */
+const tokenSegments = computed(() => {
+  const segments = [
+    { key: 'input', value: props.stats?.total_input_tokens || 0 },
+    { key: 'output', value: props.stats?.total_output_tokens || 0 },
+    {
+      key: 'cache',
+      value:
+        (props.stats?.total_cache_creation_tokens || 0) +
+        (props.stats?.total_cache_read_tokens || 0)
+    }
+  ]
+  const total = segments.reduce((sum, segment) => sum + segment.value, 0)
+  return segments.map((segment) => ({
+    ...segment,
+    percent: total > 0 ? (segment.value / total) * 100 : 0
+  }))
 })
 
-// 标题右侧的平台计数 = 实际渲染的平台卡片数，不含"其他"差额卡。
-const platformCount = computed(() => platformCards.value.filter((c) => !c.isOther).length)
+const go = (path: string) => { router?.push(path) }
 
-// Quota helpers
+// ---- hero 派生指标（全部由已有数据推导，不新增接口） ----
 
-type QuotaWindow = 'daily' | 'weekly' | 'monthly'
-type QuotaField = `${QuotaWindow}_limit_usd` | `${QuotaWindow}_usage_usd` | `${QuotaWindow}_window_resets_at`
+/** 累计节省 = 标准计费 - 实际扣除 */
+const totalSaved = computed(() => Math.max(0, (props.stats?.total_cost || 0) - (props.stats?.total_actual_cost || 0)))
+const savedPercent = computed(() => {
+  const total = props.stats?.total_cost || 0
+  if (total <= 0) return '0'
+  return ((totalSaved.value / total) * 100).toFixed(1)
+})
 
-function quotaVal(q: PlatformQuotaItem | undefined, key: QuotaField): PlatformQuotaItem[QuotaField] {
-  return q?.[key]
+/** 近 7 日日均实际消费；缺失趋势时为 null，模板显示占位。 */
+const dailyAvgCost = computed<number | null>(() => {
+  const points = props.trend
+  if (!points || points.length === 0) return null
+  const sum = points.reduce((s, p) => s + (p.actual_cost || 0), 0)
+  return sum / points.length
+})
+
+/** 预计可用天数 = 余额 / 日均消费；超过 999 显示 ">999" */
+const runwayDays = computed<string | null>(() => {
+  const avg = dailyAvgCost.value
+  if (avg == null || avg <= 0 || props.balance <= 0) return null
+  const days = Math.floor(props.balance / avg)
+  return days > 999 ? '>999' : String(days)
+})
+
+/** 累计 Token 中缓存读取的占比 */
+const cacheSharePercent = computed<string | null>(() => {
+  const total = props.stats?.total_tokens || 0
+  if (total <= 0) return null
+  return (((props.stats?.total_cache_read_tokens || 0) / total) * 100).toFixed(1)
+})
+
+/** 启用密钥占比（0-100 取整），没有密钥时为 null（隐藏进度条） */
+const activeKeyPercent = computed<number | null>(() => {
+  const total = props.stats?.total_api_keys || 0
+  if (total <= 0) return null
+  return Math.round(((props.stats?.active_api_keys || 0) / total) * 100)
+})
+
+// ---- sparkline（inline SVG，viewBox 100x28） ----
+
+interface Spark { line: string; area: string }
+
+/** 把数值序列按 min-max 归一化成 polyline 坐标串；少于 2 个点画不出线，返回 null 隐藏图形 */
+function buildSpark(values: number[]): Spark | null {
+  if (values.length < 2) return null
+  const w = 100
+  const h = 28
+  const pad = 2
+  const max = Math.max(...values)
+  const min = Math.min(...values)
+  const span = max - min || 1
+  const pts = values.map((v, i) => {
+    const x = pad + (i * (w - 2 * pad)) / (values.length - 1)
+    const y = h - pad - ((v - min) / span) * (h - 2 * pad)
+    return `${x.toFixed(1)},${y.toFixed(1)}`
+  })
+  const line = pts.join(' ')
+  const area = `${line} ${(w - pad).toFixed(1)},${h} ${pad},${h}`
+  return { line, area }
 }
 
-function hasAnyLimit(q: PlatformQuotaItem | undefined): boolean {
-  if (!q) return false
-  return q.daily_limit_usd != null || q.weekly_limit_usd != null || q.monthly_limit_usd != null
-}
+const weeklyCost = computed(() =>
+  (props.trend ?? []).reduce((sum, point) => sum + (point.actual_cost || 0), 0)
+)
+const costSpark = computed(() =>
+  buildSpark((props.trend ?? []).map((point) => point.actual_cost || 0))
+)
 
-function calcPercent(usage: number, limit: number): number {
-  if (!limit || limit <= 0) return 0
-  return Math.min(100, Math.max(0, Math.round((usage / limit) * 100)))
-}
-
-function quotaBarClass(p: number): string {
-  if (p >= 95) return 'bg-red-500'
-  if (p >= 75) return 'bg-amber-500'
-  return 'bg-primary-500 dark:bg-primary-400'
-}
+const requestSpark = computed(() => buildSpark((props.trend ?? []).map((p) => p.requests || 0)))
+const tokenSpark = computed(() => buildSpark((props.trend ?? []).map((p) => p.total_tokens || 0)))
 
 // 与 formatBalance 一致使用 Intl.NumberFormat 做半偶舍入，避免 toFixed 在不同 JS 引擎
 // 下偶发截断而非四舍五入（与后端展示精度不一致）。
@@ -363,19 +493,6 @@ function formatUsd(n: number): string {
   return usdFormatter.format(n)
 }
 
-function formatResetTime(iso: string | null | undefined): string {
-  if (!iso) return ''
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return iso
-  return d.toLocaleString(undefined, {
-    month: 'numeric',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  })
-}
-
 const formatBalance = (b: number) =>
   new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 2,
@@ -383,7 +500,12 @@ const formatBalance = (b: number) =>
   }).format(b)
 
 const formatNumber = (n: number) => n.toLocaleString()
-const formatCost = (c: number) => c.toFixed(4)
+/** 概览金额使用千位分隔，保留 2–4 位小数以兼顾小额计费精度。 */
+const formatOverviewCost = (cost: number) =>
+  cost.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 4
+  })
 const formatTokens = (t: number) => {
   if (t >= 1_000_000) return `${(t / 1_000_000).toFixed(1)}M`
   if (t >= 1000) return `${(t / 1000).toFixed(1)}K`
@@ -404,6 +526,452 @@ function tokenBreakdown(scope: 'today' | 'total'): string {
     `${t('dashboard.cache')} ${formatTokens(cache)}`
   ].join(' · ')
 }
-
-const formatDuration = (ms: number) => ms >= 1000 ? `${(ms / 1000).toFixed(2)}s` : `${ms.toFixed(0)}ms`
 </script>
+
+<style scoped>
+/* 配色取自 aihubx dev-uiux 的 main.css，仅作用于账户概览。 */
+.dashboard-overview {
+  --overview-primary: #4b57f5;
+  --overview-primary-soft: #eef0ff;
+  --overview-orange: #f06a3c;
+  --overview-orange-soft: #fff0e9;
+  --overview-paper: #fbfcff;
+  --overview-surface: #fff;
+  --overview-ink: #10131b;
+  --overview-muted: #6f7582;
+  --overview-line: #e5e7ee;
+  display: grid;
+  gap: 20px;
+  color: var(--overview-ink);
+}
+.dark .dashboard-overview {
+  --overview-primary: #929bff;
+  --overview-primary-soft: #222744;
+  --overview-orange: #ff9976;
+  --overview-orange-soft: #352822;
+  --overview-paper: #151923;
+  --overview-surface: #191e2a;
+  --overview-ink: #f0f4fb;
+  --overview-muted: #a4afc1;
+  --overview-line: #2d3545;
+}
+.balance-panel {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 26px;
+  border: 1px solid
+    color-mix(in srgb, var(--overview-primary) 22%, var(--overview-line));
+  border-radius: 24px;
+  background: linear-gradient(
+    125deg,
+    var(--overview-paper),
+    var(--overview-primary-soft) 78%,
+    var(--overview-orange-soft) 150%
+  );
+}
+.balance-panel__header,
+.stat-tile__header,
+.balance-trend__heading,
+.stat-tile__split {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.balance-panel__header h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.balance-panel__dot {
+  height: 6px;
+  width: 6px;
+  border-radius: 50%;
+  background: var(--overview-orange);
+}
+.overview-badge {
+  flex-shrink: 0;
+  padding: 4px 8px;
+  border-radius: 20px;
+  background: var(--overview-primary-soft);
+  color: var(--overview-primary);
+  font-size: 11px;
+  font-weight: 500;
+}
+.balance-panel__amount-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  margin-top: 22px;
+}
+.balance-panel__amount {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: clamp(32px, 3vw, 48px);
+  font-weight: 650;
+  line-height: 1.12;
+  letter-spacing: -0.045em;
+  font-variant-numeric: tabular-nums;
+}
+.balance-panel__currency,
+.balance-panel__decimal {
+  color: var(--overview-muted);
+  font-size: 0.5em;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.balance-panel__currency {
+  margin-right: 5px;
+}
+.balance-panel__visibility {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: var(--overview-muted);
+  transition:
+    color 150ms,
+    background 150ms;
+}
+.balance-panel__visibility:hover {
+  color: var(--overview-primary);
+  background: var(--overview-surface);
+}
+.balance-panel__masked {
+  letter-spacing: 0.1em;
+}
+.balance-panel__savings {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 12px;
+  color: var(--overview-muted);
+  font-size: 12px;
+}
+.balance-panel__savings strong,
+.balance-panel__savings > span {
+  color: var(--overview-primary);
+}
+.balance-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 24px;
+}
+.balance-summary > div + div {
+  padding-left: 20px;
+  border-left: 1px solid var(--overview-line);
+}
+.balance-summary__label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--overview-muted);
+  font-size: 12px;
+}
+.balance-summary strong {
+  font-size: 17px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.balance-trend {
+  padding: 14px 16px 10px;
+  margin-top: 20px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--overview-surface) 72%, transparent);
+}
+.balance-trend__heading {
+  color: var(--overview-muted);
+  font-size: 12px;
+}
+.balance-trend__heading strong {
+  color: var(--overview-ink);
+  font-variant-numeric: tabular-nums;
+}
+.balance-trend__empty {
+  padding: 15px 0;
+  font-size: 12px;
+  color: var(--overview-muted);
+}
+.balance-panel__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 22px;
+}
+.hero-btn,
+.hero-btn-primary {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 1px solid var(--overview-line);
+  border-radius: 11px;
+  padding: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  transition:
+    background 150ms,
+    border-color 150ms,
+    transform 150ms;
+}
+.hero-btn {
+  background: var(--overview-surface);
+  color: var(--overview-ink);
+}
+.hero-btn:hover {
+  border-color: var(--overview-primary);
+  color: var(--overview-primary);
+}
+.hero-btn-primary {
+  border-color: transparent;
+  background: #4b57f5;
+  color: white;
+  box-shadow: 0 4px 10px -5px #4b57f5;
+}
+.hero-btn-primary:hover {
+  background: #3543df;
+}
+.hero-btn:active,
+.hero-btn-primary:active {
+  transform: translateY(1px);
+}
+.overview-metrics {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+.stat-tile {
+  display: flex;
+  min-width: 0;
+  min-height: 186px;
+  flex-direction: column;
+  padding: 22px;
+  border: 1px solid var(--overview-line);
+  border-radius: 22px;
+  background: var(--overview-surface);
+  transition: border-color 160ms;
+}
+.stat-tile:hover {
+  border-color: color-mix(
+    in srgb,
+    var(--overview-primary) 32%,
+    var(--overview-line)
+  );
+}
+.stat-tile__header {
+  flex-wrap: wrap;
+  row-gap: 5px;
+}
+.stat-tile__label {
+  color: var(--overview-muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+.stat-tile__meta {
+  color: var(--overview-muted);
+  font-size: 11px;
+}
+.stat-tile__tag {
+  padding: 3px 7px;
+  border-radius: 20px;
+  background: var(--overview-paper);
+}
+.stat-tile__link {
+  color: var(--overview-primary);
+  font-size: 12px;
+}
+.stat-tile__link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.stat-tile__value {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.stat-tile__value s {
+  color: var(--overview-muted);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.stat-tile__unit {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--overview-muted);
+  letter-spacing: 0;
+}
+.stat-tile__footer {
+  margin-top: auto;
+  padding-top: 20px;
+}
+.stat-tile__sub {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  column-gap: 4px;
+  margin-top: 7px;
+  color: var(--overview-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.stat-tile__sub strong {
+  color: var(--overview-ink);
+  font-weight: 500;
+}
+.stat-tile__split {
+  justify-content: space-between;
+}
+.stat-tile__sub .overview-accent {
+  color: var(--overview-primary);
+}
+.metric-track {
+  display: flex;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 10px;
+  margin-top: 9px;
+  background: var(--overview-primary-soft);
+}
+.metric-track__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--overview-primary), #8993ff);
+  transition: width 300ms;
+}
+.overview-spark {
+  display: block;
+  width: 100%;
+  height: 36px;
+  color: var(--overview-primary);
+  overflow: visible;
+}
+.overview-spark--orange {
+  color: var(--overview-orange);
+}
+.balance-trend__chart {
+  height: 35px;
+  margin-top: 12px;
+}
+.token-track {
+  gap: 2px;
+}
+.token-track span {
+  height: 100%;
+  transition: width 300ms;
+}
+.token-color--input {
+  background: var(--overview-primary);
+}
+.token-color--output {
+  background: var(--overview-orange);
+}
+.token-color--cache {
+  background: #a4adfa;
+}
+.token-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 8px;
+  margin-top: 9px;
+  color: var(--overview-muted);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.token-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.token-legend i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+.stat-tile__muted-icon {
+  color: var(--overview-muted);
+  opacity: 0.6;
+}
+.response-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.response-details > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 8px;
+  border: 1px solid var(--overview-line);
+  border-radius: 9px;
+  background: var(--overview-paper);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.response-details span {
+  color: var(--overview-muted);
+}
+.response-details strong {
+  font-weight: 500;
+}
+@media (min-width: 560px) {
+  .overview-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .balance-panel__actions {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1280px) {
+  .dashboard-overview {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  }
+  .overview-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .stat-tile {
+    padding: 20px;
+    min-height: 196px;
+  }
+  .balance-panel__actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1600px) {
+  .balance-panel {
+    padding: 28px;
+  }
+  .balance-panel__actions {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .stat-tile {
+    padding: 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-overview *,
+  .dashboard-overview *::before,
+  .dashboard-overview *::after {
+    transition: none !important;
+  }
+}
+</style>

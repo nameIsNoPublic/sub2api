@@ -160,7 +160,13 @@ func ProvideHTTPServer(cfg *config.Config, router *gin.Engine) *http.Server {
 		}
 	}
 
-	httpHandler = pkghttputil.WithBodyReadTimeout(httpHandler, time.Duration(cfg.Gateway.RequestBodyReadTimeoutSeconds)*time.Second)
+	httpHandler = pkghttputil.WithBodyReadLimits(httpHandler, time.Duration(cfg.Gateway.RequestBodyReadTimeoutSeconds)*time.Second,
+		func(r *http.Request) time.Duration {
+			if middleware2.IsSupportTicketUpload(r) {
+				return middleware2.SupportTicketUploadReadTimeout
+			}
+			return 0
+		})
 	server.Handler = pkghttputil.WithWriteTimeout(httpHandler, time.Duration(cfg.Gateway.DownstreamWriteTimeoutSeconds)*time.Second)
 	return server
 }

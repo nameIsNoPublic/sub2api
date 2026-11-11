@@ -1,0 +1,120 @@
+export default {
+  title: 'My support tickets',
+  description: 'Report an issue, contact support, and confirm the resolution.',
+  adminTitle: 'Support tickets',
+  adminDescription: 'Respond to requests, track resolutions, and publish reusable answers.',
+  list: 'Ticket list',
+  conversation: 'Ticket details',
+  collapse: 'Close details',
+  create: 'New ticket',
+  subject: 'Subject',
+  categoryLabel: 'Category',
+  problem: 'Describe the issue',
+  privacyHint: 'Keep API keys, passwords, and other sensitive information out of your message.',
+  filter: 'Filter by ticket status',
+  all: 'All statuses',
+  empty: 'No tickets match this filter.',
+  selectTicket: 'Select a ticket to view its conversation and progress.',
+  loadFailed: 'Could not load tickets. Refresh to try again.',
+  detailFailed: 'Could not load the ticket details. Refresh to try again.',
+  createFailed: 'Could not submit the ticket. Check your input and try again.',
+  earlier: 'Load earlier events',
+  requester: 'Requester #{id}',
+  replyLabel: 'Reply',
+  reopenReason: 'Reason for reopening',
+  closeNote: 'Closing note (optional)',
+  confirmHint: 'Confirm if the solution worked. If the issue persists, explain why and reopen the ticket.',
+  resolvedAdminHint: 'The solution is waiting for the requester to confirm. Close the ticket if no follow-up is needed.',
+  closedHint: 'This ticket is closed. If the issue persists, explain why and reopen it.',
+  actionConflict: 'This ticket changed. Review its current status before submitting again.',
+  actionFailed: 'Could not complete the action. Try again.',
+  unread: 'New update',
+  badge: {
+    unread: 'Tickets with new updates: {count}',
+    waiting: 'Tickets waiting for support: {count}'
+  },
+  status: {
+    waiting_support: 'Waiting for support',
+    waiting_user: 'Waiting for user',
+    resolved: 'Awaiting confirmation',
+    closed: 'Closed'
+  },
+  category: {
+    api: 'API usage',
+    billing: 'Payments and billing',
+    account: 'Account',
+    other: 'Other'
+  },
+  role: {
+    user: 'User',
+    admin: 'Support'
+  },
+  event: {
+    create: 'Opened ticket',
+    reply: 'Replied',
+    resolve: 'Proposed a solution',
+    confirm: 'Confirmed and closed',
+    reopen: 'Reopened',
+    close: 'Closed the ticket'
+  },
+  action: {
+    reply: 'Send reply',
+    resolve: 'Propose a solution',
+    confirm: 'Confirm and close',
+    reopen: 'Reopen ticket',
+    close: 'Close ticket'
+  },
+  settings: {
+    title: 'Ticket image uploads and storage',
+    description: 'Set upload rates and retained attachment quotas, counted against the ticket owner.',
+    hint: 'Enter positive integers. Existing images are retained when limits are reduced. New uploads use the updated quotas. 1 MiB = 1024 KiB.',
+    effectiveHint: 'Changes apply immediately on this node. Rate limits on other nodes refresh within one minute.',
+    save: 'Save ticket image settings',
+    saved: 'Ticket image settings saved.',
+    loadFailed: 'Could not load ticket image settings. Try again.',
+    saveFailed: 'Could not save. Check the allowed ranges and try again.',
+    fields: {
+      user_rpm: 'Uploads per account per minute',
+      site_rpm: 'Uploads per site per minute',
+      ticket_max_images: 'Maximum images per ticket',
+      account_max_images: 'Retained images per account',
+      account_max_mib: 'Image storage per account (MiB)',
+      site_max_images: 'Retained images per site',
+      site_max_mib: 'Image storage per site (MiB)'
+    }
+  },
+  images: {
+    choose: 'Choose images',
+    dropHint: 'Drop images here, or paste a screenshot',
+    label: 'Image attachments',
+    hint: 'PNG, JPEG or WebP, up to 5 MiB each. Cover sensitive information.',
+    invalid: 'Check the image format, count and size, then try again.',
+    ticketQuota: 'This ticket has reached its image limit. Remove the selected images to send your message.',
+    accountQuota: 'This account has reached its ticket image quota. Remove the selected images to send your message.',
+    siteQuota: 'This site has reached its ticket image storage limit. Remove the selected images to send your message.',
+    rateLimited: 'Image uploads are busy or too frequent. Try again shortly.',
+    unavailable: 'Image uploads are temporarily unavailable. Remove the selected images to send your message.',
+    timeout: 'The upload timed out. Try again with smaller images.',
+    remove: 'Remove',
+    removeNamed: 'Remove {name}',
+    view: 'View image {position}',
+    preview: 'Image preview',
+    loadFailed: 'Could not load the image. Close the preview and try again.'
+  },
+  knowledge: {
+    title: 'Reusable Q&A',
+    hint: 'Summarize the resolution as a general question and answer for future automated support.',
+    question: 'General question',
+    answer: 'General answer',
+    reviewed: 'I reviewed the text and removed account details, order numbers, credentials, and private logs.',
+    published: 'Published',
+    unpublished: 'Unpublished',
+    publish: 'Publish Q&A',
+    update: 'Update Q&A',
+    withdraw: 'Withdraw',
+    saved: 'Q&A published.',
+    withdrawn: 'Q&A withdrawn.',
+    conflict: 'This Q&A changed. Refresh to see the latest revision. Unsaved edits will be replaced.',
+    failed: 'Could not save the Q&A. Try again.'
+  }
+}

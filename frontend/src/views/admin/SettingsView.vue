@@ -1996,6 +1996,8 @@
             </div>
           </div>
 
+          <TicketImageSettings />
+
           <!-- 人机验证 Settings -->
           <div class="card">
             <div
@@ -9018,6 +9020,7 @@ import {
   isStepUpBlocked,
   stepUpBlockReason,
 } from "@/composables/useStepUp";
+import TicketImageSettings from '@/features/support-tickets/TicketImageSettings.vue';
 import AdminAccessKeysSettings from "@/components/admin/settings/AdminAccessKeysSettings.vue";
 import TotpStepUpDialog from "@/components/auth/TotpStepUpDialog.vue";
 import { affiliatesAPI, type AffiliateAdminEntry, type SimpleUser as AffiliateSimpleUser } from "@/api/admin/affiliates";

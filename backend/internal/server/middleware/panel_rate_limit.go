@@ -42,10 +42,11 @@ type PanelRateLimiter struct {
 
 // NewPanelRateLimiter 创建面板限流器。
 func NewPanelRateLimiter(redisClient *redis.Client, settingService *service.SettingService) *PanelRateLimiter {
-	return &PanelRateLimiter{
-		limiter:        middleware.NewRateLimiter(redisClient),
-		settingService: settingService,
+	p := &PanelRateLimiter{settingService: settingService}
+	if redisClient != nil {
+		p.limiter = middleware.NewRateLimiter(redisClient)
 	}
+	return p
 }
 
 // Global 认证面板接口的全局按用户限流（宽松档，覆盖所有登录后端点）。
