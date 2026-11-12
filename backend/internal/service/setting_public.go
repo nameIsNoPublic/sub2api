@@ -25,6 +25,16 @@ var (
 	defaultUsagePolicyMD string
 )
 
+// loginAgreementEnabledSetting 读取登录条款开关：键不存在（从未在后台保存过）时默认开启，
+// 显式保存过的值以保存值为准。InitializeDefaultSettings 不在自动安装路径上，不能依赖它写入默认值。
+func loginAgreementEnabledSetting(settings map[string]string) bool {
+	raw, ok := settings[SettingKeyLoginAgreementEnabled]
+	if !ok || strings.TrimSpace(raw) == "" {
+		return true
+	}
+	return raw == "true"
+}
+
 func normalizeLoginAgreementMode(raw string) string {
 	switch strings.ToLower(strings.TrimSpace(raw)) {
 	case "checkbox":
@@ -311,7 +321,7 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		InvitationCodeEnabled:               settings[SettingKeyInvitationCodeEnabled] == "true",
 		TotpEnabled:                         settings[SettingKeyTotpEnabled] == "true",
 		PasskeyEnabled:                      s.passkeyConfigured() && s.passkeySettingEnabled(settings),
-		LoginAgreementEnabled:               settings[SettingKeyLoginAgreementEnabled] == "true" && len(loginAgreementDocuments) > 0,
+		LoginAgreementEnabled:               loginAgreementEnabledSetting(settings) && len(loginAgreementDocuments) > 0,
 		LoginAgreementMode:                  normalizeLoginAgreementMode(settings[SettingKeyLoginAgreementMode]),
 		LoginAgreementUpdatedAt:             loginAgreementUpdatedAt,
 		LoginAgreementRevision:              buildLoginAgreementRevision(loginAgreementUpdatedAt, loginAgreementDocuments),

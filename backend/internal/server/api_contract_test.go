@@ -646,7 +646,8 @@ func TestAPIContracts(t *testing.T) {
 					service.SettingKeyEmailVerifyEnabled:               "false",
 					service.SettingKeyRegistrationEmailSuffixWhitelist: "[]",
 					service.SettingKeyPromoCodeEnabled:                 "true",
-					// 显式写入条款设置，避免契约断言依赖默认内嵌文档正文
+					// 显式写入条款设置，避免契约断言依赖默认内嵌文档正文与「键缺失即开启」的默认值
+					service.SettingKeyLoginAgreementEnabled:   "false",
 					service.SettingKeyLoginAgreementUpdatedAt: "2026-03-31",
 					service.SettingKeyLoginAgreementDocuments: contractLoginAgreementDocumentsJSON,
 
@@ -1067,6 +1068,7 @@ func TestAPIContracts(t *testing.T) {
 					service.SettingKeyRegistrationEnabled:              "true",
 					service.SettingKeyEmailVerifyEnabled:               "false",
 					service.SettingKeyRegistrationEmailSuffixWhitelist: "[]",
+					service.SettingKeyLoginAgreementEnabled:            "false",
 					service.SettingKeyLoginAgreementUpdatedAt:          "2026-03-31",
 					service.SettingKeyLoginAgreementDocuments:          contractLoginAgreementDocumentsJSON,
 				})
