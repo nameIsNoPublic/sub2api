@@ -134,6 +134,7 @@ export default {
   },
 
   legal: {
+    pageTitle: '条款文档',
     loadFailed: '文档加载失败',
     retryLater: '请稍后刷新页面重试。',
     notFound: '文档不存在',

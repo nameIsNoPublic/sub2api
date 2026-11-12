@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"crypto/sha256"
+	_ "embed"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -12,6 +13,16 @@ import (
 	"strings"
 
 	"github.com/Wei-Shaw/sub2api/internal/pkg/timezone"
+)
+
+// 登录条款默认正文（中文 Markdown），随二进制内嵌，全新部署开箱即用；
+// 管理员可在后台「登录条款」页修改标题与正文，修改后以数据库为准。
+var (
+	//go:embed legal_documents/terms.zh.md
+	defaultTermsOfServiceMD string
+
+	//go:embed legal_documents/usage-policy.zh.md
+	defaultUsagePolicyMD string
 )
 
 func normalizeLoginAgreementMode(raw string) string {
@@ -28,22 +39,12 @@ func defaultLoginAgreementDocuments() []LoginAgreementDocument {
 		{
 			ID:        "terms",
 			Title:     "服务条款",
-			ContentMD: "",
+			ContentMD: strings.TrimSpace(defaultTermsOfServiceMD),
 		},
 		{
 			ID:        "usage-policy",
 			Title:     "使用政策",
-			ContentMD: "",
-		},
-		{
-			ID:        "supported-regions",
-			Title:     "支持的国家和地区",
-			ContentMD: "",
-		},
-		{
-			ID:        "service-specific-terms",
-			Title:     "服务特定条款",
-			ContentMD: "",
+			ContentMD: strings.TrimSpace(defaultUsagePolicyMD),
 		},
 	}
 }

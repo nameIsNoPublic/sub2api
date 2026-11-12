@@ -9271,16 +9271,6 @@ function defaultLoginAgreementDocuments(): LoginAgreementDocument[] {
       title: localText("使用政策", "Usage Policy"),
       content_md: "",
     },
-    {
-      id: "supported-regions",
-      title: localText("支持的国家和地区", "Supported Countries and Regions"),
-      content_md: "",
-    },
-    {
-      id: "service-specific-terms",
-      title: localText("服务特定条款", "Service-Specific Terms"),
-      content_md: "",
-    },
   ];
 }
 
@@ -9766,7 +9756,7 @@ const form = reactive<SettingsForm>({
   audit_log_retention_days: 180,
   login_agreement_enabled: false,
   login_agreement_mode: "modal",
-  login_agreement_updated_at: "2026-03-31",
+  login_agreement_updated_at: "2026-11-12",
   login_agreement_documents: defaultLoginAgreementDocuments(),
   default_balance: 0,
   default_platform_quotas: normalizePlatformQuotasMap() as DefaultPlatformQuotasMap,
@@ -11066,7 +11056,7 @@ async function loadSettings() {
       settings.channel_monitor_hide_user_ranking
     );
     form.login_agreement_updated_at =
-      settings.login_agreement_updated_at || "2026-03-31";
+      settings.login_agreement_updated_at || "2026-11-12";
     form.login_agreement_documents =
       Array.isArray(settings.login_agreement_documents) &&
       settings.login_agreement_documents.length > 0

@@ -646,6 +646,9 @@ func TestAPIContracts(t *testing.T) {
 					service.SettingKeyEmailVerifyEnabled:               "false",
 					service.SettingKeyRegistrationEmailSuffixWhitelist: "[]",
 					service.SettingKeyPromoCodeEnabled:                 "true",
+					// 显式写入条款设置，避免契约断言依赖默认内嵌文档正文
+					service.SettingKeyLoginAgreementUpdatedAt: "2026-03-31",
+					service.SettingKeyLoginAgreementDocuments: contractLoginAgreementDocumentsJSON,
 
 					service.SettingKeySMTPHost:     "smtp.example.com",
 					service.SettingKeySMTPPort:     "587",
@@ -1064,6 +1067,8 @@ func TestAPIContracts(t *testing.T) {
 					service.SettingKeyRegistrationEnabled:              "true",
 					service.SettingKeyEmailVerifyEnabled:               "false",
 					service.SettingKeyRegistrationEmailSuffixWhitelist: "[]",
+					service.SettingKeyLoginAgreementUpdatedAt:          "2026-03-31",
+					service.SettingKeyLoginAgreementDocuments:          contractLoginAgreementDocumentsJSON,
 				})
 			},
 			method:     http.MethodGet,
@@ -2874,6 +2879,14 @@ type stubSettingRepo struct {
 func newStubSettingRepo() *stubSettingRepo {
 	return &stubSettingRepo{all: make(map[string]string)}
 }
+
+// contractLoginAgreementDocumentsJSON 契约测试显式写入的条款文档，使断言不依赖后端内嵌的默认正文。
+const contractLoginAgreementDocumentsJSON = `[` +
+	`{"id":"terms","title":"服务条款","content_md":""},` +
+	`{"id":"usage-policy","title":"使用政策","content_md":""},` +
+	`{"id":"supported-regions","title":"支持的国家和地区","content_md":""},` +
+	`{"id":"service-specific-terms","title":"服务特定条款","content_md":""}` +
+	`]`
 
 func (r *stubSettingRepo) SetAll(values map[string]string) {
 	r.all = make(map[string]string, len(values))
