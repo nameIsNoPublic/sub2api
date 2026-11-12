@@ -1,0 +1,18 @@
+# 开机后重建 C52-WEB 白名单（iptables 规则不持久化，Docker 起来后需要重新挂到 DOCKER-USER）
+# 安装：
+#   cp 52code-firewall.service /etc/systemd/system/
+#   systemctl daemon-reload && systemctl enable --now 52code-firewall.service
+# 路径按实际部署目录修改。
+[Unit]
+Description=52code Docker port whitelist (C52-WEB)
+Wants=network-online.target
+After=network-online.target docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/opt/52code/deploy/52code/firewall/52code-firewall.sh
+
+[Install]
+WantedBy=multi-user.target

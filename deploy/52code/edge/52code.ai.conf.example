@@ -1,0 +1,69 @@
+# =============================================================================
+# 边缘机（TLS 终结）上的 nginx 站点示例：放到 /etc/nginx/conf.d/52code.ai.conf
+# =============================================================================
+# 证书（certbot webroot 方式）：
+#   mkdir -p /var/www/certbot
+#   certbot certonly --webroot -w /var/www/certbot -d 52code.ai -d www.52code.ai
+# 边缘机到源站走明文 HTTP，源站 nginx 只信任本机 IP 传来的 X-Forwarded-For，
+# 所以源站 .env 的 EDGE_IP 必须填本机的公网 IP。
+# =============================================================================
+
+map $http_upgrade $c52_connection_upgrade {
+    default upgrade;
+    ''      '';
+}
+
+upstream c52_origin {
+    server 38.46.220.136:18080;
+    keepalive 64;
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name 52code.ai www.52code.ai;
+
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    http2 on;
+    server_name 52code.ai www.52code.ai;
+
+    ssl_certificate     /etc/letsencrypt/live/52code.ai/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/52code.ai/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache shared:c52_ssl:10m;
+    ssl_session_timeout 1d;
+
+    client_max_body_size 256m;
+
+    location / {
+        proxy_pass http://c52_origin;
+        proxy_http_version 1.1;
+
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $remote_addr;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Host  $host;
+        proxy_set_header Upgrade           $http_upgrade;
+        proxy_set_header Connection        $c52_connection_upgrade;
+
+        # LLM 流式响应：不缓冲，放宽超时
+        proxy_buffering off;
+        proxy_request_buffering off;
+        proxy_connect_timeout 10s;
+        proxy_send_timeout 600s;
+        proxy_read_timeout 600s;
+    }
+}
