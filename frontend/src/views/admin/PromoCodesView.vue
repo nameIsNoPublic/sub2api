@@ -3,6 +3,7 @@
     <TablePageLayout>
       <template #filters>
         <div class="flex flex-wrap items-center gap-3">
+          <span class="kicker w-full sm:w-auto"><span class="signal-dot"></span>PROMO CODES</span>
           <!-- Left: Search + Filters -->
           <div class="flex-1 sm:max-w-64">
             <input
@@ -75,14 +76,15 @@
           </template>
 
           <template #cell-bonus_amount="{ value }">
-            <span class="text-sm font-medium text-gray-900 dark:text-white">
+            <span class="num text-sm font-medium text-gray-900 dark:text-white">
               ${{ value.toFixed(2) }}
             </span>
           </template>
 
           <template #cell-usage="{ row }">
-            <span class="text-sm text-gray-600 dark:text-gray-300">
-              {{ row.used_count }} / {{ row.max_uses === 0 ? '∞' : row.max_uses }}
+            <span class="num text-sm text-gray-600 dark:text-gray-300">
+              <span class="font-medium text-primary-600 dark:text-primary-400">{{ row.used_count }}</span>
+              <span class="text-gray-400 dark:text-dark-500"> / </span>{{ row.max_uses === 0 ? '∞' : row.max_uses }}
             </span>
           </template>
 
@@ -98,13 +100,13 @@
           </template>
 
           <template #cell-expires_at="{ value }">
-            <span class="text-sm text-gray-500 dark:text-dark-400">
+            <span class="num text-xs text-gray-500 dark:text-dark-400">
               {{ value ? formatDateTime(value) : t('admin.promo.neverExpires') }}
             </span>
           </template>
 
           <template #cell-created_at="{ value }">
-            <span class="text-sm text-gray-500 dark:text-dark-400">
+            <span class="num text-xs text-gray-500 dark:text-dark-400">
               {{ formatDateTime(value) }}
             </span>
           </template>

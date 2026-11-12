@@ -1,6 +1,6 @@
 <template>
   <AppLayout>
-    <div class="space-y-6">
+    <div class="page-stagger space-y-6">
       <!-- Loading State -->
       <div v-if="loading" class="flex items-center justify-center py-12">
         <LoadingSpinner />
@@ -11,10 +11,12 @@
         <div class="panel-grid grid-cols-2 lg:grid-cols-4">
           <!-- Total API Keys -->
           <div class="min-w-0 p-4 sm:p-5">
-            <p class="kicker">
-              <Icon name="key" size="xs" class="text-primary-500 dark:text-primary-400" :stroke-width="2" />
-              {{ t('admin.dashboard.apiKeys') }}
-            </p>
+            <div class="flex items-center gap-2">
+              <span class="stat-icon stat-icon-primary h-7 w-7" aria-hidden="true">
+                <Icon name="key" size="xs" :stroke-width="2" />
+              </span>
+              <p class="kicker">{{ t('admin.dashboard.apiKeys') }}</p>
+            </div>
             <p class="mt-2.5 truncate text-2xl font-semibold tracking-tight tabular-nums text-gray-950 dark:text-white">
               {{ stats.total_api_keys }}
             </p>
@@ -25,10 +27,12 @@
 
           <!-- Service Accounts -->
           <div class="min-w-0 p-4 sm:p-5">
-            <p class="kicker">
-              <Icon name="server" size="xs" class="text-gray-400 dark:text-dark-500" :stroke-width="2" />
-              {{ t('admin.dashboard.accounts') }}
-            </p>
+            <div class="flex items-center gap-2">
+              <span class="stat-icon stat-icon-info h-7 w-7" aria-hidden="true">
+                <Icon name="server" size="xs" :stroke-width="2" />
+              </span>
+              <p class="kicker">{{ t('admin.dashboard.accounts') }}</p>
+            </div>
             <p class="mt-2.5 truncate text-2xl font-semibold tracking-tight tabular-nums text-gray-950 dark:text-white">
               {{ stats.total_accounts }}
             </p>
@@ -44,10 +48,12 @@
 
           <!-- Today Requests -->
           <div class="min-w-0 p-4 sm:p-5">
-            <p class="kicker">
-              <Icon name="chart" size="xs" class="text-gray-400 dark:text-dark-500" :stroke-width="2" />
-              {{ t('admin.dashboard.todayRequests') }}
-            </p>
+            <div class="flex items-center gap-2">
+              <span class="stat-icon stat-icon-success h-7 w-7" aria-hidden="true">
+                <Icon name="chart" size="xs" :stroke-width="2" />
+              </span>
+              <p class="kicker">{{ t('admin.dashboard.todayRequests') }}</p>
+            </div>
             <p class="mt-2.5 truncate text-2xl font-semibold tracking-tight tabular-nums text-gray-950 dark:text-white">
               {{ stats.today_requests }}
             </p>
@@ -58,10 +64,12 @@
 
           <!-- New Users Today -->
           <div class="min-w-0 p-4 sm:p-5">
-            <p class="kicker">
-              <Icon name="userPlus" size="xs" class="text-gray-400 dark:text-dark-500" :stroke-width="2" />
-              {{ t('admin.dashboard.users') }}
-            </p>
+            <div class="flex items-center gap-2">
+              <span class="stat-icon stat-icon-warning h-7 w-7" aria-hidden="true">
+                <Icon name="userPlus" size="xs" :stroke-width="2" />
+              </span>
+              <p class="kicker">{{ t('admin.dashboard.users') }}</p>
+            </div>
             <p class="mt-2.5 truncate text-2xl font-semibold tracking-tight tabular-nums text-emerald-600 dark:text-emerald-400">
               +{{ stats.today_new_users }}
             </p>
@@ -72,10 +80,12 @@
 
           <!-- Today Tokens -->
           <div class="min-w-0 p-4 sm:p-5">
-            <p class="kicker">
-              <Icon name="cube" size="xs" class="text-ember-500" :stroke-width="2" />
-              {{ t('admin.dashboard.todayTokens') }}
-            </p>
+            <div class="flex items-center gap-2">
+              <span class="stat-icon stat-icon-ember h-7 w-7" aria-hidden="true">
+                <Icon name="cube" size="xs" :stroke-width="2" />
+              </span>
+              <p class="kicker">{{ t('admin.dashboard.todayTokens') }}</p>
+            </div>
             <p class="mt-2.5 truncate text-2xl font-semibold tracking-tight tabular-nums text-gray-950 dark:text-white">
               {{ formatTokens(stats.today_tokens) }}
             </p>
@@ -102,10 +112,12 @@
 
           <!-- Total Tokens -->
           <div class="min-w-0 p-4 sm:p-5">
-            <p class="kicker">
-              <Icon name="database" size="xs" class="text-gray-400 dark:text-dark-500" :stroke-width="2" />
-              {{ t('admin.dashboard.totalTokens') }}
-            </p>
+            <div class="flex items-center gap-2">
+              <span class="stat-icon stat-icon-primary h-7 w-7" aria-hidden="true">
+                <Icon name="database" size="xs" :stroke-width="2" />
+              </span>
+              <p class="kicker">{{ t('admin.dashboard.totalTokens') }}</p>
+            </div>
             <p class="mt-2.5 truncate text-2xl font-semibold tracking-tight tabular-nums text-gray-950 dark:text-white">
               {{ formatTokens(stats.total_tokens) }}
             </p>
@@ -132,10 +144,12 @@
 
           <!-- Performance (RPM/TPM) -->
           <div class="min-w-0 p-4 sm:p-5">
-            <p class="kicker">
-              <Icon name="bolt" size="xs" class="text-gray-400 dark:text-dark-500" :stroke-width="2" />
-              {{ t('admin.dashboard.performance') }}
-            </p>
+            <div class="flex items-center gap-2">
+              <span class="stat-icon stat-icon-warning h-7 w-7" aria-hidden="true">
+                <Icon name="bolt" size="xs" :stroke-width="2" />
+              </span>
+              <p class="kicker">{{ t('admin.dashboard.performance') }}</p>
+            </div>
             <div class="mt-2.5 flex items-baseline gap-1.5">
               <p class="truncate text-2xl font-semibold tracking-tight tabular-nums text-gray-950 dark:text-white">
                 {{ formatTokens(stats.rpm) }}
@@ -152,10 +166,12 @@
 
           <!-- Avg Response Time -->
           <div class="min-w-0 p-4 sm:p-5">
-            <p class="kicker">
-              <Icon name="clock" size="xs" class="text-gray-400 dark:text-dark-500" :stroke-width="2" />
-              {{ t('admin.dashboard.avgResponse') }}
-            </p>
+            <div class="flex items-center gap-2">
+              <span class="stat-icon stat-icon-info h-7 w-7" aria-hidden="true">
+                <Icon name="clock" size="xs" :stroke-width="2" />
+              </span>
+              <p class="kicker">{{ t('admin.dashboard.avgResponse') }}</p>
+            </div>
             <p class="mt-2.5 truncate text-2xl font-semibold tracking-tight tabular-nums text-gray-950 dark:text-white">
               {{ formatDuration(stats.average_duration_ms) }}
             </p>

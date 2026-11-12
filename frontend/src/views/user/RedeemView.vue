@@ -1,8 +1,8 @@
 <template>
   <AppLayout>
-    <div class="mx-auto max-w-3xl space-y-5">
+    <div class="page-stagger mx-auto max-w-3xl space-y-5">
       <!-- Current Balance + Redeem Form -->
-      <div class="card overflow-hidden">
+      <div class="card-tinted overflow-hidden">
         <div class="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_auto]">
           <!-- Balance -->
           <div class="relative isolate overflow-hidden px-6 py-6">

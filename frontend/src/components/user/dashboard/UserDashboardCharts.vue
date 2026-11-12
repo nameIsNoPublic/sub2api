@@ -2,6 +2,7 @@
   <div class="space-y-4">
     <!-- 筛选条：日期范围 + 粒度分段 + 刷新 -->
     <div class="flex flex-wrap items-center gap-2.5">
+      <span class="kicker">TIME RANGE</span>
       <DateRangePicker :start-date="startDate" :end-date="endDate" @update:startDate="$emit('update:startDate', $event)" @update:endDate="$emit('update:endDate', $event)" @change="$emit('dateRangeChange', $event)" />
       <div class="tabs" role="group" :aria-label="t('dashboard.granularity')">
         <button

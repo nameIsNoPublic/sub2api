@@ -5,6 +5,7 @@
         <div class="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
           <!-- Left: Search + Filters -->
           <div class="flex flex-1 flex-wrap items-center gap-3">
+            <span class="kicker w-full sm:w-auto"><span class="signal-dot"></span>CHANNELS</span>
             <div class="relative w-full sm:w-64">
               <Icon
                 name="search"
@@ -73,25 +74,21 @@
           </template>
 
           <template #cell-group_count="{ row }">
-            <span
-              class="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 dark:bg-dark-600 dark:text-gray-300"
-            >
-              {{ (row.group_ids || []).length }}
+            <span class="chip">
+              <span class="tabular-nums font-medium text-primary-600 dark:text-primary-400">{{ (row.group_ids || []).length }}</span>
               {{ t('admin.channels.groupsUnit', 'groups') }}
             </span>
           </template>
 
           <template #cell-pricing_count="{ row }">
-            <span
-              class="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 dark:bg-dark-600 dark:text-gray-300"
-            >
-              {{ (row.model_pricing || []).length }}
+            <span class="chip">
+              <span class="tabular-nums font-medium text-primary-600 dark:text-primary-400">{{ (row.model_pricing || []).length }}</span>
               {{ t('admin.channels.pricingUnit', 'pricing rules') }}
             </span>
           </template>
 
           <template #cell-created_at="{ value }">
-            <span class="text-sm text-gray-600 dark:text-gray-400">
+            <span class="num text-xs text-gray-500 dark:text-dark-400">
               {{ formatDate(value) }}
             </span>
           </template>

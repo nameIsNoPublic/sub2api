@@ -1,6 +1,6 @@
 <template>
   <AppLayout>
-    <div class="mx-auto max-w-5xl space-y-6">
+    <div class="page-stagger mx-auto max-w-5xl space-y-6">
       <div v-if="loading" class="flex items-center justify-center py-20">
         <span class="spinner h-7 w-7 text-primary-600 dark:text-primary-400"></span>
       </div>
@@ -82,7 +82,7 @@
             </div>
             <!-- Order summary (sticky on desktop, below the form on mobile) -->
             <aside class="space-y-4 lg:sticky lg:top-24">
-              <div class="card overflow-hidden">
+              <div class="card-tinted overflow-hidden">
                 <!-- Recharge Account -->
                 <div class="flex items-center justify-between gap-4 border-b border-gray-100 px-5 py-4 dark:border-dark-800">
                   <div class="min-w-0">
@@ -217,7 +217,7 @@
                 </div>
               </div>
               <aside class="space-y-3 lg:sticky lg:top-24">
-                <div class="card overflow-hidden">
+                <div class="card-tinted overflow-hidden">
                   <div class="px-5 py-4">
                     <p class="kicker mb-3">{{ t('ui52.userB.checkout.summaryTitle') }}</p>
                     <div class="space-y-2.5 text-sm">

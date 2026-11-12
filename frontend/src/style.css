@@ -80,15 +80,73 @@
     @apply bg-primary-500/20 text-primary-950 dark:bg-primary-400/30 dark:text-white;
   }
 
-  /* 原生复选框 / 单选框：统一靛蓝强调色（全站约 160 处，未单独定制的都会生效）。
-   * 用 :where() 把特异性降为 0，组件里的 accent-* 工具类仍可覆盖；
-   * 深色值与 DataTable 的 .dt-checkbox 保持一致（primary-500）。 */
+  /* 原生复选框 / 单选框：全站自绘（约 160 处生效），与 .input 共用描边 + 柔光焦点语言。
+   * 基础外观用 :where() 降特异性，组件的尺寸/圆角工具类仍可覆盖；
+   * 状态（checked/indeterminate/focus/disabled）用完整特异性，避免被散落的 border-* 类盖掉。
+   * 符号（对勾/横线/圆点）画在 background-image 上，用 background-size 0→100% 做放大微动画。 */
   :where(input[type='checkbox'], input[type='radio']) {
-    accent-color: #5b47e6;
+    @apply h-4 w-4 shrink-0 cursor-pointer appearance-none align-middle;
+    @apply border border-gray-300 bg-white dark:border-dark-600 dark:bg-dark-900;
+    @apply shadow-[0_1px_0_rgba(23,24,28,0.03)];
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 0% 0%;
+    print-color-adjust: exact;
+    transition:
+      border-color 0.15s ease-out,
+      background-color 0.15s ease-out,
+      background-size 0.15s ease-out,
+      box-shadow 0.15s ease-out;
   }
 
-  :where(.dark) :where(input[type='checkbox'], input[type='radio']) {
-    accent-color: #7262f1;
+  :where(input[type='checkbox']) {
+    @apply rounded;
+  }
+
+  :where(input[type='radio']) {
+    @apply rounded-full;
+  }
+
+  input[type='checkbox']:hover:not(:disabled):not(:checked),
+  input[type='radio']:hover:not(:disabled):not(:checked) {
+    @apply border-gray-400 dark:border-dark-500;
+  }
+
+  input[type='checkbox']:focus-visible,
+  input[type='radio']:focus-visible {
+    outline: none;
+    @apply border-primary-500 ring-4 ring-primary-500/15 dark:border-primary-400 dark:ring-primary-400/20;
+  }
+
+  input[type='checkbox']:checked,
+  input[type='checkbox']:indeterminate,
+  input[type='radio']:checked {
+    @apply border-primary-600 bg-primary-600 dark:border-primary-500 dark:bg-primary-500;
+    background-size: 100% 100%;
+  }
+
+  input[type='checkbox']:checked {
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M4 8.5l2.5 2.5L12 5.5' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
+  }
+
+  input[type='checkbox']:indeterminate {
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M4.5 8h7' stroke='white' stroke-width='1.8' stroke-linecap='round'/%3e%3c/svg%3e");
+  }
+
+  input[type='radio']:checked {
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3' fill='white'/%3e%3c/svg%3e");
+  }
+
+  input[type='checkbox']:disabled,
+  input[type='radio']:disabled {
+    @apply cursor-not-allowed opacity-50;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    input[type='checkbox'],
+    input[type='radio'] {
+      transition: none;
+    }
   }
 
   /* 键盘焦点：统一靛蓝外环，鼠标点击不出现 */
@@ -247,6 +305,23 @@
     @apply disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500 dark:disabled:bg-dark-950;
   }
 
+  /* 原生下拉：去掉浏览器默认箭头，换成与 Select 组件一致的 chevron（多选/列表框除外） */
+  select.input:not([multiple]):not([size]) {
+    @apply cursor-pointer appearance-none bg-no-repeat pr-9;
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M4 6l4 4 4-4' stroke='%23a5a6a9' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
+    background-position: right 0.625rem center;
+    background-size: 1rem 1rem;
+  }
+
+  .dark select.input:not([multiple]):not([size]) {
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M4 6l4 4 4-4' stroke='%2383858f' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
+  }
+
+  /* 深色模式下原生 select 展开的选项列表随系统走深色 */
+  .dark select.input {
+    color-scheme: dark;
+  }
+
   .dark .input[type='date'],
   .dark .input[type='time'],
   .dark .input[type='datetime-local'],
@@ -361,6 +436,21 @@
   .stat-icon-danger {
     @apply bg-red-50 text-red-600 ring-red-100;
     @apply dark:bg-red-500/10 dark:text-red-400 dark:ring-red-400/20;
+  }
+
+  .stat-icon-ember {
+    @apply bg-ember-50 text-ember-600 ring-ember-100;
+    @apply dark:bg-ember-500/10 dark:text-ember-400 dark:ring-ember-400/20;
+  }
+
+  .stat-icon-info {
+    @apply bg-sky-50 text-sky-600 ring-sky-100;
+    @apply dark:bg-sky-500/10 dark:text-sky-400 dark:ring-sky-400/20;
+  }
+
+  .stat-icon-gray {
+    @apply bg-gray-100 text-gray-500 ring-gray-200/80;
+    @apply dark:bg-dark-800 dark:text-dark-300 dark:ring-dark-700;
   }
 
   .stat-value {
@@ -782,6 +872,67 @@
     @apply text-base font-semibold tracking-tight text-gray-950 dark:text-white;
   }
 
+  /* 染色卡：页面首要指标卡的浅靛渐变纸面 + 靛蓝微描边 + 右上 ember 柔光，
+   * 视觉母版是仪表盘余额卡（UserDashboardStats 的 balance-panel）。
+   * 每页最多 1-2 张，其余保持白卡，浓淡才有层次。 */
+  .card-tinted {
+    @apply rounded-xl border shadow-card;
+    @apply transition-[border-color,box-shadow,transform] duration-200;
+    border-color: color-mix(in srgb, #5b47e6 24%, #e4e4e0);
+    background:
+      radial-gradient(120% 90% at 100% 0%, rgba(242, 113, 28, 0.07), transparent 55%),
+      linear-gradient(125deg, #fbfcff, #eef0ff 80%);
+  }
+
+  .dark .card-tinted {
+    border-color: color-mix(in srgb, #7262f1 32%, #1c1d23);
+    background:
+      radial-gradient(120% 90% at 100% 0%, rgba(242, 113, 28, 0.08), transparent 55%),
+      linear-gradient(125deg, #151923, #222744 85%);
+  }
+
+  /* ember 变体：Token / 额度类重点卡 */
+  .card-tinted-ember {
+    border-color: color-mix(in srgb, #f2711c 26%, #e4e4e0);
+    background:
+      radial-gradient(120% 90% at 100% 0%, rgba(91, 71, 230, 0.06), transparent 55%),
+      linear-gradient(125deg, #fffdfb, #fff0e9 80%);
+  }
+
+  .dark .card-tinted-ember {
+    border-color: color-mix(in srgb, #f2711c 30%, #1c1d23);
+    background:
+      radial-gradient(120% 90% at 100% 0%, rgba(114, 98, 241, 0.08), transparent 55%),
+      linear-gradient(125deg, #151923, #352822 85%);
+  }
+
+  /* 纸面氛围光斑：左上靛蓝、右上 ember、右下靛蓝的大面积柔光，
+   * 治浅色模式大面积白底的单调；深色模式同构但更收敛。铺满背景层使用。 */
+  .paper-aura {
+    background:
+      radial-gradient(46% 42% at 8% 0%, rgba(91, 71, 230, 0.11), transparent 72%),
+      radial-gradient(38% 34% at 98% 6%, rgba(242, 113, 28, 0.085), transparent 72%),
+      radial-gradient(56% 50% at 76% 102%, rgba(91, 71, 230, 0.08), transparent 72%);
+  }
+
+  .dark .paper-aura {
+    background:
+      radial-gradient(42% 38% at 10% 0%, rgba(114, 98, 241, 0.08), transparent 70%),
+      radial-gradient(34% 30% at 96% 8%, rgba(242, 113, 28, 0.045), transparent 70%),
+      radial-gradient(52% 46% at 78% 100%, rgba(114, 98, 241, 0.055), transparent 70%);
+  }
+
+  /* 纸面颗粒：feTurbulence 噪点平铺，给白底「纸」的质感；深色下减半 */
+  .paper-grain {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+    opacity: 0.045;
+  }
+
+  .dark .paper-grain {
+    opacity: 0.025;
+  }
+
   /* 纸面分区：拼贴网格中带内分隔线的面板 */
   .panel-grid {
     @apply grid overflow-hidden rounded-xl border border-gray-200/80 bg-gray-200/80 dark:border-dark-800 dark:bg-dark-800;
@@ -827,6 +978,45 @@
   .tour-error-box {
     @apply rounded-md border-l-4 border-red-500 bg-red-50 px-3 py-2 text-xs text-red-900;
     @apply dark:border-red-400 dark:bg-red-950/40 dark:text-red-200;
+  }
+
+  /* ============ 页面载入动效 ============ */
+  /* 错峰渐入：加在页面根容器上，直接子元素依次浮现（200ms 内完成，特效不拖慢阅读） */
+  .page-stagger > * {
+    animation: page-reveal 0.4s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+
+  .page-stagger > *:nth-child(2) {
+    animation-delay: 50ms;
+  }
+
+  .page-stagger > *:nth-child(3) {
+    animation-delay: 100ms;
+  }
+
+  .page-stagger > *:nth-child(4) {
+    animation-delay: 150ms;
+  }
+
+  .page-stagger > *:nth-child(n + 5) {
+    animation-delay: 200ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .page-stagger > * {
+      animation: none;
+    }
+  }
+
+  @keyframes page-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   /* ============ 表格页面布局优化 ============ */

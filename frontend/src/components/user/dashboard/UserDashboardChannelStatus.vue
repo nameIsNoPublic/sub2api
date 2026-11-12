@@ -1,7 +1,10 @@
 <template>
   <section class="dashboard-panel channel-summary" :aria-busy="loading">
     <header class="dashboard-panel__header">
-      <h2 class="dashboard-panel__title">{{ t('nav.channelStatus') }}</h2>
+      <div>
+        <span class="kicker">LIVE STATUS</span>
+        <h2 class="dashboard-panel__title mt-1">{{ t('nav.channelStatus') }}</h2>
+      </div>
       <span
         class="channel-summary__overall"
         :class="`channel-state--${summaryState}`"

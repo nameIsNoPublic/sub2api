@@ -4,7 +4,7 @@
     <section class="balance-panel">
       <header class="balance-panel__header">
         <h2>
-          <span class="balance-panel__dot" aria-hidden="true"></span
+          <span class="signal-dot" aria-hidden="true"></span
           >{{
             t(
               isSimple
@@ -47,7 +47,7 @@
         </div>
         <p v-if="totalSaved > 0" class="balance-panel__savings">
           {{ t('ui52.dashboard.hero.savings') }}
-          <strong>${{ formatUsd(totalSaved) }}</strong>
+          <strong class="text-gradient">${{ formatUsd(totalSaved) }}</strong>
           <span>{{
             t('ui52.dashboard.hero.savedPct', { percent: savedPercent })
           }}</span>
@@ -110,7 +110,7 @@
       <template v-else>
         <p class="balance-panel__amount">{{ stats?.total_api_keys || 0 }}</p>
         <p class="balance-panel__savings">
-          <strong>{{ stats?.active_api_keys || 0 }}</strong
+          <strong class="overview-accent">{{ stats?.active_api_keys || 0 }}</strong
           >{{ t('common.active') }}
         </p>
       </template>
@@ -153,7 +153,12 @@
     <div class="overview-metrics">
       <section class="stat-tile">
         <header class="stat-tile__header">
-          <h3 class="stat-tile__label">{{ t('dashboard.todayCost') }}</h3>
+          <div class="stat-tile__heading">
+            <span class="stat-icon stat-icon-success h-7 w-7" aria-hidden="true">
+              <Icon name="dollar" size="xs" :stroke-width="2" />
+            </span>
+            <h3 class="stat-tile__label">{{ t('dashboard.todayCost') }}</h3>
+          </div>
           <span class="stat-tile__meta stat-tile__tag"
             >{{ t('dashboard.actual') }} / {{ t('dashboard.standard') }}</span
           >
@@ -182,7 +187,12 @@
 
       <section class="stat-tile">
         <header class="stat-tile__header">
-          <h3 class="stat-tile__label">{{ t('dashboard.apiKeys') }}</h3>
+          <div class="stat-tile__heading">
+            <span class="stat-icon stat-icon-primary h-7 w-7" aria-hidden="true">
+              <Icon name="key" size="xs" :stroke-width="2" />
+            </span>
+            <h3 class="stat-tile__label">{{ t('dashboard.apiKeys') }}</h3>
+          </div>
           <button type="button" class="stat-tile__link" @click="go('/keys')">
             {{ t('ui52.dashboard.metrics.manage') }}
           </button>
@@ -223,7 +233,12 @@
 
       <section class="stat-tile">
         <header class="stat-tile__header">
-          <h3 class="stat-tile__label">{{ t('dashboard.todayRequests') }}</h3>
+          <div class="stat-tile__heading">
+            <span class="stat-icon stat-icon-info h-7 w-7" aria-hidden="true">
+              <Icon name="chart" size="xs" :stroke-width="2" />
+            </span>
+            <h3 class="stat-tile__label">{{ t('dashboard.todayRequests') }}</h3>
+          </div>
           <span class="stat-tile__meta">{{ t('dashboard.last7Days') }}</span>
         </header>
         <p class="stat-tile__value">
@@ -265,7 +280,12 @@
 
       <section class="stat-tile">
         <header class="stat-tile__header">
-          <h3 class="stat-tile__label">{{ t('dashboard.totalTokens') }}</h3>
+          <div class="stat-tile__heading">
+            <span class="stat-icon stat-icon-warning h-7 w-7" aria-hidden="true">
+              <Icon name="database" size="xs" :stroke-width="2" />
+            </span>
+            <h3 class="stat-tile__label">{{ t('dashboard.totalTokens') }}</h3>
+          </div>
           <span v-if="cacheSharePercent != null" class="overview-badge">{{
             t('ui52.dashboard.metrics.cacheShare', {
               percent: cacheSharePercent
@@ -303,7 +323,12 @@
 
       <section class="stat-tile">
         <header class="stat-tile__header">
-          <h3 class="stat-tile__label">{{ t('dashboard.todayTokens') }}</h3>
+          <div class="stat-tile__heading">
+            <span class="stat-icon stat-icon-ember h-7 w-7" aria-hidden="true">
+              <Icon name="cube" size="xs" :stroke-width="2" />
+            </span>
+            <h3 class="stat-tile__label">{{ t('dashboard.todayTokens') }}</h3>
+          </div>
           <span class="stat-tile__meta">{{ t('dashboard.last7Days') }}</span>
         </header>
         <p class="stat-tile__value">
@@ -340,8 +365,12 @@
 
       <section class="stat-tile">
         <header class="stat-tile__header">
-          <h3 class="stat-tile__label">{{ t('dashboard.avgResponse') }}</h3>
-          <Icon name="clock" size="sm" class="stat-tile__muted-icon" />
+          <div class="stat-tile__heading">
+            <span class="stat-icon stat-icon-info h-7 w-7" aria-hidden="true">
+              <Icon name="clock" size="xs" :stroke-width="2" />
+            </span>
+            <h3 class="stat-tile__label">{{ t('dashboard.avgResponse') }}</h3>
+          </div>
         </header>
         <p class="stat-tile__value">
           {{ responseValue
@@ -579,18 +608,17 @@ function tokenBreakdown(scope: 'today' | 'total'): string {
   justify-content: space-between;
   gap: 8px;
 }
+/* 眉题化：等宽大写小标题，与全局 .kicker 同一节奏 */
 .balance-panel__header h2 {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 14px;
-  font-weight: 600;
-}
-.balance-panel__dot {
-  height: 6px;
-  width: 6px;
-  border-radius: 50%;
-  background: var(--overview-orange);
+  color: var(--overview-muted);
+  font-family: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 .overview-badge {
   flex-shrink: 0;
@@ -655,8 +683,8 @@ function tokenBreakdown(scope: 'today' | 'total'): string {
   color: var(--overview-muted);
   font-size: 12px;
 }
-.balance-panel__savings strong,
-.balance-panel__savings > span {
+.balance-panel__savings > span,
+.balance-panel__savings .overview-accent {
   color: var(--overview-primary);
 }
 .balance-summary {
@@ -759,7 +787,10 @@ function tokenBreakdown(scope: 'today' | 'total'): string {
   border: 1px solid var(--overview-line);
   border-radius: 22px;
   background: var(--overview-surface);
-  transition: border-color 160ms;
+  transition:
+    border-color 160ms,
+    transform 160ms,
+    box-shadow 160ms;
 }
 .stat-tile:hover {
   border-color: color-mix(
@@ -767,15 +798,28 @@ function tokenBreakdown(scope: 'today' | 'total'): string {
     var(--overview-primary) 32%,
     var(--overview-line)
   );
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -6px rgb(23 24 28 / 0.14);
 }
 .stat-tile__header {
   flex-wrap: wrap;
   row-gap: 5px;
 }
+/* 标签行左侧的彩色 icon 底块 + 眉题组合（stat-icon 配色自带深色模式） */
+.stat-tile__heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+/* 眉题化：与全局 .kicker 同一节奏（等宽 / 大写 / 0.14em 字距） */
 .stat-tile__label {
   color: var(--overview-muted);
-  font-size: 13px;
+  font-family: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
   font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 .stat-tile__meta {
   color: var(--overview-muted);
@@ -906,10 +950,6 @@ function tokenBreakdown(scope: 'today' | 'total'): string {
   height: 5px;
   border-radius: 50%;
 }
-.stat-tile__muted-icon {
-  color: var(--overview-muted);
-  opacity: 0.6;
-}
 .response-details {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -972,6 +1012,9 @@ function tokenBreakdown(scope: 'today' | 'total'): string {
   .dashboard-overview *::before,
   .dashboard-overview *::after {
     transition: none !important;
+  }
+  .stat-tile:hover {
+    transform: none;
   }
 }
 </style>

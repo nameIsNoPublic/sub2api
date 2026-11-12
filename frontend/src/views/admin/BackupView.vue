@@ -4,7 +4,8 @@
       <div class="card p-6">
         <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+            <span class="kicker mb-1"><span class="signal-dot"></span>S3 STORAGE</span>
+            <h3 class="section-title">
               {{ t('admin.backup.s3.title') }}
             </h3>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -58,7 +59,8 @@
       <div class="card p-6">
         <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+            <span class="kicker mb-1">IMAGE STORAGE</span>
+            <h3 class="section-title">
               {{ t('admin.backup.imageStorage.title') }}
             </h3>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -132,7 +134,8 @@
       <!-- Schedule Config -->
       <div class="card p-6" data-testid="backup-schedule">
         <div class="mb-4">
-          <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+          <span class="kicker mb-1">SCHEDULE</span>
+          <h3 class="section-title">
             {{ t('admin.backup.schedule.title') }}
           </h3>
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -179,7 +182,8 @@
       <div class="card p-6">
         <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h3 class="text-base font-semibold text-gray-900 dark:text-white">
+            <span class="kicker mb-1"><span class="signal-dot"></span>BACKUPS</span>
+            <h3 class="section-title">
               {{ t('admin.backup.operations.title') }}
             </h3>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -203,7 +207,7 @@
         <div class="overflow-x-auto">
           <table class="w-full min-w-[800px] text-sm">
             <thead>
-              <tr class="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-gray-500 dark:border-dark-700 dark:text-gray-400">
+              <tr class="border-b border-gray-200 text-left font-mono text-[11px] uppercase tracking-wide text-gray-500 dark:border-dark-700 dark:text-gray-400">
                 <th class="py-2 pr-4">ID</th>
                 <th class="py-2 pr-4">{{ t('admin.backup.columns.status') }}</th>
                 <th class="py-2 pr-4">{{ t('admin.backup.columns.fileName') }}</th>
@@ -228,13 +232,13 @@
                       : t(`admin.backup.status.${record.status}`) }}
                   </span>
                 </td>
-                <td class="py-3 pr-4 text-xs">
+                <td class="py-3 pr-4 font-mono text-xs">
                   {{ record.file_name }}
                   <span v-if="record.monthly_archive" class="ml-1 inline-block rounded bg-primary-50 px-1.5 py-0.5 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">{{ t('admin.backup.archive.badge') }}</span>
                   <div v-if="record.monthly_archive" class="mt-1 text-gray-500 dark:text-gray-400">{{ record.monthly_archive.dates.join(' / ') }}</div>
                 </td>
-                <td class="py-3 pr-4 text-xs">{{ formatSize(record.size_bytes) }}</td>
-                <td class="py-3 pr-4 text-xs">{{ record.parts?.length || (record.status === 'running' ? '-' : 1) }}</td>
+                <td class="num py-3 pr-4 text-xs">{{ formatSize(record.size_bytes) }}</td>
+                <td class="num py-3 pr-4 text-xs">{{ record.parts?.length || (record.status === 'running' ? '-' : 1) }}</td>
                 <td class="py-3 pr-4 text-xs">
                   {{ record.monthly_archive
                     ? record.monthly_archive.retain_count === 0 ? t('admin.backup.archive.forever') : t('admin.backup.archive.retainLatest', { count: record.monthly_archive.retain_count })
@@ -243,7 +247,7 @@
                 <td class="py-3 pr-4 text-xs">
                   {{ record.triggered_by === 'scheduled' ? t('admin.backup.trigger.scheduled') : t('admin.backup.trigger.manual') }}
                 </td>
-                <td class="py-3 pr-4 text-xs">{{ formatDate(record.started_at) }}</td>
+                <td class="num py-3 pr-4 text-xs">{{ formatDate(record.started_at) }}</td>
                 <td class="py-3 text-xs">
                   <div class="flex flex-wrap gap-1">
                     <button

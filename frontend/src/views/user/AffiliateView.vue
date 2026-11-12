@@ -1,6 +1,6 @@
 <template>
   <AppLayout>
-    <div class="space-y-6">
+    <div class="page-stagger space-y-6">
       <div v-if="loading" class="flex justify-center py-12">
         <span class="spinner h-7 w-7 text-primary-600 dark:text-primary-400"></span>
       </div>
@@ -9,11 +9,13 @@
         <!-- Stats -->
         <div class="panel-grid sm:grid-cols-2 lg:grid-cols-4">
           <div class="p-5">
-            <p class="flex items-center gap-1.5 text-[13px] text-gray-500 dark:text-dark-400">
-              <Icon name="dollar" size="sm" class="text-primary-500" />
-              {{ t('affiliate.stats.rebateRate') }}
-            </p>
-            <p class="num mt-2 text-2xl font-semibold text-primary-600 dark:text-primary-400">
+            <div class="flex items-center gap-2">
+              <span class="stat-icon stat-icon-primary h-7 w-7" aria-hidden="true">
+                <Icon name="trendingUp" size="xs" :stroke-width="2" />
+              </span>
+              <p class="kicker">{{ t('affiliate.stats.rebateRate') }}</p>
+            </div>
+            <p class="num mt-2.5 text-2xl font-semibold text-primary-600 dark:text-primary-400">
               {{ formattedRebateRate }}<span class="ml-0.5 text-base font-medium">%</span>
             </p>
             <p class="mt-1 text-xs text-gray-400 dark:text-dark-500">
@@ -21,20 +23,35 @@
             </p>
           </div>
           <div class="p-5">
-            <p class="text-[13px] text-gray-500 dark:text-dark-400">{{ t('affiliate.stats.invitedUsers') }}</p>
-            <p class="num mt-2 text-2xl font-semibold text-gray-950 dark:text-white">
+            <div class="flex items-center gap-2">
+              <span class="stat-icon stat-icon-info h-7 w-7" aria-hidden="true">
+                <Icon name="users" size="xs" :stroke-width="2" />
+              </span>
+              <p class="kicker">{{ t('affiliate.stats.invitedUsers') }}</p>
+            </div>
+            <p class="num mt-2.5 text-2xl font-semibold text-gray-950 dark:text-white">
               {{ formatCount(detail.aff_count) }}
             </p>
           </div>
           <div class="p-5">
-            <p class="text-[13px] text-gray-500 dark:text-dark-400">{{ t('affiliate.stats.availableQuota') }}</p>
-            <p class="num mt-2 text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
+            <div class="flex items-center gap-2">
+              <span class="stat-icon stat-icon-success h-7 w-7" aria-hidden="true">
+                <Icon name="dollar" size="xs" :stroke-width="2" />
+              </span>
+              <p class="kicker">{{ t('affiliate.stats.availableQuota') }}</p>
+            </div>
+            <p class="num mt-2.5 text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
               {{ formatCurrency(detail.aff_quota) }}
             </p>
           </div>
           <div class="p-5">
-            <p class="text-[13px] text-gray-500 dark:text-dark-400">{{ t('affiliate.stats.totalQuota') }}</p>
-            <p class="num mt-2 text-2xl font-semibold text-gray-950 dark:text-white">
+            <div class="flex items-center gap-2">
+              <span class="stat-icon stat-icon-ember h-7 w-7" aria-hidden="true">
+                <Icon name="creditCard" size="xs" :stroke-width="2" />
+              </span>
+              <p class="kicker">{{ t('affiliate.stats.totalQuota') }}</p>
+            </div>
+            <p class="num mt-2.5 text-2xl font-semibold text-gray-950 dark:text-white">
               {{ formatCurrency(detail.aff_history_quota) }}
             </p>
             <p v-if="detail.aff_frozen_quota > 0" class="mt-1 font-mono text-xs text-amber-600 dark:text-amber-400">
@@ -43,7 +60,7 @@
           </div>
         </div>
 
-        <div class="card p-5 sm:p-6">
+        <div class="card-tinted p-5 sm:p-6">
           <p class="kicker mb-2"><span class="signal-dot"></span>{{ t('ui52.userB.affiliate.kicker') }}</p>
           <h3 class="section-title">{{ t('affiliate.title') }}</h3>
           <p class="mt-1 text-sm text-gray-500 dark:text-dark-400">{{ t('affiliate.description') }}</p>

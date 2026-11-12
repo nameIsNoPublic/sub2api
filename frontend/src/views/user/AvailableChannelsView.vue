@@ -4,6 +4,7 @@
       <template #filters>
         <div class="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
           <div class="flex flex-1 flex-wrap items-center gap-3">
+            <span class="kicker"><span class="signal-dot"></span>CHANNELS</span>
             <div class="relative w-full sm:w-80">
               <Icon
                 name="search"

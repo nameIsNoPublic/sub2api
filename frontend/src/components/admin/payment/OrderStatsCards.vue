@@ -1,7 +1,7 @@
 <template>
   <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
-    <!-- Today Revenue -->
-    <div class="card p-4">
+    <!-- Today Revenue：页面首要指标，染色卡（视觉母版：仪表盘余额卡） -->
+    <div class="card-tinted p-4">
       <div class="flex items-center gap-3.5">
         <div class="stat-icon stat-icon-success">
           <Icon name="dollar" size="md" :stroke-width="2" />
@@ -39,7 +39,7 @@
     <!-- Today Orders -->
     <div class="card p-4">
       <div class="flex items-center gap-3.5">
-        <div class="stat-icon bg-purple-50 text-purple-600 ring-purple-100 dark:bg-purple-500/10 dark:text-purple-300 dark:ring-purple-400/20">
+        <div class="stat-icon stat-icon-ember">
           <Icon name="chart" size="md" :stroke-width="2" />
         </div>
         <div>
@@ -52,8 +52,8 @@
     <!-- Average Amount -->
     <div class="card p-4">
       <div class="flex items-center gap-3.5">
-        <div class="stat-icon stat-icon-warning">
-          <Icon name="chart" size="md" :stroke-width="2" />
+        <div class="stat-icon stat-icon-info">
+          <Icon name="calculator" size="md" :stroke-width="2" />
         </div>
         <div>
           <p class="text-xs font-medium text-gray-500 dark:text-dark-400">{{ t('payment.admin.avgAmount') }}</p>

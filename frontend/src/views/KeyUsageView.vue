@@ -202,25 +202,33 @@
             <div
               v-for="(ring, i) in ringItems"
               :key="i"
-              class="fade-up rounded-xl border border-gray-200/80 bg-white p-7 transition-[border-color,box-shadow] duration-200 hover:border-gray-300 hover:shadow-card-hover dark:border-dark-800 dark:bg-dark-900/80 dark:hover:border-dark-700"
-              :class="`fade-up-delay-${Math.min(i + 1, 4)}`"
+              class="fade-up p-7"
+              :class="[
+                i === 0
+                  ? 'card-tinted'
+                  : 'rounded-xl border border-gray-200/80 bg-white transition-[border-color,box-shadow] duration-200 hover:border-gray-300 hover:shadow-card-hover dark:border-dark-800 dark:bg-dark-900/80 dark:hover:border-dark-700',
+                `fade-up-delay-${Math.min(i + 1, 4)}`
+              ]"
             >
               <div class="flex items-center justify-between mb-6">
                 <h3 class="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-gray-500 dark:text-dark-400">
                   {{ ring.title }}
                 </h3>
-                <!-- Clock icon -->
-                <svg v-if="ring.iconType === 'clock'" class="w-5 h-5 text-gray-400 dark:text-dark-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                </svg>
-                <!-- Calendar icon -->
-                <svg v-else-if="ring.iconType === 'calendar'" class="w-5 h-5 text-gray-400 dark:text-dark-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-                </svg>
-                <!-- Dollar icon -->
-                <svg v-else class="w-5 h-5 text-gray-400 dark:text-dark-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                </svg>
+                <!-- 彩色 icon 底块：色序跟随 RING_GRADIENTS（靛蓝 → ember → 翡翠 → 天蓝） -->
+                <span class="stat-icon h-7 w-7" :class="RING_CHIP_CLASSES[i % 4]" aria-hidden="true">
+                  <!-- Clock icon -->
+                  <svg v-if="ring.iconType === 'clock'" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  <!-- Calendar icon -->
+                  <svg v-else-if="ring.iconType === 'calendar'" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  <!-- Dollar icon -->
+                  <svg v-else class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                  </svg>
+                </span>
               </div>
               <div class="flex justify-center">
                 <div class="relative">
@@ -566,6 +574,8 @@ const RING_GRADIENTS = [
   { from: '#10b981', to: '#6ee7b7' },
   { from: '#0ea5e9', to: '#7dd3fc' },
 ]
+// 纯展示：卡头 icon 底块配色，与 RING_GRADIENTS 色序一一对应，天然避免相邻同色
+const RING_CHIP_CLASSES = ['stat-icon-primary', 'stat-icon-ember', 'stat-icon-success', 'stat-icon-info']
 
 const ringAnimated = ref(false)
 const displayPcts = ref<number[]>([])

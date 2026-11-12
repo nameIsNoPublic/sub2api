@@ -1,9 +1,12 @@
 <template>
   <section class="card flex h-full flex-col overflow-hidden">
     <div class="flex items-center justify-between gap-3 border-b border-gray-100 px-5 py-3.5 dark:border-dark-800">
-      <div class="flex min-w-0 items-center gap-2.5">
-        <h2 class="text-sm font-semibold tracking-tight text-gray-950 dark:text-white">{{ t('dashboard.recentUsage') }}</h2>
-        <span class="badge badge-gray font-mono text-[10.5px]">{{ t('dashboard.last7Days') }}</span>
+      <div class="min-w-0">
+        <span class="kicker">RECENT USAGE</span>
+        <div class="mt-0.5 flex min-w-0 items-center gap-2.5">
+          <h2 class="text-sm font-semibold tracking-tight text-gray-950 dark:text-white">{{ t('dashboard.recentUsage') }}</h2>
+          <span class="badge badge-gray font-mono text-[10.5px]">{{ t('dashboard.last7Days') }}</span>
+        </div>
       </div>
       <router-link
         v-if="!loading && data.length > 0"

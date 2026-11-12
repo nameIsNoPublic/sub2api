@@ -1,6 +1,6 @@
 <template>
   <AppLayout>
-    <div class="dashboard-page space-y-5">
+    <div class="dashboard-page page-stagger space-y-5">
       <div v-if="loading" class="flex items-center justify-center py-16">
         <LoadingSpinner />
       </div>

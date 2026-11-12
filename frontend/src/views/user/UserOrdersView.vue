@@ -1,8 +1,9 @@
 <template>
   <AppLayout>
-    <div class="space-y-4">
+    <div class="page-stagger space-y-4">
       <!-- Filters -->
-      <div class="flex flex-wrap items-center gap-3">
+      <div class="card flex flex-wrap items-center gap-3 px-4 py-3">
+        <span class="kicker"><span class="signal-dot"></span>ORDERS</span>
         <Select v-model="currentFilter" :options="statusFilters" class="w-40" @change="handlePageChange(1)" />
         <div class="flex flex-1 items-center justify-end gap-2">
           <button @click="fetchOrders" :disabled="loading" class="btn btn-secondary btn-icon" :title="t('common.refresh')" :aria-label="t('common.refresh')">

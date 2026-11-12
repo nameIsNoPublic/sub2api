@@ -4,6 +4,7 @@
       <!-- Filters -->
       <template #filters>
         <div class="card p-4 sm:p-6">
+          <span class="kicker mb-3"><span class="signal-dot"></span>AUDIT LOG</span>
           <div class="flex flex-wrap items-end justify-between gap-4">
             <!-- Left: filter fields -->
             <div class="flex flex-1 flex-wrap items-end gap-4">
@@ -86,7 +87,7 @@
       <template #table>
         <DataTable :columns="columns" :data="logs" :loading="loading" row-key="id">
           <template #cell-created_at="{ value }">
-            <span class="whitespace-nowrap text-gray-600 dark:text-gray-300">{{ formatTime(value) }}</span>
+            <span class="num whitespace-nowrap text-gray-600 dark:text-gray-300">{{ formatTime(value) }}</span>
           </template>
 
           <template #cell-actor="{ row }">
@@ -119,7 +120,7 @@
           </template>
 
           <template #cell-latency_ms="{ value }">
-            <span class="whitespace-nowrap text-gray-500 dark:text-gray-400">{{ value }} ms</span>
+            <span class="num whitespace-nowrap text-gray-500 dark:text-gray-400">{{ value }} ms</span>
           </template>
 
           <template #cell-client_ip="{ value }">
@@ -195,11 +196,11 @@
           </div>
 
           <div class="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-gray-500 dark:text-gray-400">
-            <span class="inline-flex items-center gap-1.5">
+            <span class="num inline-flex items-center gap-1.5">
               <Icon name="clock" size="xs" />
               {{ formatTime(detail.created_at) }}
             </span>
-            <span>{{ t('admin.audit.detail.latency') }} {{ detail.latency_ms }} ms</span>
+            <span class="tabular-nums">{{ t('admin.audit.detail.latency') }} {{ detail.latency_ms }} ms</span>
             <span v-if="detail.request_id" class="inline-flex items-center gap-1">
               {{ t('admin.audit.detail.requestId') }}
               <span class="break-all font-mono">{{ detail.request_id }}</span>
@@ -210,7 +211,7 @@
         <!-- Actor / auth / source -->
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div class="rounded-xl bg-gray-50 p-4 dark:bg-dark-900">
-            <div class="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-gray-400 dark:text-dark-500">
+            <div class="kicker">
               {{ t('admin.audit.columns.actor') }}
             </div>
             <div class="mt-1 break-all text-sm font-medium text-gray-900 dark:text-white">
@@ -220,7 +221,7 @@
           </div>
 
           <div class="rounded-xl bg-gray-50 p-4 dark:bg-dark-900">
-            <div class="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-gray-400 dark:text-dark-500">
+            <div class="kicker">
               {{ t('admin.audit.filters.authMethod') }}
             </div>
             <div class="mt-1 text-sm font-medium text-gray-900 dark:text-white">
@@ -232,7 +233,7 @@
           </div>
 
           <div class="rounded-xl bg-gray-50 p-4 dark:bg-dark-900">
-            <div class="font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-gray-400 dark:text-dark-500">
+            <div class="kicker">
               {{ t('admin.audit.columns.clientIp') }}
             </div>
             <div class="mt-1 break-all font-mono text-sm font-medium text-gray-900 dark:text-white">
@@ -243,7 +244,7 @@
 
         <!-- User-Agent -->
         <section>
-          <h4 class="mb-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-gray-400 dark:text-dark-500">
+          <h4 class="kicker mb-1.5">
             {{ t('admin.audit.detail.userAgent') }}
           </h4>
           <div class="break-all rounded-xl bg-gray-50 p-3 font-mono text-xs leading-relaxed text-gray-600 dark:bg-dark-900 dark:text-gray-400">
@@ -253,7 +254,7 @@
 
         <!-- Request body (redacted) -->
         <section v-if="detail.request_body">
-          <h4 class="mb-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-gray-400 dark:text-dark-500">
+          <h4 class="kicker mb-1.5">
             {{ t('admin.audit.detail.requestBody') }}
           </h4>
           <pre class="max-h-72 overflow-auto rounded-xl bg-gray-50 p-4 font-mono text-xs leading-relaxed text-gray-600 dark:bg-dark-900 dark:text-gray-400">{{ prettyBody(detail.request_body) }}</pre>
@@ -261,7 +262,7 @@
 
         <!-- Extra -->
         <section v-if="detail.extra && Object.keys(detail.extra).length">
-          <h4 class="mb-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.12em] text-gray-400 dark:text-dark-500">
+          <h4 class="kicker mb-1.5">
             {{ t('admin.audit.detail.extra') }}
           </h4>
           <pre class="max-h-48 overflow-auto rounded-xl bg-gray-50 p-4 font-mono text-xs leading-relaxed text-gray-600 dark:bg-dark-900 dark:text-gray-400">{{ JSON.stringify(detail.extra, null, 2) }}</pre>

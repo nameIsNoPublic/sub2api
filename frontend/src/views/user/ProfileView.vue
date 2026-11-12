@@ -2,7 +2,7 @@
   <AppLayout>
     <div
       data-testid="profile-shell"
-      class="mx-auto max-w-[960px] space-y-5"
+      class="page-stagger mx-auto max-w-[960px] space-y-5"
     >
       <ProfileInfoCard
         :user="user"

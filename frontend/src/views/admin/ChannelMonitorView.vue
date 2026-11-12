@@ -1,9 +1,11 @@
 <template>
   <AppLayout>
-    <div class="w-full min-w-0 space-y-6 pb-8">
+    <!-- legacy tab 的 TablePageLayout 已内建 page-stagger,这里只在 v2 面板下加,避免双重动画 -->
+    <div class="w-full min-w-0 space-y-6 pb-8" :class="adminMonitorTab === 'v2' ? 'page-stagger' : ''">
       <header
         class="page-header card mb-0 p-5 sm:p-6"
       >
+        <span class="kicker mb-2"><span class="signal-dot"></span>CHANNEL MONITOR</span>
         <h1 class="page-title flex items-center gap-2.5 text-xl">
           <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary-50 text-primary-600 ring-1 ring-inset ring-primary-200/70 dark:bg-primary-500/10 dark:text-primary-300 dark:ring-primary-400/20">
             <Icon name="chart" size="sm" />

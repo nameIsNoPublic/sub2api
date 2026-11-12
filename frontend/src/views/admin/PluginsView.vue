@@ -1,23 +1,24 @@
 <template>
   <AppLayout>
-    <div class="space-y-6">
+    <div class="page-stagger space-y-6">
       <section
         class="flex flex-col gap-4 border-b border-gray-200 pb-5 dark:border-dark-700 sm:flex-row sm:items-end sm:justify-between"
       >
         <div class="min-w-0">
-          <h2 class="text-base font-semibold tracking-tight text-gray-950 dark:text-white">
+          <span class="kicker mb-1.5"><span class="signal-dot"></span>PLUGINS</span>
+          <h2 class="section-title">
             {{ t("admin.plugins.title") }}
           </h2>
           <p class="mt-1 max-w-3xl text-sm text-gray-500 dark:text-gray-400">
             {{ t("admin.plugins.description") }}
           </p>
           <div
-            class="mt-3 flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-300"
+            class="mt-3 flex flex-wrap gap-2"
           >
-            <span class="rounded bg-gray-100 px-2 py-1 dark:bg-dark-700">{{
+            <span class="chip">{{
               t("admin.plugins.onlyOpenAI")
             }}</span>
-            <span class="rounded bg-gray-100 px-2 py-1 dark:bg-dark-700">{{
+            <span class="chip">{{
               t("admin.plugins.noAccountCoupling")
             }}</span>
           </div>
@@ -58,7 +59,7 @@
       </p>
 
       <div
-        class="border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-900/60 dark:bg-blue-950/30 dark:text-blue-200"
+        class="rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800 dark:border-sky-900/60 dark:bg-sky-950/30 dark:text-sky-200"
       >
         <p>{{ t("admin.plugins.runtimeNotice") }}</p>
         <p class="mt-1">{{ t("admin.plugins.menuNotice") }}</p>
@@ -73,7 +74,7 @@
 
       <div
         v-else-if="plugins.length === 0"
-        class="flex min-h-56 flex-col items-center justify-center border border-dashed border-gray-300 px-6 text-center dark:border-dark-600"
+        class="flex min-h-56 flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 px-6 text-center dark:border-dark-600"
       >
         <Icon name="cube" size="xl" class="text-gray-400" />
         <p class="mt-3 font-medium text-gray-800 dark:text-gray-200">
@@ -88,7 +89,7 @@
         <article
           v-for="plugin in plugins"
           :key="plugin.id"
-          class="card overflow-hidden border border-gray-200 dark:border-dark-700"
+          class="card card-hover overflow-hidden border border-gray-200 dark:border-dark-700"
         >
           <div
             class="flex flex-wrap items-start justify-between gap-3 border-b border-gray-100 p-5 dark:border-dark-700"
@@ -111,8 +112,8 @@
                 </span>
               </div>
               <p class="mt-1 text-xs text-gray-500">
-                {{ plugin.plugin_key
-                }}<span v-if="plugin.author"> · {{ plugin.author }}</span>
+                <span class="font-mono">{{ plugin.plugin_key
+                }}</span><span v-if="plugin.author"> · {{ plugin.author }}</span>
               </p>
               <p
                 v-if="plugin.description"
@@ -133,7 +134,7 @@
 
           <div class="grid grid-cols-1 gap-x-6 gap-y-4 p-5 md:grid-cols-2">
             <div>
-              <p class="text-xs font-medium uppercase text-gray-500">
+              <p class="kicker">
                 {{ t("admin.plugins.compatibility") }}
               </p>
               <div class="mt-2 flex items-center gap-2">
@@ -172,7 +173,7 @@
             </div>
 
             <div>
-              <p class="text-xs font-medium uppercase text-gray-500">
+              <p class="kicker">
                 {{ t("admin.plugins.runtime") }}
               </p>
               <div class="mt-2 flex flex-wrap gap-2 text-xs">

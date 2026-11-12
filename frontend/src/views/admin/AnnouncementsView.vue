@@ -4,6 +4,7 @@
       <template #filters>
         <div class="flex flex-wrap items-center gap-3">
           <!-- Left: Search + Filters -->
+          <span class="kicker"><span class="signal-dot"></span>ANNOUNCEMENTS</span>
           <div class="flex-1 sm:max-w-64">
             <input
               v-model="searchQuery"
@@ -54,9 +55,9 @@
                 <span class="truncate font-medium text-gray-900 dark:text-white">{{ value }}</span>
               </div>
               <div class="mt-1 flex items-center gap-2 text-xs text-gray-500 dark:text-dark-400">
-                <span>#{{ row.id }}</span>
+                <span class="font-mono">#{{ row.id }}</span>
                 <span class="text-gray-300 dark:text-dark-700">·</span>
-                <span>{{ formatDateTime(row.created_at) }}</span>
+                <span class="num">{{ formatDateTime(row.created_at) }}</span>
               </div>
             </div>
           </template>
@@ -99,17 +100,17 @@
             <div class="text-sm text-gray-600 dark:text-gray-300">
               <div>
                 <span class="font-medium">{{ t('admin.announcements.form.startsAt') }}:</span>
-                <span class="ml-1">{{ row.starts_at ? formatDateTime(row.starts_at) : t('admin.announcements.timeImmediate') }}</span>
+                <span class="ml-1 tabular-nums">{{ row.starts_at ? formatDateTime(row.starts_at) : t('admin.announcements.timeImmediate') }}</span>
               </div>
               <div class="mt-0.5">
                 <span class="font-medium">{{ t('admin.announcements.form.endsAt') }}:</span>
-                <span class="ml-1">{{ row.ends_at ? formatDateTime(row.ends_at) : t('admin.announcements.timeNever') }}</span>
+                <span class="ml-1 tabular-nums">{{ row.ends_at ? formatDateTime(row.ends_at) : t('admin.announcements.timeNever') }}</span>
               </div>
             </div>
           </template>
 
           <template #cell-created_at="{ value }">
-            <span class="text-sm text-gray-500 dark:text-dark-400">{{ formatDateTime(value) }}</span>
+            <span class="text-sm tabular-nums text-gray-500 dark:text-dark-400">{{ formatDateTime(value) }}</span>
           </template>
 
           <template #cell-actions="{ row }">

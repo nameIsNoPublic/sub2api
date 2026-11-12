@@ -1,6 +1,6 @@
 <template>
   <AppLayout>
-    <div class="space-y-6">
+    <div class="page-stagger space-y-6">
       <!-- Loading State -->
       <div v-if="loading" class="flex justify-center py-12">
         <span class="spinner h-7 w-7 text-primary-600 dark:text-primary-400"></span>
@@ -33,7 +33,8 @@
         <div
           v-for="subscription in subscriptions"
           :key="subscription.id"
-          class="card flex flex-col overflow-hidden"
+          class="flex flex-col overflow-hidden"
+          :class="subscription.id === firstActiveSubscriptionId ? 'card-tinted' : 'card'"
         >
           <!-- Header -->
           <div class="flex items-start justify-between gap-4 border-b border-gray-100 px-5 py-4 dark:border-dark-800">
@@ -286,6 +287,11 @@ const purchaseAvailable = computed(() => appStore.cachedPublicSettings?.payment_
 
 const subscriptions = ref<UserSubscription[]>([])
 const loading = ref(true)
+
+// 纯展示：首张活跃订阅作为页面首要卡做 card-tinted 染色（每页 1 张封顶）
+const firstActiveSubscriptionId = computed(
+  () => subscriptions.value.find((subscription) => subscription.status === 'active')?.id ?? null
+)
 
 function subscriptionHasPeakRate(subscription: UserSubscription): boolean {
   return hasPeakRate(subscription.group)

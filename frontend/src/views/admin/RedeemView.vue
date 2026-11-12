@@ -3,6 +3,7 @@
     <TablePageLayout>
       <template #filters>
         <div class="flex flex-wrap items-center gap-3">
+          <span class="kicker w-full sm:w-auto"><span class="signal-dot"></span>REDEEM CODES</span>
           <!-- Left: Search + Filters -->
           <div class="flex-1 sm:max-w-64">
             <input
@@ -129,7 +130,7 @@
           </template>
 
           <template #cell-value="{ value, row }">
-            <span class="text-sm font-medium text-gray-900 dark:text-white">
+            <span class="text-sm font-medium tabular-nums text-gray-900 dark:text-white">
               <template v-if="row.type === 'balance'">${{ value.toFixed(2) }}</template>
               <template v-else-if="row.type === 'subscription'">
                 {{ row.validity_days || 30 }} {{ t('admin.redeem.days') }}
@@ -163,7 +164,7 @@
           </template>
 
           <template #cell-used_at="{ value }">
-            <span class="text-sm text-gray-500 dark:text-dark-400">{{
+            <span class="num text-xs text-gray-500 dark:text-dark-400">{{
               value ? formatDateTime(value) : '-'
             }}</span>
           </template>
@@ -171,7 +172,7 @@
           <template #cell-expires_at="{ value, row }">
             <span
               :class="[
-                'text-sm',
+                'num text-xs',
                 row.status === 'expired'
                   ? 'text-red-600 dark:text-red-400'
                   : 'text-gray-500 dark:text-dark-400'
@@ -207,9 +208,9 @@
       <template #pagination>
         <div
           v-if="selectedCount > 0"
-          class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-primary-50 p-3 dark:bg-primary-900/20"
+          class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-primary-200/80 bg-primary-50 p-3 dark:border-primary-400/20 dark:bg-primary-500/10"
         >
-          <span class="text-sm font-medium text-primary-900 dark:text-primary-100">
+          <span class="text-sm font-medium tabular-nums text-primary-600 dark:text-primary-200">
             {{ t('admin.redeem.selectedCount', { count: selectedCount }) }}
           </span>
           <div class="flex flex-wrap items-center gap-2">

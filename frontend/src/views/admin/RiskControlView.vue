@@ -1,6 +1,6 @@
 <template>
   <AppLayout>
-    <div class="space-y-6">
+    <div class="page-stagger space-y-6">
       <div v-if="loading" class="flex items-center justify-center py-16">
         <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary-600"></div>
       </div>
@@ -8,7 +8,8 @@
       <template v-else>
         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">{{ t('admin.riskControl.title') }}</h1>
+            <span class="kicker mb-1.5"><span class="signal-dot"></span>RISK CONTROL</span>
+            <h1 class="text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">{{ t('admin.riskControl.title') }}</h1>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.description') }}</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
@@ -30,19 +31,19 @@
           {{ t('admin.riskControl.engineUnavailable') }}
         </p>
 
-        <div class="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <div class="panel-grid grid-cols-2 xl:grid-cols-4">
           <div
             v-for="item in overviewItems"
             :key="item.key"
-            class="rounded-lg border border-gray-100 bg-white px-4 py-3 shadow-sm dark:border-dark-700 dark:bg-dark-800"
+            class="min-w-0 p-4 sm:p-5"
           >
             <div class="flex min-w-0 items-center gap-3">
-              <div class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg" :class="item.iconClass">
-                <Icon :name="item.icon" size="sm" />
-              </div>
+              <span class="stat-icon h-7 w-7 flex-shrink-0" :class="item.iconClass" aria-hidden="true">
+                <Icon :name="item.icon" size="xs" :stroke-width="2" />
+              </span>
               <div class="min-w-0 flex-1">
                 <div class="flex min-w-0 items-center justify-between gap-2">
-                  <p class="truncate text-xs font-medium text-gray-500 dark:text-gray-400">{{ item.label }}</p>
+                  <p class="kicker truncate">{{ item.label }}</p>
                   <span
                     v-if="item.badge"
                     class="inline-flex flex-shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-medium"
@@ -52,8 +53,8 @@
                   </span>
                 </div>
                 <div class="mt-1 flex min-w-0 items-baseline gap-2">
-                  <p class="truncate text-xl font-semibold leading-7 text-gray-900 dark:text-white">{{ item.value }}</p>
-                  <p v-if="item.meta" class="truncate text-xs text-gray-500 dark:text-gray-400">{{ item.meta }}</p>
+                  <p class="truncate text-2xl font-semibold tracking-tight tabular-nums text-gray-950 dark:text-white">{{ item.value }}</p>
+                  <p v-if="item.meta" class="truncate text-xs tabular-nums text-gray-500 dark:text-gray-400">{{ item.meta }}</p>
                 </div>
               </div>
             </div>
@@ -68,7 +69,7 @@
           <div data-test="pre-block-sync-card" class="card">
             <div class="flex flex-col gap-4 border-b border-gray-100 px-6 py-4 dark:border-dark-700 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <h2 class="text-base font-semibold tracking-tight text-gray-950 dark:text-white">{{ t('admin.riskControl.preBlockSyncStatus') }}</h2>
+                <h2 class="section-title">{{ t('admin.riskControl.preBlockSyncStatus') }}</h2>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.preBlockSyncHint') }}</p>
               </div>
               <span class="inline-flex w-fit items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600 dark:bg-dark-700 dark:text-gray-300">
@@ -84,8 +85,13 @@
                   class="rounded-lg p-4"
                   :class="item.class"
                 >
-                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ item.label }}</p>
-                  <p class="mt-2 truncate text-2xl font-semibold leading-8" :class="item.valueClass">{{ item.value }}</p>
+                  <div class="flex min-w-0 items-center gap-2">
+                    <span class="stat-icon h-7 w-7 flex-shrink-0" :class="item.iconClass" aria-hidden="true">
+                      <Icon :name="item.icon" size="xs" :stroke-width="2" />
+                    </span>
+                    <p class="kicker truncate">{{ item.label }}</p>
+                  </div>
+                  <p class="mt-2 truncate text-2xl font-semibold leading-8 tracking-tight tabular-nums" :class="item.valueClass">{{ item.value }}</p>
                   <p v-if="item.meta" class="mt-1 truncate text-xs text-gray-500 dark:text-gray-400">{{ item.meta }}</p>
                 </div>
               </div>
@@ -95,7 +101,7 @@
           <div data-test="pre-block-api-key-load-card" class="card">
             <div class="flex flex-col gap-4 border-b border-gray-100 px-6 py-4 dark:border-dark-700 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <h2 class="text-base font-semibold tracking-tight text-gray-950 dark:text-white">{{ t('admin.riskControl.preBlockAPIKeyLoad') }}</h2>
+                <h2 class="section-title">{{ t('admin.riskControl.preBlockAPIKeyLoad') }}</h2>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                   {{ t('admin.riskControl.preBlockAPIKeyLoadHint') }}
                 </p>
@@ -161,7 +167,7 @@
         <div v-if="showWorkerRuntimeCard" class="card">
           <div class="flex flex-col gap-4 border-b border-gray-100 px-6 py-4 dark:border-dark-700 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <h2 class="text-base font-semibold tracking-tight text-gray-950 dark:text-white">{{ t('admin.riskControl.workerStatus') }}</h2>
+              <h2 class="section-title">{{ t('admin.riskControl.workerStatus') }}</h2>
               <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.workerStatusHint') }}</p>
             </div>
             <div class="flex flex-wrap items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
@@ -178,11 +184,11 @@
                 <div class="flex items-center justify-between gap-3">
                   <div>
                     <p class="text-sm font-medium text-gray-900 dark:text-white">{{ t('admin.riskControl.queueUsage') }}</p>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    <p class="num mt-1 text-xs text-gray-500 dark:text-gray-400">
                       {{ formatNumber(status?.queue_length ?? 0) }} / {{ formatNumber(status?.queue_size ?? configForm.queue_size) }}
                     </p>
                   </div>
-                  <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ queueUsagePercent }}</span>
+                  <span class="num text-sm font-semibold text-gray-900 dark:text-white">{{ queueUsagePercent }}</span>
                 </div>
                 <div class="mt-4 h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-dark-700">
                   <div class="h-full rounded-full bg-primary-500 transition-all duration-300" :style="queueUsageStyle"></div>
@@ -191,20 +197,40 @@
 
               <div class="grid grid-cols-2 gap-3">
                 <div class="rounded-lg bg-gray-50 p-4 dark:bg-dark-700/50">
-                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.activeWorkers') }}</p>
-                  <p class="mt-2 text-2xl font-semibold text-gray-900 dark:text-white">{{ status?.active_workers ?? 0 }}</p>
-                </div>
-                <div class="rounded-lg bg-emerald-50 p-4 dark:bg-emerald-900/10">
-                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.idleWorkers') }}</p>
-                  <p class="mt-2 text-2xl font-semibold text-emerald-700 dark:text-emerald-300">{{ status?.idle_workers ?? configForm.worker_count }}</p>
-                </div>
-                <div class="rounded-lg bg-gray-50 p-4 dark:bg-dark-700/50">
-                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.processed') }}</p>
-                  <p class="mt-2 text-2xl font-semibold text-gray-900 dark:text-white">{{ formatNumber(status?.processed ?? 0) }}</p>
+                  <div class="flex items-center gap-2">
+                    <span class="stat-icon stat-icon-primary h-7 w-7 flex-shrink-0" aria-hidden="true">
+                      <Icon name="cpu" size="xs" :stroke-width="2" />
+                    </span>
+                    <p class="kicker truncate">{{ t('admin.riskControl.activeWorkers') }}</p>
+                  </div>
+                  <p class="mt-2 text-2xl font-semibold tracking-tight tabular-nums text-gray-950 dark:text-white">{{ status?.active_workers ?? 0 }}</p>
                 </div>
                 <div class="rounded-lg bg-gray-50 p-4 dark:bg-dark-700/50">
-                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.droppedErrors') }}</p>
-                  <p class="mt-2 text-2xl font-semibold text-gray-900 dark:text-white">{{ formatNumber((status?.dropped ?? 0) + (status?.errors ?? 0)) }}</p>
+                  <div class="flex items-center gap-2">
+                    <span class="stat-icon stat-icon-success h-7 w-7 flex-shrink-0" aria-hidden="true">
+                      <Icon name="check" size="xs" :stroke-width="2" />
+                    </span>
+                    <p class="kicker truncate">{{ t('admin.riskControl.idleWorkers') }}</p>
+                  </div>
+                  <p class="mt-2 text-2xl font-semibold tracking-tight tabular-nums text-emerald-700 dark:text-emerald-300">{{ status?.idle_workers ?? configForm.worker_count }}</p>
+                </div>
+                <div class="rounded-lg bg-gray-50 p-4 dark:bg-dark-700/50">
+                  <div class="flex items-center gap-2">
+                    <span class="stat-icon stat-icon-info h-7 w-7 flex-shrink-0" aria-hidden="true">
+                      <Icon name="inbox" size="xs" :stroke-width="2" />
+                    </span>
+                    <p class="kicker truncate">{{ t('admin.riskControl.processed') }}</p>
+                  </div>
+                  <p class="mt-2 text-2xl font-semibold tracking-tight tabular-nums text-gray-950 dark:text-white">{{ formatNumber(status?.processed ?? 0) }}</p>
+                </div>
+                <div class="rounded-lg bg-gray-50 p-4 dark:bg-dark-700/50">
+                  <div class="flex items-center gap-2">
+                    <span class="stat-icon stat-icon-warning h-7 w-7 flex-shrink-0" aria-hidden="true">
+                      <Icon name="exclamationTriangle" size="xs" :stroke-width="2" />
+                    </span>
+                    <p class="kicker truncate">{{ t('admin.riskControl.droppedErrors') }}</p>
+                  </div>
+                  <p class="mt-2 text-2xl font-semibold tracking-tight tabular-nums text-gray-950 dark:text-white">{{ formatNumber((status?.dropped ?? 0) + (status?.errors ?? 0)) }}</p>
                 </div>
               </div>
             </div>
@@ -241,7 +267,7 @@
           <div class="flex flex-col gap-4 border-b border-gray-100 px-6 py-4 dark:border-dark-700">
             <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <h2 class="text-base font-semibold tracking-tight text-gray-950 dark:text-white">{{ t('admin.riskControl.records') }}</h2>
+                <h2 class="section-title">{{ t('admin.riskControl.records') }}</h2>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.recordsHint') }}</p>
               </div>
               <button type="button" class="btn btn-secondary inline-flex items-center gap-2" :disabled="logsLoading" @click="loadLogs">
@@ -284,16 +310,16 @@
             <table class="min-w-full divide-y divide-gray-200 dark:divide-dark-700">
               <thead class="bg-gray-50 dark:bg-dark-800">
                 <tr>
-                  <th class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.table.time') }}</th>
-                  <th class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.table.group') }}</th>
-                  <th class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.table.user') }}</th>
-                  <th class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.table.apiKey') }}</th>
-                  <th class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.table.endpoint') }}</th>
-                  <th class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.table.result') }}</th>
-                  <th class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.table.highest') }}</th>
-                  <th class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.table.actionMeta') }}</th>
-                  <th class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.table.latency') }}</th>
-                  <th class="px-5 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.table.input') }}</th>
+                  <th class="px-5 py-3 text-left font-mono text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.table.time') }}</th>
+                  <th class="px-5 py-3 text-left font-mono text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.table.group') }}</th>
+                  <th class="px-5 py-3 text-left font-mono text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.table.user') }}</th>
+                  <th class="px-5 py-3 text-left font-mono text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.table.apiKey') }}</th>
+                  <th class="px-5 py-3 text-left font-mono text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.table.endpoint') }}</th>
+                  <th class="px-5 py-3 text-left font-mono text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.table.result') }}</th>
+                  <th class="px-5 py-3 text-left font-mono text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.table.highest') }}</th>
+                  <th class="px-5 py-3 text-left font-mono text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.table.actionMeta') }}</th>
+                  <th class="px-5 py-3 text-left font-mono text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.table.latency') }}</th>
+                  <th class="px-5 py-3 text-left font-mono text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.table.input') }}</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100 bg-white dark:divide-dark-800 dark:bg-dark-800">
@@ -305,11 +331,11 @@
                 </tr>
                 <template v-else>
                   <tr v-for="row in logs" :key="row.id" class="hover:bg-gray-50 dark:hover:bg-dark-700/60">
-                    <td class="whitespace-nowrap px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{ formatDateTime(row.created_at) }}</td>
+                    <td class="num whitespace-nowrap px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{ formatDateTime(row.created_at) }}</td>
                     <td class="whitespace-nowrap px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{ row.group_name || '-' }}</td>
                     <td class="whitespace-nowrap px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
                       <div>{{ row.user_email || '-' }}</div>
-                      <div v-if="row.user_id" class="text-xs text-gray-400">UID {{ row.user_id }}</div>
+                      <div v-if="row.user_id" class="font-mono text-xs text-gray-400">UID {{ row.user_id }}</div>
                     </td>
                     <td class="whitespace-nowrap px-5 py-4 text-sm text-gray-700 dark:text-gray-300">{{ row.api_key_name || '-' }}</td>
                     <td class="whitespace-nowrap px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
@@ -323,7 +349,7 @@
                     </td>
                     <td class="whitespace-nowrap px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
                       <div>{{ row.highest_category || '-' }}</div>
-                      <div class="text-xs text-gray-400">{{ percent(row.highest_score) }}</div>
+                      <div class="text-xs tabular-nums text-gray-400">{{ percent(row.highest_score) }}</div>
                       <div v-if="row.matched_keyword" class="mt-0.5 text-xs font-medium text-red-600 dark:text-red-300" :title="t('admin.riskControl.matchedKeyword') + ': ' + row.matched_keyword">
                         {{ t('admin.riskControl.matchedKeyword') }}: {{ row.matched_keyword }}
                       </div>
@@ -346,7 +372,7 @@
                       </button>
                     </td>
                     <td class="whitespace-nowrap px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
-                      <div>{{ latencyText(row.upstream_latency_ms) }}</div>
+                      <div class="num">{{ latencyText(row.upstream_latency_ms) }}</div>
                       <div v-if="row.queue_delay_ms !== null && row.queue_delay_ms !== undefined" class="text-xs text-gray-400">
                         {{ t('admin.riskControl.queueDelay', { ms: row.queue_delay_ms }) }}
                       </div>
@@ -721,7 +747,7 @@
           <div v-else-if="activeSettingsTab === 'scope'" class="space-y-5">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ t('admin.riskControl.groupScope') }}</h3>
+                <h3 class="section-title">{{ t('admin.riskControl.groupScope') }}</h3>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.groupScopeHint') }}</p>
               </div>
               <div class="inline-flex rounded-lg bg-gray-100 p-1 dark:bg-dark-700">
@@ -776,7 +802,7 @@
             <div class="space-y-4 rounded-lg border border-gray-100 p-4 dark:border-dark-700">
               <div class="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                  <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ t('admin.riskControl.modelFilter') }}</h3>
+                  <h3 class="section-title">{{ t('admin.riskControl.modelFilter') }}</h3>
                   <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.modelFilterHint') }}</p>
                 </div>
                 <span class="inline-flex w-fit rounded-md bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600 dark:bg-dark-700 dark:text-gray-300">
@@ -930,7 +956,7 @@
             <p v-if="configForm.engine === 'typesafe'" class="text-sm text-amber-700 dark:text-amber-300">{{ t('admin.riskControl.typeSafeThresholds') }}</p>
             <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ t('admin.riskControl.riskThresholds') }}</h3>
+                <h3 class="section-title">{{ t('admin.riskControl.riskThresholds') }}</h3>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ t('admin.riskControl.riskThresholdsHint') }}</p>
               </div>
               <button
@@ -1609,9 +1635,7 @@ const overviewItems = computed<OverviewItem[]>(() => [
     value: configForm.enabled ? t('admin.riskControl.overview.enabled') : t('admin.riskControl.overview.disabled'),
     meta: modeLabel(configForm.mode),
     icon: 'shield',
-    iconClass: configForm.enabled
-      ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-300'
-      : 'bg-gray-100 text-gray-500 dark:bg-dark-700 dark:text-gray-400',
+    iconClass: configForm.enabled ? 'stat-icon-success' : 'stat-icon-gray',
     badge: runtimeBadgeText.value,
     badgeClass: runtimeBadgeClass.value,
   },
@@ -1621,7 +1645,7 @@ const overviewItems = computed<OverviewItem[]>(() => [
     value: configForm.api_key_configured ? t('admin.riskControl.apiKeyCount', { count: configForm.api_key_count }) : t('admin.riskControl.notConfigured'),
     meta: configForm.api_key_configured ? apiKeyHealthSummary.value || configForm.model || '-' : configForm.model || '-',
     icon: 'key',
-    iconClass: 'bg-sky-50 text-sky-600 dark:bg-sky-900/20 dark:text-sky-300',
+    iconClass: 'stat-icon-info',
   },
   {
     key: 'scope',
@@ -1629,7 +1653,7 @@ const overviewItems = computed<OverviewItem[]>(() => [
     value: configForm.all_groups ? t('admin.riskControl.allGroups') : selectedGroupCount.value,
     meta: modelFilterSummary.value,
     icon: 'users',
-    iconClass: 'bg-violet-50 text-violet-600 dark:bg-violet-900/20 dark:text-violet-300',
+    iconClass: 'stat-icon-primary',
   },
   {
     key: 'logs',
@@ -1637,7 +1661,7 @@ const overviewItems = computed<OverviewItem[]>(() => [
     value: formatNumber(pagination.total),
     meta: t('admin.riskControl.overview.currentFilter'),
     icon: 'document',
-    iconClass: 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-300',
+    iconClass: 'stat-icon-warning',
   },
 ])
 
@@ -1682,14 +1706,17 @@ const showPreBlockRuntimeCard = computed(() => runtimeMode.value === 'pre_block'
 
 const showWorkerRuntimeCard = computed(() => runtimeMode.value === 'observe')
 
+// 小卡统一中性底，色彩交给 stat-icon 彩色底块 + 数值文字（对齐 panel-grid 的视觉语言）
 const preBlockMetricItems = computed(() => [
   {
     key: 'active',
     label: t('admin.riskControl.preBlockActive'),
     value: formatNumber(status.value?.pre_block_active ?? 0),
     meta: t('admin.riskControl.preBlockActiveHint'),
-    class: 'bg-sky-50 dark:bg-sky-900/10',
+    class: 'bg-gray-50 dark:bg-dark-700/50',
     valueClass: 'text-sky-700 dark:text-sky-300',
+    icon: 'bolt' as const,
+    iconClass: 'stat-icon-info',
   },
   {
     key: 'checked',
@@ -1698,38 +1725,48 @@ const preBlockMetricItems = computed(() => [
     meta: t('admin.riskControl.preBlockCheckedHint'),
     class: 'bg-gray-50 dark:bg-dark-700/50',
     valueClass: 'text-gray-900 dark:text-white',
+    icon: 'document' as const,
+    iconClass: 'stat-icon-primary',
   },
   {
     key: 'allowed',
     label: t('admin.riskControl.preBlockAllowed'),
     value: formatNumber(status.value?.pre_block_allowed ?? 0),
     meta: t('admin.riskControl.preBlockAllowedHint'),
-    class: 'bg-emerald-50 dark:bg-emerald-900/10',
+    class: 'bg-gray-50 dark:bg-dark-700/50',
     valueClass: 'text-emerald-700 dark:text-emerald-300',
+    icon: 'checkCircle' as const,
+    iconClass: 'stat-icon-success',
   },
   {
     key: 'blocked',
     label: t('admin.riskControl.preBlockBlocked'),
     value: formatNumber(status.value?.pre_block_blocked ?? 0),
     meta: t('admin.riskControl.preBlockBlockedHint'),
-    class: 'bg-rose-50 dark:bg-rose-900/10',
+    class: 'bg-gray-50 dark:bg-dark-700/50',
     valueClass: 'text-rose-700 dark:text-rose-300',
+    icon: 'ban' as const,
+    iconClass: 'stat-icon-danger',
   },
   {
     key: 'errors',
     label: t('admin.riskControl.preBlockErrors'),
     value: formatNumber(status.value?.pre_block_errors ?? 0),
     meta: t('admin.riskControl.preBlockErrorsHint'),
-    class: 'bg-amber-50 dark:bg-amber-900/10',
+    class: 'bg-gray-50 dark:bg-dark-700/50',
     valueClass: 'text-amber-700 dark:text-amber-300',
+    icon: 'exclamationTriangle' as const,
+    iconClass: 'stat-icon-warning',
   },
   {
     key: 'latency',
     label: t('admin.riskControl.preBlockAvgLatency'),
     value: `${formatNumber(status.value?.pre_block_avg_latency_ms ?? 0)} ms`,
     meta: t('admin.riskControl.preBlockAvgLatencyHint'),
-    class: 'bg-violet-50 dark:bg-violet-900/10',
-    valueClass: 'text-violet-700 dark:text-violet-300',
+    class: 'bg-gray-50 dark:bg-dark-700/50',
+    valueClass: 'text-sky-700 dark:text-sky-300',
+    icon: 'clock' as const,
+    iconClass: 'stat-icon-info',
   },
 ])
 

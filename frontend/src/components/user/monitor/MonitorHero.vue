@@ -4,7 +4,9 @@
       class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200/80 bg-white px-4 py-3 dark:border-dark-800 dark:bg-dark-900/80 sm:px-5"
     >
       <!-- 左:整体状态横幅 -->
-      <div class="flex min-w-0 items-center gap-3">
+      <div class="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
+        <span class="kicker hidden sm:inline-flex"><span class="signal-dot"></span>LIVE STATUS</span>
+        <span class="hidden h-4 w-px shrink-0 bg-gray-200 dark:bg-dark-700 sm:block" aria-hidden="true"></span>
         <span class="relative flex h-2.5 w-2.5 shrink-0" aria-hidden="true">
           <span
             class="absolute inline-flex h-full w-full rounded-full opacity-60 motion-safe:animate-signal-ping"

@@ -1,7 +1,7 @@
 <template>
   <AppLayout>
-    <div class="mx-auto max-w-5xl space-y-5">
-      <section class="card p-5 sm:p-6" aria-labelledby="mcp-connection-title" :aria-busy="connectionLoading">
+    <div class="page-stagger mx-auto max-w-5xl space-y-5">
+      <section class="card-tinted p-5 sm:p-6" aria-labelledby="mcp-connection-title" :aria-busy="connectionLoading">
         <div class="flex items-start gap-4">
           <div class="stat-icon stat-icon-primary">
             <Icon name="mcp" size="md" />

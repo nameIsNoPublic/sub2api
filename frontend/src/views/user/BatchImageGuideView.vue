@@ -3,6 +3,7 @@
     <TablePageLayout>
       <template #filters>
         <div class="flex flex-col gap-3">
+          <span class="kicker"><span class="signal-dot"></span>BATCH IMAGE</span>
           <div class="flex flex-col gap-3 2xl:flex-row 2xl:items-center 2xl:justify-between">
             <div class="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[260px_160px_144px_152px] 2xl:w-auto">
               <div class="min-w-0">
@@ -164,7 +165,7 @@
           </template>
 
           <template #cell-cost="{ row }">
-            <span class="block text-center text-sm text-gray-700 dark:text-gray-300">
+            <span class="num block text-center text-sm text-gray-700 dark:text-gray-300">
               {{ costLabel(displayJob(row)) }}
             </span>
           </template>
@@ -338,34 +339,32 @@
 
     <BaseDialog :show="!!currentJob" :title="t('batchImage.detail.title')" width="extra-wide" @close="closeDetail">
       <div v-if="currentJob" class="space-y-4">
-        <div class="rounded-lg border border-gray-200 bg-gray-50/70 px-4 py-3 dark:border-dark-700 dark:bg-dark-900/40">
-          <div class="grid gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="min-w-0 text-center">
-              <p class="text-xs text-gray-500 dark:text-dark-400">{{ t('common.status') }}</p>
-              <div class="mt-1 flex justify-center">
-                <span :class="statusBadgeClass(currentDisplayJob || currentJob)" class="badge whitespace-nowrap">
-                  {{ statusLabel(currentDisplayJob || currentJob) }}
-                </span>
-              </div>
+        <div class="panel-grid grid-cols-2 lg:grid-cols-4">
+          <div class="min-w-0 p-3 text-center sm:p-4">
+            <p class="kicker justify-center">{{ t('common.status') }}</p>
+            <div class="mt-1.5 flex justify-center">
+              <span :class="statusBadgeClass(currentDisplayJob || currentJob)" class="badge whitespace-nowrap">
+                {{ statusLabel(currentDisplayJob || currentJob) }}
+              </span>
             </div>
-            <div class="min-w-0 text-center">
-              <p class="text-xs text-gray-500 dark:text-dark-400">{{ hasChildJobs(currentJob.id) ? t('batchImage.detail.aggregatedResult') : t('batchImage.detail.result') }}</p>
-              <p class="mt-1 flex items-center justify-center gap-2 font-medium tabular-nums">
+          </div>
+          <div class="min-w-0 p-3 text-center sm:p-4">
+            <p class="kicker justify-center">{{ hasChildJobs(currentJob.id) ? t('batchImage.detail.aggregatedResult') : t('batchImage.detail.result') }}</p>
+            <p class="mt-1.5 flex items-center justify-center gap-2 font-medium tabular-nums">
               <span class="text-emerald-600 dark:text-emerald-300">{{ (currentDisplayJob || currentJob).success_count }}</span>
               <span class="text-gray-300 dark:text-dark-500">/</span>
               <span :class="(currentDisplayJob || currentJob).fail_count > 0 ? 'text-red-600 dark:text-red-300' : 'text-gray-400 dark:text-gray-500'">{{ (currentDisplayJob || currentJob).fail_count }}</span>
             </p>
-            </div>
-            <div class="min-w-0 text-center">
-              <p class="text-xs text-gray-500 dark:text-dark-400">{{ t('batchImage.detail.cost') }}</p>
-              <p class="mt-1 truncate font-medium text-gray-950 dark:text-white">{{ costLabel(currentDisplayJob || currentJob) }}</p>
-            </div>
-            <div class="min-w-0 text-center">
-              <p class="text-xs text-gray-500 dark:text-dark-400">{{ t('batchImage.detail.downloadStatus') }}</p>
-              <p class="mt-1 truncate font-medium text-gray-950 dark:text-white">
+          </div>
+          <div class="min-w-0 p-3 text-center sm:p-4">
+            <p class="kicker justify-center">{{ t('batchImage.detail.cost') }}</p>
+            <p class="num mt-1.5 truncate font-medium text-gray-950 dark:text-white">{{ costLabel(currentDisplayJob || currentJob) }}</p>
+          </div>
+          <div class="min-w-0 p-3 text-center sm:p-4">
+            <p class="kicker justify-center">{{ t('batchImage.detail.downloadStatus') }}</p>
+            <p class="num mt-1.5 truncate font-medium text-gray-950 dark:text-white">
               {{ currentJob.downloaded_at ? formatDate(currentJob.downloaded_at) : t('batchImage.list.notDownloaded') }}
             </p>
-            </div>
           </div>
         </div>
 

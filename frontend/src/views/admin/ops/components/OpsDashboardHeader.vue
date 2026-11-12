@@ -996,7 +996,8 @@ function handleToolbarRefresh() {
 
     <div v-if="overview" class="grid grid-cols-1 gap-6 lg:grid-cols-12">
       <!-- Left: Health + Realtime -->
-      <div :class="['rounded-lg border border-gray-200/70 bg-gray-50/70 dark:border-dark-800 dark:bg-dark-950/40 lg:col-span-5', props.fullscreen ? 'p-6' : 'p-4']">
+      <!-- 健康分 = 本页首要数字，染色卡（视觉母版：仪表盘余额卡，深浅模式自带） -->
+      <div :class="['card-tinted lg:col-span-5', props.fullscreen ? 'p-6' : 'p-4']">
         <div class="grid h-full grid-cols-1 gap-6 md:grid-cols-[200px_1fr] md:items-center">
           <!-- 1) Health Score -->
           <div
@@ -1214,7 +1215,10 @@ function handleToolbarRefresh() {
         <!-- Card 1: Requests -->
         <div class="rounded-lg border border-gray-200/70 bg-gray-50/70 dark:border-dark-800 dark:bg-dark-950/40 p-4" style="order: 1;">
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-1">
+            <div class="flex items-center gap-2">
+              <span class="stat-icon stat-icon-primary h-7 w-7" aria-hidden="true">
+                <Icon name="chart" size="xs" :stroke-width="2" />
+              </span>
               <span class="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-gray-500 dark:text-dark-400">{{ t('admin.ops.requestsTitle') }}</span>
               <HelpTooltip v-if="!props.fullscreen" :content="t('admin.ops.tooltips.totalRequests')" />
             </div>
@@ -1251,6 +1255,9 @@ function handleToolbarRefresh() {
         <div class="rounded-lg border border-gray-200/70 bg-gray-50/70 dark:border-dark-800 dark:bg-dark-950/40 p-4" style="order: 2;">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
+              <span class="stat-icon stat-icon-success h-7 w-7" aria-hidden="true">
+                <Icon name="checkCircle" size="xs" :stroke-width="2" />
+              </span>
               <span class="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-gray-500 dark:text-dark-400">{{ t('admin.ops.sla') }}</span>
               <HelpTooltip v-if="!props.fullscreen" :content="t('admin.ops.tooltips.sla')" />
               <span class="h-1.5 w-1.5 rounded-full" :class="getSLAThresholdLevel(slaPercent) === 'critical' ? 'bg-red-500' : getSLAThresholdLevel(slaPercent) === 'warning' ? 'bg-amber-500' : 'bg-emerald-500'"></span>
@@ -1281,7 +1288,10 @@ function handleToolbarRefresh() {
         <!-- Card 4: Request Duration -->
         <div class="rounded-lg border border-gray-200/70 bg-gray-50/70 dark:border-dark-800 dark:bg-dark-950/40 p-4" style="order: 4;">
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-1">
+            <div class="flex items-center gap-2">
+              <span class="stat-icon stat-icon-info h-7 w-7" aria-hidden="true">
+                <Icon name="clock" size="xs" :stroke-width="2" />
+              </span>
               <span class="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-gray-500 dark:text-dark-400">{{ t('admin.ops.latencyDuration') }}</span>
               <HelpTooltip v-if="!props.fullscreen" :content="t('admin.ops.tooltips.latency')" />
             </div>
@@ -1332,7 +1342,10 @@ function handleToolbarRefresh() {
         <!-- Card 5: TTFT -->
         <div class="rounded-lg border border-gray-200/70 bg-gray-50/70 dark:border-dark-800 dark:bg-dark-950/40 p-4" style="order: 5;">
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-1">
+            <div class="flex items-center gap-2">
+              <span class="stat-icon stat-icon-ember h-7 w-7" aria-hidden="true">
+                <Icon name="bolt" size="xs" :stroke-width="2" />
+              </span>
               <span class="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-gray-500 dark:text-dark-400">TTFT</span>
               <HelpTooltip v-if="!props.fullscreen" :content="t('admin.ops.tooltips.ttft')" />
             </div>
@@ -1383,7 +1396,10 @@ function handleToolbarRefresh() {
         <!-- Card 3: Request Errors -->
         <div class="rounded-lg border border-gray-200/70 bg-gray-50/70 dark:border-dark-800 dark:bg-dark-950/40 p-4" style="order: 3;">
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-1">
+            <div class="flex items-center gap-2">
+              <span class="stat-icon stat-icon-warning h-7 w-7" aria-hidden="true">
+                <Icon name="exclamationTriangle" size="xs" :stroke-width="2" />
+              </span>
               <span class="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-gray-500 dark:text-dark-400">{{ t('admin.ops.requestErrors') }}</span>
               <HelpTooltip v-if="!props.fullscreen" :content="t('admin.ops.tooltips.errors')" />
             </div>
@@ -1409,7 +1425,10 @@ function handleToolbarRefresh() {
         <!-- Card 6: Upstream Errors -->
         <div class="rounded-lg border border-gray-200/70 bg-gray-50/70 dark:border-dark-800 dark:bg-dark-950/40 p-4" style="order: 6;">
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-1">
+            <div class="flex items-center gap-2">
+              <span class="stat-icon stat-icon-danger h-7 w-7" aria-hidden="true">
+                <Icon name="cloud" size="xs" :stroke-width="2" />
+              </span>
               <span class="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-gray-500 dark:text-dark-400">{{ t('admin.ops.upstreamErrors') }}</span>
               <HelpTooltip v-if="!props.fullscreen" :content="t('admin.ops.tooltips.upstreamErrors')" />
             </div>
@@ -1434,7 +1453,10 @@ function handleToolbarRefresh() {
 
         <!-- Per-request output speed, separate from system throughput. -->
         <div class="rounded-lg border border-gray-200/70 bg-gray-50/70 dark:border-dark-800 dark:bg-dark-950/40 p-4" data-testid="output-tps-card" style="order: 7;">
-          <div class="flex items-center gap-1">
+          <div class="flex items-center gap-2">
+            <span class="stat-icon stat-icon-primary h-7 w-7" aria-hidden="true">
+              <Icon name="trendingUp" size="xs" :stroke-width="2" />
+            </span>
             <span class="font-mono text-[10.5px] font-medium uppercase tracking-[0.08em] text-gray-500 dark:text-dark-400">{{ t('admin.ops.outputTps') }}</span>
             <HelpTooltip v-if="!props.fullscreen" :content="t('admin.ops.tooltips.outputTps')" />
           </div>

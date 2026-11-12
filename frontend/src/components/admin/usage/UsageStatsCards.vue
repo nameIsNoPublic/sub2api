@@ -1,24 +1,37 @@
 <template>
-  <!-- 用量汇总：四张等宽指标卡，标签走 kicker、数值走 tabular-nums -->
+  <!-- 用量汇总：四张等宽指标卡，首卡染色（视觉母版：仪表盘余额卡），图标走彩色底块 -->
   <div class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-    <div class="card min-w-0 p-4 sm:p-5">
-      <p class="kicker">
-        <Icon name="document" size="xs" class="text-primary-500 dark:text-primary-400" />
-        {{ t('usage.totalRequests') }}
-      </p>
-      <p class="mt-2.5 truncate text-2xl font-semibold tracking-tight tabular-nums text-gray-950 dark:text-white">
+    <div class="card-tinted min-w-0 p-4 sm:p-5">
+      <div class="flex items-center gap-2.5">
+        <span class="stat-icon stat-icon-primary h-8 w-8" aria-hidden="true">
+          <Icon name="document" size="sm" />
+        </span>
+        <p class="kicker">{{ t('usage.totalRequests') }}</p>
+      </div>
+      <p class="mt-3 truncate text-[1.7rem] font-semibold leading-9 tracking-tight tabular-nums text-gray-950 dark:text-white">
         {{ stats?.total_requests?.toLocaleString() || '0' }}
       </p>
-      <p class="mt-1 text-xs text-gray-400 dark:text-dark-500">{{ t('usage.inSelectedRange') }}</p>
+      <p class="mt-1 text-xs text-gray-500 dark:text-dark-400">{{ t('usage.inSelectedRange') }}</p>
     </div>
     <div class="card min-w-0 p-4 sm:p-5">
-      <p class="kicker">
-        <svg class="h-3 w-3 text-gray-400 dark:text-dark-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" /></svg>
-        {{ t('usage.totalTokens') }}
-      </p>
-      <p class="mt-2.5 truncate text-2xl font-semibold tracking-tight tabular-nums text-gray-950 dark:text-white">
+      <div class="flex items-center gap-2.5">
+        <span class="stat-icon stat-icon-ember h-8 w-8" aria-hidden="true">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" /></svg>
+        </span>
+        <p class="kicker">{{ t('usage.totalTokens') }}</p>
+      </div>
+      <p class="mt-3 truncate text-[1.7rem] font-semibold leading-9 tracking-tight tabular-nums text-gray-950 dark:text-white">
         {{ formatTokens(stats?.total_tokens || 0) }}
       </p>
+      <div
+        v-if="(stats?.total_tokens || 0) > 0"
+        class="mt-2 flex h-1.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-dark-800"
+        aria-hidden="true"
+      >
+        <div class="bg-primary-500 dark:bg-primary-400" :style="{ width: tokenPct.input }"></div>
+        <div class="bg-primary-300 dark:bg-primary-500/40" :style="{ width: tokenPct.output }"></div>
+        <div class="bg-ember-500 dark:bg-ember-400" :style="{ width: tokenPct.cache }"></div>
+      </div>
       <p class="mt-1 flex flex-wrap items-center gap-x-1 text-xs tabular-nums text-gray-500 dark:text-dark-400">
         <span>{{ t('usage.in') }}: {{ formatTokens(stats?.total_input_tokens || 0) }}</span>
         <span class="text-gray-300 dark:text-dark-600">/</span>
@@ -62,11 +75,13 @@
       </p>
     </div>
     <div class="card min-w-0 p-4 sm:p-5">
-      <p class="kicker">
-        <Icon name="dollar" size="xs" class="text-ember-500" />
-        {{ t('usage.totalCost') }}
-      </p>
-      <p class="mt-2.5 truncate text-2xl font-semibold tracking-tight tabular-nums text-emerald-600 dark:text-emerald-400">
+      <div class="flex items-center gap-2.5">
+        <span class="stat-icon stat-icon-success h-8 w-8" aria-hidden="true">
+          <Icon name="dollar" size="sm" />
+        </span>
+        <p class="kicker">{{ t('usage.totalCost') }}</p>
+      </div>
+      <p class="mt-3 truncate text-[1.7rem] font-semibold leading-9 tracking-tight tabular-nums text-emerald-600 dark:text-emerald-400">
         ${{ (stats?.total_actual_cost || 0).toFixed(4) }}
       </p>
       <p class="mt-1 text-xs tabular-nums text-gray-400 dark:text-dark-500">
@@ -81,11 +96,13 @@
       </p>
     </div>
     <div class="card min-w-0 p-4 sm:p-5">
-      <p class="kicker">
-        <Icon name="clock" size="xs" class="text-gray-400 dark:text-dark-500" />
-        {{ t('usage.avgDuration') }}
-      </p>
-      <p class="mt-2.5 truncate text-2xl font-semibold tracking-tight tabular-nums text-gray-950 dark:text-white">
+      <div class="flex items-center gap-2.5">
+        <span class="stat-icon stat-icon-info h-8 w-8" aria-hidden="true">
+          <Icon name="clock" size="sm" />
+        </span>
+        <p class="kicker">{{ t('usage.avgDuration') }}</p>
+      </div>
+      <p class="mt-3 truncate text-[1.7rem] font-semibold leading-9 tracking-tight tabular-nums text-gray-950 dark:text-white">
         {{ formatDuration(stats?.average_duration_ms || 0) }}
       </p>
     </div>
@@ -116,6 +133,17 @@ const totalAccountCost = computed(() => {
 })
 const showAccountCost = computed(() => props.showAccountCost)
 const strikeStandardCost = computed(() => props.strikeStandardCost)
+
+// Token 构成条：输入/输出/缓存占比（仅展示，总和为 0 时构成条整体隐藏）
+const tokenPct = computed(() => {
+  const input = props.stats?.total_input_tokens || 0
+  const output = props.stats?.total_output_tokens || 0
+  const cache = props.stats?.total_cache_tokens || 0
+  const sum = input + output + cache
+  if (sum <= 0) return { input: '0%', output: '0%', cache: '0%' }
+  const pct = (n: number) => `${((n / sum) * 100).toFixed(1)}%`
+  return { input: pct(input), output: pct(output), cache: pct(cache) }
+})
 
 const formatDuration = (ms: number) =>
   ms < 1000 ? `${ms.toFixed(0)}ms` : `${(ms / 1000).toFixed(2)}s`

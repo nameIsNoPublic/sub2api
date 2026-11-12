@@ -2,7 +2,8 @@
   <section class="dashboard-panel quick-connect">
     <header class="dashboard-panel__header">
       <div>
-        <div class="quick-connect__title">
+        <span class="kicker">QUICK CONNECT</span>
+        <div class="quick-connect__title mt-1">
           <h2 class="dashboard-panel__title">
             {{ t('ui52.dashboard.quickConnect.title') }}
           </h2>

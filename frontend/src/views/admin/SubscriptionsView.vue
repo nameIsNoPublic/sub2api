@@ -6,6 +6,7 @@
         <div class="flex flex-wrap items-start justify-between gap-4">
           <!-- Left: Fuzzy user search + filters (wrap to multiple lines) -->
           <div class="flex flex-1 flex-wrap items-center gap-3">
+            <span class="kicker w-full sm:w-auto"><span class="signal-dot"></span>SUBSCRIPTIONS</span>
             <!-- User Search -->
             <div
               class="relative w-full sm:w-64"
@@ -167,11 +168,11 @@
         </div>
         <div
           v-if="selectedCount > 0"
-          class="mt-3 space-y-2 rounded-xl border border-primary-200 bg-primary-50 p-3 dark:border-primary-800 dark:bg-primary-900/20"
+          class="mt-3 space-y-2 rounded-xl border border-primary-200/80 bg-primary-50 p-3 dark:border-primary-400/20 dark:bg-primary-500/10"
           data-test="subscription-bulk-actions"
         >
           <div class="flex flex-wrap items-center gap-2">
-            <span class="mr-2 text-sm font-medium text-primary-800 dark:text-primary-200">
+            <span class="mr-2 text-sm font-medium tabular-nums text-primary-600 dark:text-primary-200">
               {{ t('admin.subscriptions.bulk.selected', { count: selectedCount }) }}
             </span>
             <button
@@ -378,10 +379,10 @@
           <template #cell-expires_at="{ value }">
             <div v-if="value">
               <span
-                class="text-sm"
+                class="num text-xs"
                 :class="
                   isExpiringSoon(value)
-                    ? 'text-orange-600 dark:text-orange-400'
+                    ? 'text-ember-600 dark:text-ember-400'
                     : 'text-gray-700 dark:text-gray-300'
                 "
               >
@@ -1635,7 +1636,7 @@ onUnmounted(() => {
 }
 
 .usage-amount {
-  @apply whitespace-nowrap text-xs tabular-nums text-gray-600 dark:text-gray-300;
+  @apply whitespace-nowrap font-mono text-[11px] tabular-nums tracking-tight text-gray-600 dark:text-gray-300;
 }
 
 .reset-info {

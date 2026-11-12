@@ -1,12 +1,13 @@
 <template>
   <AppLayout>
-    <div class="space-y-6 pb-12">
+    <div class="page-stagger space-y-6 pb-12">
       <!-- Ops-style elevated shell: title toolbar + filters (mirrors OpsDashboardHeader) -->
       <section
         class="card sticky top-0 z-20 p-0 backdrop-blur-xl supports-[backdrop-filter]:bg-white/90 dark:supports-[backdrop-filter]:bg-dark-900/90"
       >
         <header class="page-header mb-0 flex flex-wrap items-start justify-between gap-4 border-b border-gray-100 px-5 py-4 dark:border-dark-800 sm:px-6">
           <div class="min-w-0">
+            <p class="kicker mb-1.5"><span class="signal-dot"></span>LIVE STATUS</p>
             <h1 class="page-title flex items-center gap-2.5 !text-xl">
               <span class="stat-icon stat-icon-primary !h-8 !w-8 !text-base">
                 <Icon name="chart" size="sm" />
@@ -204,7 +205,9 @@
         :class="showThroughput ? 'xl:grid-cols-5' : 'xl:grid-cols-4'"
         :aria-label="t('channelMonitorV2.summaryAria')"
       >
+        <!-- 首要指标做 card-tinted 染色点缀（class 透传到 MetricCell 根节点，仅此一格） -->
         <MetricCell
+          class="card-tinted"
           :label="t('channelMonitorV2.metrics.successRate')"
           :value="formatPercent(1 - snapshot.metrics.error_rate)"
           :detail="t('channelMonitorV2.metrics.errorRateValue', { value: formatPercent(snapshot.metrics.error_rate) })"
@@ -274,7 +277,8 @@
       </div>
 
       <section class="card flex min-h-0 flex-col overflow-hidden">
-        <div class="border-b border-gray-100 px-5 py-3 dark:border-dark-800 sm:px-6">
+        <div class="flex flex-wrap items-center gap-3 border-b border-gray-100 px-5 py-3 dark:border-dark-800 sm:px-6">
+          <span class="kicker hidden sm:inline-flex">BREAKDOWN</span>
           <nav class="tabs w-full max-w-md sm:w-auto" role="tablist" :aria-label="t('channelMonitorV2.tabs.aria')">
             <button
               v-for="item in tabs"
@@ -322,16 +326,16 @@
                     </div>
                   </td>
                   <td>
-                    <span class="block">{{ formatPercent(1 - row.metrics.error_rate) }}</span>
+                    <span class="num block">{{ formatPercent(1 - row.metrics.error_rate) }}</span>
                     <small class="text-xs text-gray-400">{{ t('channelMonitorV2.metrics.errorRateValue', { value: formatPercent(row.metrics.error_rate) }) }}</small>
                   </td>
                   <td>
-                    <span class="block">{{ formatMs(row.metrics.ttft.p50_ms) }}</span>
+                    <span class="num block">{{ formatMs(row.metrics.ttft.p50_ms) }}</span>
                     <small class="text-xs text-gray-400">{{ latencyDetail(row.metrics.ttft) }}</small>
                   </td>
-                  <td v-if="showThroughput" :title="exactTps(row.metrics.tpm)">{{ formatTps(row.metrics.tpm) }}</td>
-                  <td>{{ formatPercent(row.metrics.cache_rate) }}</td>
-                  <td v-if="showThroughput">{{ formatRate(row.metrics.rpm) }}</td>
+                  <td v-if="showThroughput" class="num" :title="exactTps(row.metrics.tpm)">{{ formatTps(row.metrics.tpm) }}</td>
+                  <td class="num">{{ formatPercent(row.metrics.cache_rate) }}</td>
+                  <td v-if="showThroughput" class="num">{{ formatRate(row.metrics.rpm) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -423,16 +427,16 @@
                     </strong>
                   </td>
                   <td>
-                    <span class="block">{{ formatPercent(1 - row.metrics.error_rate) }}</span>
+                    <span class="num block">{{ formatPercent(1 - row.metrics.error_rate) }}</span>
                     <small class="text-xs text-gray-400">{{ t('channelMonitorV2.metrics.errorRateValue', { value: formatPercent(row.metrics.error_rate) }) }}</small>
                   </td>
                   <td>
-                    <span class="block">{{ formatMs(row.metrics.ttft.p50_ms) }}</span>
+                    <span class="num block">{{ formatMs(row.metrics.ttft.p50_ms) }}</span>
                     <small class="text-xs text-gray-400">{{ latencyDetail(row.metrics.ttft) }}</small>
                   </td>
-                  <td v-if="showThroughput" :title="exactTps(row.metrics.tpm)">{{ formatTps(row.metrics.tpm) }}</td>
-                  <td>{{ formatPercent(row.metrics.cache_rate) }}</td>
-                  <td v-if="showThroughput">{{ formatRate(row.metrics.rpm) }}</td>
+                  <td v-if="showThroughput" class="num" :title="exactTps(row.metrics.tpm)">{{ formatTps(row.metrics.tpm) }}</td>
+                  <td class="num">{{ formatPercent(row.metrics.cache_rate) }}</td>
+                  <td v-if="showThroughput" class="num">{{ formatRate(row.metrics.rpm) }}</td>
                 </tr>
               </tbody>
             </table>

@@ -9,7 +9,8 @@
   >
     <form id="bulk-edit-keys-form" class="space-y-5" @submit.prevent="submit">
       <div class="space-y-1 text-sm">
-        <p class="font-medium text-gray-950 dark:text-white">
+        <p class="kicker">BULK EDIT</p>
+        <p class="font-medium tabular-nums text-gray-950 dark:text-white">
           {{ t('keys.bulkEdit.selectedCount', { count: pendingKeys.length }) }}
         </p>
         <p class="text-gray-500 dark:text-dark-400">{{ t('keys.bulkEdit.hint') }}</p>

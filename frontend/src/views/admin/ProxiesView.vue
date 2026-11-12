@@ -3,6 +3,7 @@
     <TablePageLayout>
       <template #filters>
         <div class="flex flex-wrap items-center gap-3">
+          <span class="kicker w-full sm:w-auto"><span class="signal-dot"></span>PROXIES</span>
           <!-- Left: Search + Filters -->
           <div class="relative w-full sm:w-64">
             <Icon

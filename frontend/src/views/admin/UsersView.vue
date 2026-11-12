@@ -6,6 +6,7 @@
         <div class="flex flex-wrap items-center gap-3">
           <!-- Left: Search + Active Filters -->
           <div class="flex flex-1 flex-wrap items-center gap-3">
+            <span class="kicker w-full sm:w-auto"><span class="signal-dot"></span>USERS</span>
             <!-- Search Box -->
             <div class="relative w-full md:w-64">
               <Icon
@@ -299,7 +300,7 @@
                   {{ value.charAt(0).toUpperCase() }}
                 </span>
               </div>
-              <span class="font-medium text-gray-900 dark:text-white">{{ value }}</span>
+              <span class="font-mono text-[13px] font-medium text-gray-900 dark:text-white">{{ value }}</span>
             </div>
           </template>
 
@@ -581,31 +582,29 @@
           </template>
 
           <template #cell-status="{ value }">
-            <div class="flex items-center gap-1.5">
+            <span :class="['badge', value === 'active' ? 'badge-success' : 'badge-danger']">
               <span
                 :class="[
-                  'inline-block h-2 w-2 rounded-full',
-                  value === 'active' ? 'bg-green-500' : 'bg-red-500'
+                  'inline-block h-1.5 w-1.5 rounded-full',
+                  value === 'active' ? 'bg-emerald-500' : 'bg-red-500'
                 ]"
               ></span>
-              <span class="text-sm text-gray-700 dark:text-gray-300">
-                {{ value === 'active' ? t('common.active') : t('admin.users.disabled') }}
-              </span>
-            </div>
+              {{ value === 'active' ? t('common.active') : t('admin.users.disabled') }}
+            </span>
           </template>
 
           <template #cell-created_at="{ value }">
-            <span class="text-sm text-gray-500 dark:text-dark-400">{{ formatDateTime(value) }}</span>
+            <span class="num text-xs text-gray-500 dark:text-dark-400">{{ formatDateTime(value) }}</span>
           </template>
 
           <template #cell-last_used_at="{ value }">
-            <span class="text-sm text-gray-500 dark:text-dark-400">
+            <span class="num text-xs text-gray-500 dark:text-dark-400">
               {{ value ? formatDateTime(value) : '-' }}
             </span>
           </template>
 
           <template #cell-last_active_at="{ value }">
-            <span class="text-sm text-gray-500 dark:text-dark-400">
+            <span class="num text-xs text-gray-500 dark:text-dark-400">
               {{ value ? formatDateTime(value) : '-' }}
             </span>
           </template>

@@ -109,10 +109,10 @@ function methodColor(type: string): string {
 }
 
 function rankClass(idx: number): string {
-  // 由强到弱：ember 浅底加描边 → 中性浅灰底 → 仅描边 → 纯文字
+  // 由强到弱：ember 浅底加描边 → primary 浅底加描边 → primary 仅描边 → 纯文字（与 TopUsersLeaderboard 保持一致）
   if (idx === 0) return 'bg-ember-100 text-ember-700 ring-1 ring-inset ring-ember-300 dark:bg-ember-500/20 dark:text-ember-300 dark:ring-ember-400/50'
-  if (idx === 1) return 'bg-gray-100 text-gray-700 ring-1 ring-inset ring-gray-200 dark:bg-dark-800 dark:text-dark-200 dark:ring-dark-700'
-  if (idx === 2) return 'text-gray-600 ring-1 ring-inset ring-gray-200 dark:text-dark-300 dark:ring-dark-700'
+  if (idx === 1) return 'bg-primary-50 text-primary-700 ring-1 ring-inset ring-primary-200 dark:bg-primary-500/15 dark:text-primary-300 dark:ring-primary-400/40'
+  if (idx === 2) return 'text-primary-600 ring-1 ring-inset ring-primary-200 dark:text-primary-300 dark:ring-primary-400/30'
   return 'text-gray-500 dark:text-dark-400'
 }
 
